@@ -8,17 +8,14 @@ import com.hanghae99.boilerplate.security.handler.AjaxAuthenticationFailureHandl
 import com.hanghae99.boilerplate.security.handler.AjaxAuthenticationSuccessHandler;
 import com.hanghae99.boilerplate.security.model.login.LoginRequestDto;
 import com.hanghae99.boilerplate.security.util.WebUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import springfox.documentation.spi.service.contexts.SecurityContextBuilder;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;

@@ -35,6 +35,7 @@ public class AjaxAuthenticationProvider implements AuthenticationProvider {
         if(!passwordEncoder.matches(password,member.getPassword())){
             throw new BadCredentialsException("패스워드가 일치하지 않습니다");
         }
+
         MemberContext  memberContext = MemberContext.create(member.getEmail(),
                 member.getRoles().stream().map(role ->
                         new SimpleGrantedAuthority(authentication.toString())).collect(Collectors.toList()));

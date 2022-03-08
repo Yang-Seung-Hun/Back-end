@@ -17,8 +17,8 @@ import java.io.IOException;
 @Component
 public class AjaxAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
-    @Autowired
-    ObjectMapper objectMapper;
+
+    ObjectMapper objectMapper=new ObjectMapper();
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {

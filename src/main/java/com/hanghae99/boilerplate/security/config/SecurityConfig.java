@@ -1,12 +1,20 @@
 package com.hanghae99.boilerplate.security.config;
 
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hanghae99.boilerplate.repository.MemberRepository;
+import com.hanghae99.boilerplate.repository.RefreshTokenRepository;
 import com.hanghae99.boilerplate.security.Exception.AjaxAccessDeniedHandler;
 import com.hanghae99.boilerplate.security.Exception.AjaxLoginAuthenticationEntryPoint;
+import com.hanghae99.boilerplate.security.SkipPathRequestMatcher;
 import com.hanghae99.boilerplate.security.filter.AjaxLoginProcessingFilter;
+import com.hanghae99.boilerplate.security.filter.JwtTokenAuthenticationProcessingFilter;
 import com.hanghae99.boilerplate.security.handler.AjaxAuthenticationFailureHandler;
 import com.hanghae99.boilerplate.security.handler.AjaxAuthenticationSuccessHandler;
+import com.hanghae99.boilerplate.security.jwt.TokenFactory;
+import com.hanghae99.boilerplate.security.jwt.extractor.TokenExtractor;
 import com.hanghae99.boilerplate.security.provider.AjaxAuthenticationProvider;
+import com.hanghae99.boilerplate.security.provider.JwtAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,10 +23,11 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,9 +35,10 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity(debug = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
+    public static final String AUTHENTICATION_HEADER_NAME = "Authentitcation";
     public static final String AUTHENTICATION_URL = "/api/login";
-
+    public static final String API_ROOT_URL = "/api/**";
+    public static final String REFRESH_TOKEN_URL = "/api/token";
     @Autowired
     AuthenticationManager authenticationManager;
     @Autowired
@@ -41,8 +51,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     AjaxAccessDeniedHandler deniedHandler;
 
+    @Autowired
+    JwtAuthenticationProvider jwtAuthenticationProvider;
 
+    @Autowired
+    AjaxAuthenticationFailureHandler failureHandler;
+    @Autowired
+    AjaxAuthenticationSuccessHandler successHandler;
 
+    @Autowired
+    TokenExtractor tokenExtractor;
+    @Autowired
+    TokenFactory tokenFactory;
+
+    @Autowired
+    MemberRepository memberRepository;
+    @Autowired
+    RefreshTokenRepository refreshTokenRepository;
 
     @Bean
     public ObjectMapper objectMapper() {
@@ -61,38 +86,54 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
-    protected AjaxLoginProcessingFilter buildAjaxLoginProcessingFilter(String loginEntryPoint) throws Exception {
-        AjaxLoginProcessingFilter filter = new AjaxLoginProcessingFilter(loginEntryPoint,
-                new AjaxAuthenticationSuccessHandler(),new AjaxAuthenticationFailureHandler());
+    //AUTHENTICATION_URL만 AjaxLoginProcessingFilter를지난다
+    protected AjaxLoginProcessingFilter buildAjaxLoginProcessingFilter() throws Exception {
+        AjaxLoginProcessingFilter filter = new AjaxLoginProcessingFilter(AUTHENTICATION_URL,
+                new AjaxAuthenticationSuccessHandler(tokenFactory, memberRepository,refreshTokenRepository), new AjaxAuthenticationFailureHandler());
         filter.setAuthenticationManager(this.authenticationManager);
         return filter;
     }
 
+    //REFRESH_TOKEN_URL,와 AUTHENTICATION_URL는 스킵하고 API_ROOT_URL는 모두 인가처리해라
+    protected JwtTokenAuthenticationProcessingFilter buildJwtTokenAuthenticationProcessingFilter() throws Exception {
+        List<String> pathsToSkip = Arrays.asList(REFRESH_TOKEN_URL, AUTHENTICATION_URL);
+        SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, API_ROOT_URL);
+        JwtTokenAuthenticationProcessingFilter filter = new JwtTokenAuthenticationProcessingFilter(failureHandler, tokenExtractor, matcher);
+        filter.setAuthenticationManager(this.authenticationManager);
+        return filter;
+    }
+
+
     @Override //csutom userDetailsService 와 passwordEncoder를  authenticationManger이 사용하도록
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(ajaxAuthenticationProvider);
+        auth.authenticationProvider(jwtAuthenticationProvider);
         String password = passwordEncoder().encode("1111");
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
         auth.inMemoryAuthentication().withUser("user").password(password).roles("USER");
         auth.inMemoryAuthentication().withUser("admin").password(password).roles("ADMIN");
-
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        List<String> permitAllEndpointList = Arrays.asList(
-                AUTHENTICATION_URL
-        );
         http.csrf().disable()
-                        .exceptionHandling()
-                                .accessDeniedHandler(deniedHandler)
-                                        .authenticationEntryPoint(entryPoint);
+                .exceptionHandling()
+                .accessDeniedHandler(deniedHandler)
+                .authenticationEntryPoint(entryPoint);
+        http
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.
+
                 authorizeRequests()
+                .antMatchers(REFRESH_TOKEN_URL).permitAll() // Token refresh end-point
                 .antMatchers("/").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .addFilterBefore(buildAjaxLoginProcessingFilter(AUTHENTICATION_URL), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(buildAjaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(buildJwtTokenAuthenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
+
+
     }
 }

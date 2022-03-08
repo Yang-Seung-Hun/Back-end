@@ -23,6 +23,8 @@ public class UserDetailsImpl implements UserDetails {
     @JsonIgnore
     private String password;
 
+    private String nickname;
+
     //유저가 가진 권한들
     private Collection<? extends  GrantedAuthority> authorities;
 

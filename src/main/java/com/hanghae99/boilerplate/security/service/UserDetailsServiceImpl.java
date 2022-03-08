@@ -24,7 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Member member = memberRepository.findByEmail(email).orElseThrow(
                 ()-> new UsernameNotFoundException("Not found user -> "+email)
         );
-        return new UserDetailsImpl(member.getId(),member.getEmail(),member.getPassword(),
+        return new UserDetailsImpl(member.getId(),member.getEmail(),member.getPassword(),member.getNickname(),
                 member.getRoles().stream()
                         .map(role -> new SimpleGrantedAuthority(role.name())).collect(Collectors.toList()));
     }

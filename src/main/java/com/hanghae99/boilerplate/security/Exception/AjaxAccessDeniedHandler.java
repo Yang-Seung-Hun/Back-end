@@ -1,5 +1,6 @@
 package com.hanghae99.boilerplate.security.Exception;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -15,9 +16,10 @@ public class AjaxAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+        ObjectMapper objectMapper = new ObjectMapper();
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpStatus.FORBIDDEN.value());
-        response.sendError(HttpServletResponse.SC_FORBIDDEN ,accessDeniedException.getMessage());
+        objectMapper.writeValue(response.getWriter(), ExceptionResponse.of(HttpStatus.UNAUTHORIZED,accessDeniedException.getMessage()));
 
     }
 }
