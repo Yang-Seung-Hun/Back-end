@@ -18,6 +18,7 @@ public class AccessToken implements JwtToken {
     @JsonIgnore
     private Claims claims;
 
+
     @Override
     public String getToken() {
         return this.rawToken;

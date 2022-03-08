@@ -2,15 +2,25 @@ package com.hanghae99.boilerplate.security.jwt.extractor;
 
 
 import io.jsonwebtoken.*;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
 
 
 @Component
 public class TokenVerifier {
 
-    public Jws<Claims>  validateToken(String jwtToken, String secretKey) {
+    public static String HEADER_PREFIX = "Bearer ";
+
+
+    public Jws<Claims> validateToken(String jwtToken, String secretKey) {
+
+        if (jwtToken == null || jwtToken.isBlank()) {
+            throw new AuthenticationServiceException("Authorization header cannot be blank");
+        }
+        if (jwtToken.length() < HEADER_PREFIX.length()) {
+            throw new AuthenticationServiceException("Wrong Token format");
+        }
+        jwtToken = jwtToken.substring(HEADER_PREFIX.length(), jwtToken.length());
         Jws<Claims> claims = null;
         try {
             claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);

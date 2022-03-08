@@ -39,6 +39,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String AUTHENTICATION_URL = "/api/login";
     public static final String API_ROOT_URL = "/api/**";
     public static final String REFRESH_TOKEN_URL = "/api/token";
+
+
     @Autowired
     AuthenticationManager authenticationManager;
     @Autowired
