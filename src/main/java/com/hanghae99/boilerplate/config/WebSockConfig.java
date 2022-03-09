@@ -21,7 +21,10 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // stomp webSocket 연결의 endpoint
         // -> 개발 서버의 접속 주소: ws://localhost:8080/ws-stomp
-        registry.addEndpoint("/ws-stomp").setAllowedOrigins("*")
-                .withSockJS();
+//        registry.addEndpoint("/ws-stomp").setAllowedOrigins("*")
+//                .withSockJS();
+        // cors 대응을 위한 시도..
+        registry.addEndpoint("/ws-stomp").setAllowedOriginPatterns("*")
+                .withSockJS().setSupressCors(true);
     }
 }

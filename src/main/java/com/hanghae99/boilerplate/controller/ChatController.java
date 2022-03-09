@@ -7,7 +7,6 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-
 @RequiredArgsConstructor
 @Controller
 @CrossOrigin
