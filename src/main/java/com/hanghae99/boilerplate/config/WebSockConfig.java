@@ -1,22 +1,27 @@
 package com.hanghae99.boilerplate.config;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.socket.WebSocketHandler;
-import org.springframework.web.socket.config.annotation.EnableWebSocket;
-import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
-import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-@RequiredArgsConstructor
+
 @Configuration
-@EnableWebSocket
-public class WebSockConfig implements WebSocketConfigurer {
-
-    private final WebSocketHandler webSocketHandler;
+@EnableWebSocketMessageBroker
+public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(webSocketHandler, "/ws/chat").setAllowedOrigins("*");
+    public void configureMessageBroker(MessageBrokerRegistry config) {
+        config.enableSimpleBroker("/sub"); // 메시지 구독 요청의 prefix
+        config.setApplicationDestinationPrefixes("/pub");  // 메시지 발행 요청의 prefix
     }
 
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        // stomp webSocket 연결의 endpoint
+        // -> 개발 서버의 접속 주소: ws://localhost:8080/ws-stomp
+        registry.addEndpoint("/ws-stomp").setAllowedOrigins("*")
+                .withSockJS();
+    }
 }
