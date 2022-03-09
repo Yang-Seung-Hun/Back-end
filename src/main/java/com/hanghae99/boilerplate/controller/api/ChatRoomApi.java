@@ -1,12 +1,15 @@
 package com.hanghae99.boilerplate.controller.api;
 
 import com.hanghae99.boilerplate.model.ChatRoom;
+import com.hanghae99.boilerplate.model.ChatRoomDto;
 import com.hanghae99.boilerplate.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -25,10 +28,13 @@ public class ChatRoomApi {
 
     // 채팅방 생성 (채팅방명을 파라미터로)
     @PostMapping("/room")
-    public ResponseEntity<ChatRoom> createRoom(@RequestParam String name) {
+    public ResponseEntity<Map<String, String>> createRoom(@RequestBody ChatRoomDto dto) {
         //todo 방생성시 동일한 이름 중복되지 않게 해야 할 것.
-        ChatRoom room = chatRoomRepository.createChatRoom(name);
-        return ResponseEntity.ok().body(room);
+        ChatRoom room = chatRoomRepository.createChatRoom(dto.getName());
+        Map<String, String> map = new HashMap<>();
+        map.put("roomId", room.getRoomId());
+        map.put("roomName", room.getName());
+        return ResponseEntity.ok().body(map);
     }
 
     // 특정 채팅방 조회
