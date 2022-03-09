@@ -2,12 +2,14 @@ package com.hanghae99.boilerplate.controller;
 
 import com.hanghae99.boilerplate.model.ChatMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RequiredArgsConstructor
+@Slf4j
 @Controller
 @CrossOrigin
 public class ChatController {
@@ -23,5 +25,6 @@ public class ChatController {
         if (ChatMessage.MessageType.ENTER.equals(message.getType()))
             message.setMessage(message.getSender() + "님이 입장하셨습니다.");
         messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
+        log.info("받은 chatMessage의 sender는: {}", message.getSender());
     }
 }
