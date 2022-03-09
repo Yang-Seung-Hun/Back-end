@@ -91,6 +91,7 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
 
     //저장되었을 수 있는 임시 인증 관련 데이터 제거
 //     인증 프로세스 중 세션에서..
+/*    @Override
     protected final void clearAuthenticationAttributes(HttpServletRequest request) {
         HttpSession session = request.getSession();
 
@@ -99,5 +100,5 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
         }
         //필요 없는 데이터들을 security context
         session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
-    }
+    }*/
 }

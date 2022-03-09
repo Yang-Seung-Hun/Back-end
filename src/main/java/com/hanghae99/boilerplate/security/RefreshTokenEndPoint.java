@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.hanghae99.boilerplate.security.jwt.extractor.TokenVerifier.HEADER_PREFIX;
 
 
 @RestController
