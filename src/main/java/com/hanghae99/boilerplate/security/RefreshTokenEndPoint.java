@@ -21,16 +21,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.security.sasl.AuthenticationException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.hanghae99.boilerplate.security.jwt.extractor.TokenVerifier.HEADER_PREFIX;
@@ -49,21 +48,27 @@ public class RefreshTokenEndPoint {
     TokenFactory tokenFactory;
 
     //여기로 들어오는건 리프레시 토큰이 온다
-    @GetMapping("/api/token")
+    @PostMapping("/api/token")
     @Transactional
 
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setCharacterEncoding("UTF-8");
         ObjectMapper objectMapper = new ObjectMapper();
-
         String email = new String();
-        String header = request.getHeader(SecurityConfig.AUTHENTICATION_HEADER_NAME);
-        if (header == null || header.isBlank()) {
-            objectMapper.writeValue(response.getWriter(), ExceptionResponse.of(HttpStatus.BAD_REQUEST, "token is not null and not  balnk "));
-            return;
-        }
+
         try {
-            String token = header.substring(HEADER_PREFIX.length(), header.length());
+            List<Cookie> cookies = Arrays.stream(request.getCookies()).collect(Collectors.toList());
+            if (cookies == null || cookies.size() == 0) {
+                objectMapper.writeValue(response.getWriter(), ExceptionResponse.of(HttpStatus.BAD_REQUEST, "please login!!"));
+                return;
+            }
+
+
+            String token = cookies.get(0).getValue();
+            if (token == null || token.isBlank()) {
+                objectMapper.writeValue(response.getWriter(), ExceptionResponse.of(HttpStatus.BAD_REQUEST, "pleas login"));
+                return;
+            }
+
             Jws<Claims> jwsClaims = tokenVerifier.validateToken(token, jwtConfig.getTokenSigningKey());
             email = jwsClaims.getBody().getSubject();
             Optional<RefreshTokenDB> refreshToken = refreshTokenRepository.findById(email);
@@ -74,28 +79,28 @@ public class RefreshTokenEndPoint {
                 throw new AuthenticationException("pleas login!");
             }
 
-
-
             List<String> scopes = jwsClaims.getBody().get("scopes", List.class);
             List<GrantedAuthority> authorityList = scopes.stream()
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
-            Map<String, String> tokenMap = new HashMap<String, String>();
 
+
+            Map<String, String> tokenMap = new HashMap<String, String>();
             MemberContext context = MemberContext.create(email, authorityList);
             tokenMap.put("access_token", tokenFactory.createAccessToken(context).getToken());
+
+
             response.setStatus(HttpStatus.OK.value());
             objectMapper.writeValue(response.getWriter(), tokenMap);
 
 
-
+        } catch (NullPointerException e) {
+            objectMapper.writeValue(response.getWriter(), ExceptionResponse.of(HttpStatus.BAD_REQUEST, e.getMessage()));
         } catch (ExpiredJwtException | AuthenticationException e) {
-
             refreshTokenRepository.deleteToken(email);
             objectMapper.writeValue(response.getWriter(), ExceptionResponse.of(HttpStatus.UNAUTHORIZED, e.getMessage()));
         } catch (Exception e) {
             objectMapper.writeValue(response.getWriter(), ExceptionResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
-
         }
     }
 

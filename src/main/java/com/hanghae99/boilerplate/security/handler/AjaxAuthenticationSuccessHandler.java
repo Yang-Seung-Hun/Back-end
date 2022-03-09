@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -63,11 +64,17 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
 
         Map<String, String> tokenMap = new HashMap<String, String>();
         tokenMap.put("access_token", accessToken.getToken());
-        tokenMap.put("refresh_token", refreshToken.getToken());
+
+
+        Cookie cookie = new Cookie("Authentitcation",refreshToken.getToken());
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(60 * 60* 24);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
         refreshTokenRepository.deleteToken(memberContext.getUsername());
         refreshTokenRepository.save(new RefreshTokenDB(memberContext.getUsername(),
                 refreshToken.getToken()));
-
 
         Optional<String> nickname = memberRepository.getNickname(memberContext.getUsername());
           if(nickname.isPresent()){
@@ -76,7 +83,6 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
           else{
               tokenMap.put("$$$$", nickname.get());
           }
-
 
 
         objectMapper.writeValue(response.getWriter(), tokenMap);

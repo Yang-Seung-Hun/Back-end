@@ -36,7 +36,7 @@ import java.util.List;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String AUTHENTICATION_HEADER_NAME = "Authentitcation";
     public static final String AUTHENTICATION_URL = "/api/login";
-    public static final String API_ROOT_URL = "/auth/**";
+    public static final String AUTH_ROOT_URL = "/auth/**";
     public static final String REFRESH_TOKEN_URL = "/api/token";
     public static final String SIGNUP_URL = "/api/**";
 
@@ -98,7 +98,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     //REFRESH_TOKEN_URL,와 AUTHENTICATION_URL는 스킵하고 API_ROOT_URL는 모두 인가처리해라
     protected JwtTokenAuthenticationProcessingFilter buildJwtTokenAuthenticationProcessingFilter() throws Exception {
         List<String> pathsToSkip = Arrays.asList(REFRESH_TOKEN_URL ,SIGNUP_URL, AUTHENTICATION_URL);
-        SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, API_ROOT_URL);
+        SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, AUTH_ROOT_URL);
         JwtTokenAuthenticationProcessingFilter filter = new JwtTokenAuthenticationProcessingFilter(failureHandler, tokenExtractor, matcher);
         filter.setAuthenticationManager(this.authenticationManager);
         return filter;
@@ -128,7 +128,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
         http.
-
                 authorizeRequests()
                 .antMatchers(REFRESH_TOKEN_URL,SIGNUP_URL).permitAll()// Token refresh end-point
                 .antMatchers("/").permitAll()
