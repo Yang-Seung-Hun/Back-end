@@ -23,12 +23,21 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	// https://mvnrepository.com/artifact/org.projectlombok/lombok
-	compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.22'
+//	compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.22'
+
+	compileOnly 'org.projectlombok:lombok:1.18.22'
+	annotationProcessor 'org.projectlombok:lombok:1.18.22'
+
+	testCompileOnly 'org.projectlombok:lombok:1.18.22'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
 
 
 	//swagger
 	implementation "io.springfox:springfox-swagger-ui:3.0.0"
 	implementation "io.springfox:springfox-boot-starter:3.0.0"
+
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
 
 }
 
