@@ -13,6 +13,12 @@ public interface MemberRepository extends JpaRepository<Member , Long> {
 
     @Query("select m.nickname from Member m " +
             "where " +
-            "m.email=:email")
+            "m.email = :email")
     Optional<String>  getNickname(@Param("email")String email);
+
+    @Query("select m.nickname from Member m " +
+            "where " +
+            "m.email=:email")
+    Optional<String>  getEmail(@Param("email")String email);
+
 }

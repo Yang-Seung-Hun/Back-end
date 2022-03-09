@@ -17,10 +17,8 @@ public class TokenVerifier {
         if (jwtToken == null || jwtToken.isBlank()) {
             throw new AuthenticationServiceException("Authorization header cannot be blank");
         }
-        if (jwtToken.length() < HEADER_PREFIX.length()) {
-            throw new AuthenticationServiceException("Wrong Token format");
-        }
-        jwtToken = jwtToken.substring(HEADER_PREFIX.length(), jwtToken.length());
+
+//      String  jwtToken = header.substring(HEADER_PREFIX.length(), header.length());
         Jws<Claims> claims = null;
         try {
             claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);

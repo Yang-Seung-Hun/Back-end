@@ -7,6 +7,7 @@ import com.hanghae99.boilerplate.security.jwt.extractor.TokenVerifier;
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -29,8 +30,13 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        RawAccessToken rawAccessJwtToken = (RawAccessToken)authentication.getCredentials();
-        Jws<Claims> jwsClaims = tokenVerifier.validateToken(rawAccessJwtToken.getToken(), jwtConfig.getTokenSigningKey());
+        RawAccessToken rawAccessToken =(RawAccessToken)authentication.getCredentials();
+        Jws<Claims> jwsClaims;
+        try {
+            jwsClaims = tokenVerifier.validateToken(rawAccessToken.getToken(), jwtConfig.getTokenSigningKey());
+        }catch (JwtException e){
+            throw new JwtException(e.getMessage());
+        }
         String sub =jwsClaims.getBody().getSubject();
         List<String> scopes = jwsClaims.getBody().get("scopes", List.class);
         List<GrantedAuthority> authorityList = scopes.stream()

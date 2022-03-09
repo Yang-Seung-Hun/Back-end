@@ -1,7 +1,6 @@
 package com.hanghae99.boilerplate.security.config;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.repository.MemberRepository;
 import com.hanghae99.boilerplate.repository.RefreshTokenRepository;
 import com.hanghae99.boilerplate.security.Exception.AjaxAccessDeniedHandler;
@@ -25,7 +24,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
@@ -37,8 +36,9 @@ import java.util.List;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String AUTHENTICATION_HEADER_NAME = "Authentitcation";
     public static final String AUTHENTICATION_URL = "/api/login";
-    public static final String API_ROOT_URL = "/api/**";
+    public static final String API_ROOT_URL = "/auth/**";
     public static final String REFRESH_TOKEN_URL = "/api/token";
+    public static final String SIGNUP_URL = "/api/**";
 
 
     @Autowired
@@ -71,15 +71,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     RefreshTokenRepository refreshTokenRepository;
 
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
+    @Autowired
+    PasswordEncoder passwordEncoder;
+//    @Bean
+//    public ObjectMapper objectMapper() {
+//        return new ObjectMapper();
+//    }
 
-    @Bean
-    protected BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+
 
     @Bean
     @Override
@@ -91,14 +90,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     //AUTHENTICATION_URL만 AjaxLoginProcessingFilter를지난다
     protected AjaxLoginProcessingFilter buildAjaxLoginProcessingFilter() throws Exception {
         AjaxLoginProcessingFilter filter = new AjaxLoginProcessingFilter(AUTHENTICATION_URL,
-                new AjaxAuthenticationSuccessHandler(tokenFactory, memberRepository,refreshTokenRepository), new AjaxAuthenticationFailureHandler());
+                new AjaxAuthenticationSuccessHandler(tokenFactory, memberRepository,refreshTokenRepository), failureHandler);
         filter.setAuthenticationManager(this.authenticationManager);
         return filter;
     }
 
     //REFRESH_TOKEN_URL,와 AUTHENTICATION_URL는 스킵하고 API_ROOT_URL는 모두 인가처리해라
     protected JwtTokenAuthenticationProcessingFilter buildJwtTokenAuthenticationProcessingFilter() throws Exception {
-        List<String> pathsToSkip = Arrays.asList(REFRESH_TOKEN_URL, AUTHENTICATION_URL);
+        List<String> pathsToSkip = Arrays.asList(REFRESH_TOKEN_URL ,SIGNUP_URL, AUTHENTICATION_URL);
         SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, API_ROOT_URL);
         JwtTokenAuthenticationProcessingFilter filter = new JwtTokenAuthenticationProcessingFilter(failureHandler, tokenExtractor, matcher);
         filter.setAuthenticationManager(this.authenticationManager);
@@ -110,8 +109,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(ajaxAuthenticationProvider);
         auth.authenticationProvider(jwtAuthenticationProvider);
-        String password = passwordEncoder().encode("1111");
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        String password = passwordEncoder.encode("1111");
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
         auth.inMemoryAuthentication().withUser("user").password(password).roles("USER");
         auth.inMemoryAuthentication().withUser("admin").password(password).roles("ADMIN");
     }
@@ -119,6 +118,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
+                .cors().disable()
                 .exceptionHandling()
                 .accessDeniedHandler(deniedHandler)
                 .authenticationEntryPoint(entryPoint);
@@ -126,10 +126,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
+
         http.
 
                 authorizeRequests()
-                .antMatchers(REFRESH_TOKEN_URL).permitAll() // Token refresh end-point
+                .antMatchers(REFRESH_TOKEN_URL,SIGNUP_URL).permitAll()// Token refresh end-point
                 .antMatchers("/").permitAll()
                 .anyRequest().authenticated()
                 .and()

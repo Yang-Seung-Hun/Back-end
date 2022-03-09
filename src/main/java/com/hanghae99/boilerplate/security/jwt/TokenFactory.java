@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Array;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
@@ -68,5 +69,23 @@ public class TokenFactory {
 
             return new AccessToken(token, claims);
         }
+    public JwtToken createExpiredToken() {
+
+
+        LocalDateTime currentTime = LocalDateTime.now();
+
+        Claims claims = Jwts.claims().setSubject("$$$$");
+
+        String token = Jwts.builder()
+                .setClaims(claims)
+                .setIssuer(jwtConfig.getTokenIssuer())
+                .setIssuedAt(Date.from(currentTime.atZone(ZoneId.systemDefault()).toInstant()))
+                .setExpiration(Date.from(currentTime
+                        .atZone(ZoneId.systemDefault()).toInstant()))
+                .signWith(SignatureAlgorithm.HS512,jwtConfig.getExpireSignKey())
+                .compact();
+
+        return new AccessToken(token, claims);
+    }
 
 }

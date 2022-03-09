@@ -14,16 +14,11 @@ import java.util.Collection;
 @Getter
 @Setter
 @AllArgsConstructor
-@EqualsAndHashCode(of="id")
 public class UserDetailsImpl implements UserDetails {
 
-    private Long id;
-    //email과 동일하다
     private String username;
     @JsonIgnore
     private String password;
-
-    private String nickname;
 
     //유저가 가진 권한들
     private Collection<? extends  GrantedAuthority> authorities;

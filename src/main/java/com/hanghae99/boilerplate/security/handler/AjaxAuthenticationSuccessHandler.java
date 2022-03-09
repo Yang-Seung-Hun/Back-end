@@ -8,6 +8,7 @@ import com.hanghae99.boilerplate.security.jwt.from.JwtToken;
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import com.hanghae99.boilerplate.security.model.RefreshTokenDB;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -23,38 +24,38 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-
     private MemberRepository memberRepository;
 
-
     private RefreshTokenRepository refreshTokenRepository;
+
     private TokenFactory tokenFactory;
 
 
-    public AjaxAuthenticationSuccessHandler(TokenFactory tokenFactory,MemberRepository memberRepository,RefreshTokenRepository refreshTokenRepository) {
+    public AjaxAuthenticationSuccessHandler(TokenFactory tokenFactory, MemberRepository memberRepository, RefreshTokenRepository refreshTokenRepository) {
         this.memberRepository = memberRepository;
-        this.tokenFactory=tokenFactory;
-        this.refreshTokenRepository=refreshTokenRepository;
+        this.tokenFactory = tokenFactory;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     ObjectMapper objectMapper = new ObjectMapper();
 
     //인증 성공시 호출된다  //name이 null일 일이 없다
     @Override
-    @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         response.setStatus(HttpStatus.OK.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
-        MemberContext memberContext = new MemberContext(authentication.getName(), (List<GrantedAuthority>) authentication.getAuthorities());
+        MemberContext memberContext = (MemberContext)authentication.getPrincipal();
 
         JwtToken accessToken = tokenFactory.createAccessToken(memberContext);
         JwtToken refreshToken = tokenFactory.createRefreshToken(memberContext);
@@ -63,16 +64,20 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
         Map<String, String> tokenMap = new HashMap<String, String>();
         tokenMap.put("access_token", accessToken.getToken());
         tokenMap.put("refresh_token", refreshToken.getToken());
-
+        refreshTokenRepository.deleteToken(memberContext.getUsername());
         refreshTokenRepository.save(new RefreshTokenDB(memberContext.getUsername(),
                 refreshToken.getToken()));
 
 
-        String nickname = memberRepository.getNickname(memberContext.getUsername()).orElse(
-                nickname = "$"
-        );
+        Optional<String> nickname = memberRepository.getNickname(memberContext.getUsername());
+          if(nickname.isPresent()){
+              tokenMap.put("nickname", nickname.get());
+          }
+          else{
+              tokenMap.put("$$$$", nickname.get());
+          }
 
-        tokenMap.put("nickname", nickname);
+
 
         objectMapper.writeValue(response.getWriter(), tokenMap);
     }

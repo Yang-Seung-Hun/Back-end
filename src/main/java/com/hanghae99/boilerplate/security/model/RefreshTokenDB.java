@@ -4,18 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
-@Entity
+@Entity(name = "refreshToken")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class RefreshTokenDB {
 
     @Id
-    private String eami;
+    @Column(name="email")
+    private String email;
+    @Column(nullable = false,length = 400)
     private String token;
 }
