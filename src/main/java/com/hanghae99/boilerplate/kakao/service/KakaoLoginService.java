@@ -4,11 +4,10 @@ package com.hanghae99.boilerplate.kakao.service;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.dto.responseDto.LoginResponseDto;
-import com.hanghae99.boilerplate.exception.TemporaryUser;
+import com.hanghae99.boilerplate.kakao.TemporaryUser;
 import com.hanghae99.boilerplate.kakao.KakaoUserInformationDto;
 import com.hanghae99.boilerplate.kakao.common.Connection;
 import com.hanghae99.boilerplate.kakao.common.RegisterMember;
-import com.hanghae99.boilerplate.repository.MemberRepository;
 import com.hanghae99.boilerplate.repository.RefreshTokenRepository;
 import com.hanghae99.boilerplate.security.jwt.TokenFactory;
 import com.hanghae99.boilerplate.security.jwt.from.JwtToken;
@@ -20,13 +19,10 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
-import javax.print.attribute.standard.Media;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.*;
 import java.io.*;
 import java.net.MalformedURLException;
-import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -38,14 +34,12 @@ public class KakaoLoginService {
 
     @Autowired
     Connection connection;
-
     @Autowired
     TokenFactory tokenFactory;
     @Autowired
     RegisterMember registerMember;
     @Autowired
     ObjectMapper objectMapper;
-
     @Autowired
     RefreshTokenRepository  refreshTokenRepository;
 

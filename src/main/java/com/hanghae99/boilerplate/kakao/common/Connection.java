@@ -4,20 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.hanghae99.boilerplate.dto.requestDto.SignupReqestDto;
-import com.hanghae99.boilerplate.exception.TemporaryUser;
+import com.hanghae99.boilerplate.kakao.TemporaryUser;
 import com.hanghae99.boilerplate.kakao.KakaoUserInformationDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import springfox.documentation.spring.web.json.Json;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Component
 public class Connection {

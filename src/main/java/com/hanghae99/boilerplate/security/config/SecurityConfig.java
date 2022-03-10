@@ -1,10 +1,12 @@
 package com.hanghae99.boilerplate.security.config;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.repository.MemberRepository;
 import com.hanghae99.boilerplate.repository.RefreshTokenRepository;
 import com.hanghae99.boilerplate.security.Exception.AjaxAccessDeniedHandler;
 import com.hanghae99.boilerplate.security.Exception.AjaxLoginAuthenticationEntryPoint;
+import com.hanghae99.boilerplate.security.RefreshTokenEndPoint;
 import com.hanghae99.boilerplate.security.SkipPathRequestMatcher;
 import com.hanghae99.boilerplate.security.filter.AjaxLoginProcessingFilter;
 import com.hanghae99.boilerplate.security.filter.JwtTokenAuthenticationProcessingFilter;
@@ -54,6 +56,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     AjaxAccessDeniedHandler deniedHandler;
 
     @Autowired
+    RefreshTokenEndPoint refreshTokenEndPoint;
+
+    @Autowired
     JwtAuthenticationProvider jwtAuthenticationProvider;
 
     @Autowired
@@ -73,10 +78,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     PasswordEncoder passwordEncoder;
-//    @Bean
-//    public ObjectMapper objectMapper() {
-//        return new ObjectMapper();
-//    }
+
+    @Autowired
+    ObjectMapper objectMapper;
 
 
 
@@ -87,10 +91,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
-    //AUTHENTICATION_URL만 AjaxLoginProcessingFilter를지난다
+    //AUTHENTICATION_URL만 AjaxLoginProcessingFilter(로그인 담당(를지난다
     protected AjaxLoginProcessingFilter buildAjaxLoginProcessingFilter() throws Exception {
         AjaxLoginProcessingFilter filter = new AjaxLoginProcessingFilter(AUTHENTICATION_URL,
-                new AjaxAuthenticationSuccessHandler(tokenFactory, memberRepository,refreshTokenRepository), failureHandler);
+                new AjaxAuthenticationSuccessHandler(tokenFactory, memberRepository,refreshTokenRepository,objectMapper), failureHandler);
         filter.setAuthenticationManager(this.authenticationManager);
         return filter;
     }
@@ -99,7 +103,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected JwtTokenAuthenticationProcessingFilter buildJwtTokenAuthenticationProcessingFilter() throws Exception {
         List<String> pathsToSkip = Arrays.asList(REFRESH_TOKEN_URL ,SIGNUP_URL, AUTHENTICATION_URL);
         SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, AUTH_ROOT_URL);
-        JwtTokenAuthenticationProcessingFilter filter = new JwtTokenAuthenticationProcessingFilter(failureHandler, tokenExtractor, matcher);
+        JwtTokenAuthenticationProcessingFilter filter = new JwtTokenAuthenticationProcessingFilter(failureHandler, tokenExtractor, matcher
+        ,refreshTokenEndPoint);
         filter.setAuthenticationManager(this.authenticationManager);
         return filter;
     }

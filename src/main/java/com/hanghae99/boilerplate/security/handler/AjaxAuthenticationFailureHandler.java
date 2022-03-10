@@ -18,17 +18,16 @@ import java.io.IOException;
 public class AjaxAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
 
-    ObjectMapper objectMapper=new ObjectMapper();
+
+
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+        ObjectMapper objectMapper=new ObjectMapper();
+
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setCharacterEncoding("UTF-8");
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
-//        if(exception instanceof BadCredentialsException) {
-//            objectMapper.writeValue(response.getWriter(), ExceptionResponse.of(HttpStatus.UNAUTHORIZED,exception.getMessage()));
-//        }
 
         objectMapper.writeValue(response.getWriter(),ExceptionResponse.of(HttpStatus.UNAUTHORIZED,exception.getMessage()));
 

@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.exception;
+package com.hanghae99.boilerplate.kakao;
 
 import com.hanghae99.boilerplate.model.Role;
 import lombok.AllArgsConstructor;

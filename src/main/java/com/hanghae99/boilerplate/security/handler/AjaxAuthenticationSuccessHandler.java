@@ -40,14 +40,14 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
 
     private TokenFactory tokenFactory;
 
-
-    public AjaxAuthenticationSuccessHandler(TokenFactory tokenFactory, MemberRepository memberRepository, RefreshTokenRepository refreshTokenRepository) {
+    private ObjectMapper objectMapper;
+    public AjaxAuthenticationSuccessHandler(TokenFactory tokenFactory, MemberRepository memberRepository, RefreshTokenRepository refreshTokenRepository,ObjectMapper objectMapper) {
         this.memberRepository = memberRepository;
         this.tokenFactory = tokenFactory;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.objectMapper= objectMapper;
     }
 
-    ObjectMapper objectMapper = new ObjectMapper();
 
     //인증 성공시 호출된다  //name이 null일 일이 없다
     @Override

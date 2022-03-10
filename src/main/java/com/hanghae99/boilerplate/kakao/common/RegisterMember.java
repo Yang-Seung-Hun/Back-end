@@ -1,7 +1,7 @@
 package com.hanghae99.boilerplate.kakao.common;
 
 import com.hanghae99.boilerplate.dto.responseDto.LoginResponseDto;
-import com.hanghae99.boilerplate.exception.TemporaryUser;
+import com.hanghae99.boilerplate.kakao.TemporaryUser;
 import com.hanghae99.boilerplate.model.Member;
 import com.hanghae99.boilerplate.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;

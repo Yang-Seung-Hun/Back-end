@@ -8,6 +8,11 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * @code를 주고 받아온 데이터
+ */
+
 @Getter
 @Setter
 @NoArgsConstructor
