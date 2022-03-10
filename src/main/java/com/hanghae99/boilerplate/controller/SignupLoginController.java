@@ -30,7 +30,6 @@ public class SignupLoginController {
     }
 
 
-
     @PostMapping("/api/logout/{email}")
     public void  logout (HttpServletRequest request, HttpServletResponse response,@PathVariable String email) throws IOException {
         if(email==null|| email.isBlank() ){
@@ -40,6 +39,13 @@ public class SignupLoginController {
         signupLoginService.logoutRequest(request,response,email);
 
     }
+
+    //    @PostMapping("/auth/test")
+//    public String  test(HttpServletRequest request , HttpServletResponse response){
+//        System.out.println(response.getHeader(response.getHeader("access_token")));
+//        return  test ;
+//    }
+
 
 
 
