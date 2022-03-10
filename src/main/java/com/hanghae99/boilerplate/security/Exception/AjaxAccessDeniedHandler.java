@@ -19,7 +19,7 @@ public class AjaxAccessDeniedHandler implements AccessDeniedHandler {
         ObjectMapper objectMapper = new ObjectMapper();
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpStatus.FORBIDDEN.value());
-        objectMapper.writeValue(response.getWriter(), ExceptionResponse.of(HttpStatus.UNAUTHORIZED,accessDeniedException.getMessage()));
+        objectMapper.writeValue(response.getWriter(), ExceptionResponse.of(HttpStatus.FORBIDDEN,accessDeniedException.getMessage()));
 
     }
 }

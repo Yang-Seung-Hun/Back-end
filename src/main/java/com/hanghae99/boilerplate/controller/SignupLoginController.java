@@ -23,10 +23,8 @@ public class SignupLoginController {
     SignupLoginService signupLoginService;
 
     @PostMapping("/api/signup")
-    public ResponseEntity signup(@Valid @RequestBody SignupReqestDto signupReqest, Errors errors) {
-        if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors.getAllErrors());
-        }
+    public ResponseEntity signup(@Valid @RequestBody SignupReqestDto signupReqest) {
+
         signupLoginService.signupRequest(signupReqest);
         return ResponseEntity.ok().build();
     }
