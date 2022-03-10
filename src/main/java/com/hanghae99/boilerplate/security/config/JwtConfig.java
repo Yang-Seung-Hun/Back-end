@@ -14,7 +14,7 @@ import java.util.Set;
 @Setter
 public class JwtConfig {
     private final Integer tokenExpirationTime = 1; //60분
-    private Integer refreshTokenExpTime=120; //2시간
+    private Integer refreshTokenExpTime=3000; //2시간
     private String tokenIssuer = "http://choonsik2.site"; //토큰 소유자 정보
     private String tokenSigningKey="1234"; //  임시 암호화 키
 

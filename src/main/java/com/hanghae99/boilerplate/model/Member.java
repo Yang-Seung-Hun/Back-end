@@ -1,5 +1,6 @@
 package com.hanghae99.boilerplate.model;
 import com.hanghae99.boilerplate.dto.requestDto.SignupReqestDto;
+import com.hanghae99.boilerplate.exception.TemporaryUser;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +36,14 @@ public class Member {
         this.password= signupReqestDto.getPassword();
         this.nickname=signupReqestDto.getNickname();
         this.profileImageUrl = signupReqestDto.getProfileImageUrl();
+        this.roles.add(Role.USER);
+    }
+
+    public Member(TemporaryUser temporaryUser){
+        this.email = temporaryUser.getEmail();
+        this.profileImageUrl= temporaryUser.getProfileImageUrl();
+        this.nickname= temporaryUser.getNickname();
+        this.password="0000";
         this.roles.add(Role.USER);
     }
 }

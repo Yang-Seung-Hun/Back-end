@@ -1,6 +1,9 @@
 package com.hanghae99.boilerplate;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.dom4j.rule.Mode;
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -16,11 +19,19 @@ public class FinalProjectApplication {
 	@Bean
 	public ObjectMapper objectMapper(){
 		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
 		return objectMapper;
 	}
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
+	}
+
+
+	@Bean
+	public ModelMapper modelMapper(){
+		ModelMapper modelMapper = new ModelMapper();
+		return modelMapper;
 	}
 
 }
