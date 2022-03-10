@@ -8,6 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ChatRoomDto {
-    private String name;
-//    private String userId;
+    private String roomName;
+    private String moderator;
 }

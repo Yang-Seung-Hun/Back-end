@@ -22,8 +22,8 @@ public class ChatController {
     // 해당 주소를 구독하고 있는 클라이언트에게 전달됨.
     // 구독자(subscriber)에 대한 구현은 따로 서버에서 할 필요가 없음 - 웹뷰에서 stomp 라이브러리를 이용해 subscriber 주소를 바라보고 있도록 하면 됨.
     public void message(ChatMessage message) {
-        if (ChatMessage.MessageType.ENTER.equals(message.getType()))
-            message.setMessage(message.getSender() + "님이 입장하셨습니다.");
+//        if (ChatMessage.MessageType.ENTER.equals(message.getType()))
+//            message.setMessage(message.getSender() + "님이 입장하셨습니다.");
         messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
         log.info("받은 chatMessage의 sender는: {}", message.getSender());
     }
