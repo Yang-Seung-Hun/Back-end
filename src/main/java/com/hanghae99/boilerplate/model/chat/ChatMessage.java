@@ -1,11 +1,12 @@
-package com.hanghae99.boilerplate.model;
+package com.hanghae99.boilerplate.model.chat;
 
+import com.hanghae99.boilerplate.model.Timestamped;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class ChatMessage {
+public class ChatMessage extends Timestamped {
 
     // 메시지 타입 : 입장, 채팅, 퇴장
     public enum MessageType {

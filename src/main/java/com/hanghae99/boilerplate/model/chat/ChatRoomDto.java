@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.model;
+package com.hanghae99.boilerplate.model.chat;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,4 +10,7 @@ import lombok.Setter;
 public class ChatRoomDto {
     private String roomName;
     private String moderator;
+    private Long participantCount;
+    private String content;
+    private Boolean isPrivate;
 }

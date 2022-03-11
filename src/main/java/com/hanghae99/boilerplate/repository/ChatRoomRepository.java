@@ -1,35 +1,34 @@
 package com.hanghae99.boilerplate.repository;
 
-import com.hanghae99.boilerplate.model.ChatRoom;
-import org.springframework.stereotype.Repository;
+import com.hanghae99.boilerplate.model.chat.ChatRoom;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import javax.annotation.PostConstruct;
-import java.util.*;
+//@Repository
+public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
-@Repository
-public class ChatRoomRepository {
 
-    private Map<String, ChatRoom> chatRoomMap;
 
-    @PostConstruct
-    private void init() {
-        chatRoomMap = new LinkedHashMap<>();
-    }
+//    private Map<Long, ChatRoom> chatRoomMap;
 
-    public List<ChatRoom> findAllRoom() {
-        // 채팅방 생성순서 최근 순으로 반환
-        List chatRooms = new ArrayList<>(chatRoomMap.values());
-        Collections.reverse(chatRooms);
-        return chatRooms;
-    }
-
-    public ChatRoom findRoomById(String id) {
-        return chatRoomMap.get(id);
-    }
-
-    public ChatRoom createChatRoom(String roomName, String moderator) {
-        ChatRoom chatRoom = ChatRoom.create(roomName, moderator);
-        chatRoomMap.put(chatRoom.getRoomId(), chatRoom);
-        return chatRoom;
-    }
+//    @PostConstruct
+//    private void init() {
+//        chatRoomMap = new LinkedHashMap<>();
+//    }
+//
+//    public List<ChatRoom> findAllRoom() {
+//        // 채팅방 생성순서 최근 순으로 반환
+//        List chatRooms = new ArrayList<>(chatRoomMap.values());
+//        Collections.reverse(chatRooms);
+//        return chatRooms;
+//    }
+//
+//    public ChatRoom findRoomById(String id) {
+//        return chatRoomMap.get(id);
+//    }
+//
+//    public ChatRoom createChatRoom(ChatRoomDto chatRoomDto) {
+//        ChatRoom chatRoom = new ChatRoom(chatRoomDto);
+//        chatRoomMap.put(chatRoom.getRoomId(), chatRoom);
+//        return chatRoom;
+//    }
 }

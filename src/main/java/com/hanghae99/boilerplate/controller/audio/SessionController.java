@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.controller.rtc;
+package com.hanghae99.boilerplate.controller.audio;
 
 import io.openvidu.java.client.*;
 import org.springframework.beans.factory.annotation.Value;

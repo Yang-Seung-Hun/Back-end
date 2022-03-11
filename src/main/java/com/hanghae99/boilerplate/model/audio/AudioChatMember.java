@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.model;
+package com.hanghae99.boilerplate.model.audio;
 
 import lombok.Data;
 

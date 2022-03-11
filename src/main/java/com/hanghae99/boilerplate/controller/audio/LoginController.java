@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.controller.rtc;
+package com.hanghae99.boilerplate.controller.audio;
 
 import io.openvidu.java.client.OpenViduRole;
 import org.springframework.stereotype.Controller;

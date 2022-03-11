@@ -1,8 +1,8 @@
-package com.hanghae99.boilerplate.controller.rtc;
+package com.hanghae99.boilerplate.controller.audio;
 
-import com.hanghae99.boilerplate.model.AudioChatMember;
-import com.hanghae99.boilerplate.model.AudioChatRole;
-import com.hanghae99.boilerplate.model.ChatLeaveDto;
+import com.hanghae99.boilerplate.model.audio.AudioChatMember;
+import com.hanghae99.boilerplate.model.audio.AudioChatRole;
+import com.hanghae99.boilerplate.model.audio.AudioChatLeaveDto;
 import io.openvidu.java.client.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -122,7 +122,7 @@ public class AudioController {
     }
 
     @PostMapping(value = "/leave")
-    public ResponseEntity<Object> leaveRoom(@RequestBody ChatLeaveDto chatLeaveDto) {
+    public ResponseEntity<Object> leaveRoom(@RequestBody AudioChatLeaveDto chatLeaveDto) {
 
         log.info("채팅방 퇴장 요청입니다.", chatLeaveDto);
 
@@ -148,7 +148,7 @@ public class AudioController {
             } else {
                 // 유효한 토큰이 아닌 경우
                 log.info("유효하지 않은 토큰입니다! 제출한 토큰은 {}", token);
-                String message = "유효하지 않은 토큰입니다! 제출한 토큰은" + token;
+                String message = "유효하지 않은 토큰입니다! 제출한 토큰은 " + token;
                 return ResponseEntity.badRequest().body(message);
             }
         } else {
