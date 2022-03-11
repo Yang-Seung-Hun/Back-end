@@ -23,5 +23,6 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
         // cors 대응을 위한 시도..
         registry.addEndpoint("/ws-stomp").setAllowedOriginPatterns("*")
                 .withSockJS().setSupressCors(true);
+        //todo 동섭님께 부탁해서 연결해서 1) setSupressCors 지우고 해보기
     }
 }

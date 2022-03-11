@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.rtc;
+package com.hanghae99.boilerplate.controller.rtc;
 
 import io.openvidu.java.client.OpenViduRole;
 import org.springframework.stereotype.Controller;
@@ -27,9 +27,12 @@ public class LoginController {
 		}
 	}
 
+	// 임시 회원들
 	public static Map<String, MyUser> users = new ConcurrentHashMap<>();
 
 	public LoginController() {
+		// 임시로 역할별 회원 만들어 놓기
+		users.put("moderator", new MyUser("moderator", "pass", OpenViduRole.MODERATOR));
 		users.put("publisher1", new MyUser("publisher1", "pass", OpenViduRole.PUBLISHER));
 		users.put("publisher2", new MyUser("publisher2", "pass", OpenViduRole.PUBLISHER));
 		users.put("subscriber", new MyUser("subscriber", "pass", OpenViduRole.SUBSCRIBER));

@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class ChatMessage {
 
-    // 메시지 타입 : 입장, 채팅
+    // 메시지 타입 : 입장, 채팅, 퇴장
     public enum MessageType {
         ENTER, CHAT, LEAVE
     }
