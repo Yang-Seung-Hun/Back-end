@@ -15,7 +15,7 @@ public class RegisterMember {
         @Autowired
         private MemberRepository memberRepository;
 
-        public Optional<LoginResponseDto> register(TemporaryUser temporaryUser){
+        public Optional<LoginResponseDto> registerKakaoUserToMember(TemporaryUser temporaryUser){
             Member member = new Member(temporaryUser);
 
             LoginResponseDto loginResponseDto = new LoginResponseDto(member.getEmail(), member.getNickname(),member.getRoles());

@@ -48,7 +48,7 @@ public class KakaoLoginService {
 
     @JsonIgnoreProperties
     @Transactional
-    public void  getKakaoToken(HttpServletResponse response, String code) throws Exception {
+    public void  getKakaoUserInformaiton(HttpServletResponse response, String code) throws Exception {
         try {
 
 
@@ -58,7 +58,7 @@ public class KakaoLoginService {
 
             log.info(temporaryUser.toString());
 
-            Optional<LoginResponseDto> loginResponseDto= registerMember.register(temporaryUser);
+            Optional<LoginResponseDto> loginResponseDto= registerMember.registerKakaoUserToMember(temporaryUser);
 
             MemberContext memberContext = new MemberContext(loginResponseDto.get().getEmail(),
                    loginResponseDto.get().getRole().stream().map(role ->

@@ -20,8 +20,9 @@ import java.net.URL;
 public class Connection {
 
     @Autowired
-    ObjectMapper   objectMapper;
-    public KakaoUserInformationDto getaccessToken( String code) throws IOException {
+    ObjectMapper objectMapper;
+
+    public KakaoUserInformationDto getaccessToken(String code) throws IOException {
         URL url = new URL("https://kauth.kakao.com/oauth/token");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
@@ -33,20 +34,20 @@ public class Connection {
 
         stringBuilder.append("grant_type=authorization_code");
         stringBuilder.append("&client_id=91ee90dad2384a8f06ab7106b2f92daf");
-        stringBuilder.append("&redirect_uri=http://18.117.124.131/api/kakao/login");
+//        stringBuilder.append("&redirect_uri=http://18.117.124.131/api/kakao/login");
+        stringBuilder.append("&redirect_uri=http://localhost:8080/api/kakao/login");
         stringBuilder.append("&code=" + code);
 
         bufferedWriter.write(stringBuilder.toString());
         bufferedWriter.flush();
 
         int status = connection.getResponseCode();
-        if(status != 200) {
-            log.info("bad status : {}" ,status);
+        if (status != 200) {
+            log.info("bad status : {}", status);
             return null;
         }
-        JsonNode jsonNode = readConnectionInput(connection);
-        log.info(jsonNode.toPrettyString());
-        KakaoUserInformationDto user= objectMapper.treeToValue(jsonNode,KakaoUserInformationDto.class);
+        KakaoUserInformationDto user = objectMapper.readValue(readConnectionStringToObject(connection), KakaoUserInformationDto.class);
+        log.info(" get  kakao access_token  success");
         bufferedWriter.close();
 
 
@@ -57,40 +58,39 @@ public class Connection {
 
         String requestURL = "https://kapi.kakao.com/v2/user/me";
 
-        URL url =new URL(requestURL);
+        URL url = new URL(requestURL);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
         connection.setRequestProperty("Authorization", "Bearer " + token);
 
-        if(connection.getResponseCode() != 200) {
-            log.info("Connection.getUserData  >>>bad status : "+ connection.getResponseCode());
-
+        if (connection.getResponseCode() != 200) {
+            log.info("bad status : " + connection.getResponseCode());
             return null;
         }
 
-        JsonNode jsonNode = readConnectionInput(connection);
-        log.info( jsonNode.toPrettyString());
-        String connectedAt= jsonNode.get("connected_at").textValue();
+        JsonNode jsonNode = readConnectionStringToJson(connection);
+
+
+//        String connectedAt= jsonNode.get("connected_at").textValue();
 //        LocalDateTime register = StringToDate(connectedAt);
-       String nickname= jsonNode.get("properties").get("nickname").textValue();
-       String profileImageUrl = jsonNode.get("properties").get("profile_image").textValue();
-       String email = jsonNode.get("kakao_account").get("email").textValue();
+        String nickname = jsonNode.get("properties").get("nickname").textValue();
+        String profileImageUrl = jsonNode.get("properties").get("profile_image").textValue();
+        String email = jsonNode.get("kakao_account").get("email").textValue();
 
-       TemporaryUser temporaryUser = new TemporaryUser(email ,nickname ,profileImageUrl);
-
-       return temporaryUser;
+        TemporaryUser temporaryUser = new TemporaryUser(email, nickname, profileImageUrl);
+        log.info("success get kakao user infromation email:{}", temporaryUser.getEmail());
+        return temporaryUser;
 
     }
 
 
-
-    public JsonNode readConnectionInput(HttpURLConnection connection) throws IOException {
+    public JsonNode readConnectionStringToJson(HttpURLConnection connection) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String line="";
-        String result ="";
-        while((line= bufferedReader.readLine())!=null){
+        String line = "";
+        String result = "";
+        while ((line = bufferedReader.readLine()) != null) {
             result += line;
         }
         bufferedReader.close();
@@ -98,6 +98,17 @@ public class Connection {
         JsonElement element = jsonParser.parse(result);
         JsonNode jsonNode = objectMapper.readTree(result);
         return jsonNode;
+    }
+
+    public String readConnectionStringToObject(HttpURLConnection connection) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        String line = "";
+        String result = "";
+        while ((line = bufferedReader.readLine()) != null) {
+            result += line;
+        }
+        bufferedReader.close();
+        return result;
     }
 
 //    public LocalDateTime StringToDate(String date){

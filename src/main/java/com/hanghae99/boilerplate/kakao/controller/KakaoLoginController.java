@@ -24,8 +24,8 @@ public class KakaoLoginController {
 
     @Autowired
     KakaoLoginService kakaoLoginService;
-    private final String URL = "kauth.kakao.com/oauth/authorize?client_id=91ee90dad2384a8f06ab7106b2f92daf&redirect_uri=http://18.117.124.131/api/kakao/login&response_type=code";
-//        private final String URL = "kauth.kakao.com/oauth/authorize?client_id=91ee90dad2384a8f06ab7106b2f92daf&redirect_uri=http://localhost:8080/api/kakao/login&response_type=code";
+//    private final String URL = "kauth.kakao.com/oauth/authorize?client_id=91ee90dad2384a8f06ab7106b2f92daf&redirect_uri=http://18.117.124.131/api/kakao/login&response_type=code";
+        private final String URL = "kauth.kakao.com/oauth/authorize?client_id=91ee90dad2384a8f06ab7106b2f92daf&redirect_uri=http://localhost:8080/api/kakao/login&response_type=code";
 
     @Autowired
     ObjectMapper objectMapper;
@@ -37,7 +37,7 @@ public class KakaoLoginController {
     public void  kakaoLogin(HttpServletRequest request, HttpServletResponse response, @RequestParam String code) throws IOException {
         log.info("recive code : {}",code);
         try {
-            kakaoLoginService.getKakaoToken(response,code);
+            kakaoLoginService.getKakaoUserInformaiton(response,code);
 
         }catch (Exception e){
             log.info(e.getMessage());
