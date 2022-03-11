@@ -2,6 +2,7 @@ package com.hanghae99.boilerplate.security.provider;
 
 import com.hanghae99.boilerplate.model.Member;
 import com.hanghae99.boilerplate.security.model.MemberContext;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class AjaxAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
@@ -36,11 +38,14 @@ public class AjaxAuthenticationProvider implements AuthenticationProvider {
         UserDetails  member = userDetailsService.loadUserByUsername(email);
 
         if(!passwordEncoder.matches(password,member.getPassword())){
+            log.info("password not matches {} , {} ",member.getPassword(),password);
+            log.info("{}",password, member.getPassword());
             throw new BadCredentialsException("패스워드가 일치하지 않습니다");
         }
 
         MemberContext  memberContext = MemberContext.create(member.getUsername(),
                 (List<GrantedAuthority>) member.getAuthorities());
+        log.debug("id :{} , role :{} ",memberContext.getUsername(),memberContext.getAuthorities().get(0));
         return new UsernamePasswordAuthenticationToken(memberContext,null,memberContext.getAuthorities());
     }
 

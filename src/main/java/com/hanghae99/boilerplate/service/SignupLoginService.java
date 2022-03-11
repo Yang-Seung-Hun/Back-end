@@ -7,6 +7,7 @@ import com.hanghae99.boilerplate.repository.MemberRepository;
 import com.hanghae99.boilerplate.repository.RefreshTokenRepository;
 import com.hanghae99.boilerplate.security.jwt.TokenFactory;
 import com.hanghae99.boilerplate.security.jwt.from.JwtToken;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
@@ -19,9 +20,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.http.HttpResponse;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class SignupLoginService {
 
@@ -38,16 +41,22 @@ public class SignupLoginService {
     @Transactional
     public void signupRequest(SignupReqestDto signupReqestDto) {
         boolean result = memberRepository.getEmail(signupReqestDto.getEmail()).isPresent();
+        if (result) {
+            log.info("{} is already exist",signupReqestDto.getEmail());
+            throw new IllegalArgumentException(signupReqestDto.getEmail() + " already" + "Exist!");
+        }
         signupReqestDto.setPassword(passwordEncoder.encode(signupReqestDto.getPassword()));
-        if (result)
-            throw new IllegalArgumentException(signupReqestDto.getEmail() + " alread " + "Exist!");
         memberRepository.save(new Member(signupReqestDto));
+        log.info("{} ,nickname {}" ,signupReqestDto.getEmail(),signupReqestDto.getNickname());
+        log.info("{}  signup" ,signupReqestDto.getEmail());
 
     }
 
     public void logoutRequest(HttpServletRequest request, HttpServletResponse response,String email) throws IOException {
+        if(email!= null){
+            log.info("{} logout",email);
+        }
         refreshTokenRepository.deleteToken(email);
-
         JwtToken expiredToken = tokenFactory.createExpiredToken();
         Map<String, String> tokenMap = new HashMap<String, String>();
         tokenMap.put("access_token",expiredToken.getToken());

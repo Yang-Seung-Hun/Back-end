@@ -11,6 +11,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwt;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
@@ -33,6 +34,7 @@ import static java.util.Arrays.asList;
 
 
 //jwt로 인가를 검증해주는 필터
+@Slf4j
 public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
 
     private AuthenticationFailureHandler failureHandler;
@@ -62,6 +64,7 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
         try {
             Authentication authentication = getAuthenticationManager().authenticate(new JwtAuthenticationToken(token));
         } catch (ExpiredJwtException e) {
+            log.debug("access_token Expired {}",e.getMessage() );
             Optional<Jws<Claims>> jwt = refreshTokenEndPoint.getJwtClimas(request);
 
             if (jwt.isEmpty())
@@ -90,7 +93,6 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         SecurityContextHolder.clearContext();
-
         failureHandler.onAuthenticationFailure(request, response, failed);
     }
 }

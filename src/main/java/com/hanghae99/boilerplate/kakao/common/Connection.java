@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 import com.hanghae99.boilerplate.kakao.TemporaryUser;
 import com.hanghae99.boilerplate.kakao.KakaoUserInformationDto;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 @Component
-@Log4j2
+@Slf4j
 public class Connection {
 
     @Autowired
@@ -40,12 +41,11 @@ public class Connection {
 
         int status = connection.getResponseCode();
         if(status != 200) {
-            log.info("Connection.KakaoUserInformationDto  >>>bad status : "+ status);
+            log.info("bad status : {}" ,status);
             return null;
         }
         JsonNode jsonNode = readConnectionInput(connection);
-
-
+        log.info(jsonNode.toPrettyString());
         KakaoUserInformationDto user= objectMapper.treeToValue(jsonNode,KakaoUserInformationDto.class);
         bufferedWriter.close();
 
@@ -71,7 +71,7 @@ public class Connection {
         }
 
         JsonNode jsonNode = readConnectionInput(connection);
-        log.info("Connection.getUserData >>> " + jsonNode.toString());
+        log.info( jsonNode.toPrettyString());
         String connectedAt= jsonNode.get("connected_at").textValue();
 //        LocalDateTime register = StringToDate(connectedAt);
        String nickname= jsonNode.get("properties").get("nickname").textValue();

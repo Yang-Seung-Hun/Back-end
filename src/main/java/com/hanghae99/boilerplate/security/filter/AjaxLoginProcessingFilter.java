@@ -6,8 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.security.Exception.ExceptionResponse;
 import com.hanghae99.boilerplate.security.handler.AjaxAuthenticationFailureHandler;
 import com.hanghae99.boilerplate.security.handler.AjaxAuthenticationSuccessHandler;
-import com.hanghae99.boilerplate.security.model.login.LoginRequestDto;
+import com.hanghae99.boilerplate.security.model.login.      LoginRequestDto;
 import com.hanghae99.boilerplate.security.util.WebUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Slf4j
 public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingFilter {
 
     AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler;
@@ -44,9 +46,10 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
         response.setCharacterEncoding("UTF-8");
-        if (!HttpMethod.POST.name().equals(request.getMethod()) ||
-                !WebUtil.isContentTypeJson(request.getHeader(WebUtil.CONTENT_TYPE))) {
-            objectMapper.writeValue(response.getWriter(),ExceptionResponse.of(HttpStatus.BAD_REQUEST,"알맞지 않은 httpMethod 이거나 ,전송된 데이터 타입이 [application/json]이 아닙니다"));
+        if (!HttpMethod.POST.name().equals(request.getMethod())) {
+            log.info("HttpMethod not equal  POST");
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            objectMapper.writeValue(response.getWriter(),ExceptionResponse.of(HttpStatus.BAD_REQUEST,"Bad Reqest"));
            return null;
         }
 
@@ -57,14 +60,17 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
 //            IOException, JsonParseException, JsonMappingException
             return this.getAuthenticationManager().authenticate(token);
         } catch (JsonParseException|JsonMappingException| NullPointerException e  ){
+            log.info(e.getMessage());
             response.setStatus(HttpStatus.BAD_REQUEST.value());
             objectMapper.writeValue(response.getWriter(),ExceptionResponse.of(HttpStatus.BAD_REQUEST,e.getMessage()));
 
         }catch (BadCredentialsException e){
+            log.info(e.getMessage());
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             objectMapper.writeValue(response.getWriter(),ExceptionResponse.of(HttpStatus.UNAUTHORIZED,e.getMessage()));
         }
         catch (Exception e){
+            log.info( e.getMessage());
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             objectMapper.writeValue(response.getWriter(),ExceptionResponse.of(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage()));
         }

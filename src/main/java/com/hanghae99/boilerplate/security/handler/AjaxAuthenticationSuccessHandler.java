@@ -7,6 +7,7 @@ import com.hanghae99.boilerplate.security.jwt.TokenFactory;
 import com.hanghae99.boilerplate.security.jwt.from.JwtToken;
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import com.hanghae99.boilerplate.security.model.RefreshTokenDB;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.HttpStatus;
@@ -30,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
+@Slf4j
 @Component
 public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -56,31 +57,38 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
-        MemberContext memberContext = (MemberContext)authentication.getPrincipal();
+        try {
+            MemberContext memberContext = (MemberContext) authentication.getPrincipal();
 
-        JwtToken accessToken = tokenFactory.createAccessToken(memberContext);
-        JwtToken refreshToken = tokenFactory.createRefreshToken(memberContext);
-
-
-        Map<String, String> tokenMap = new HashMap<String, String>();
-        tokenMap.put("access_token", accessToken.getToken());
+            JwtToken accessToken = tokenFactory.createAccessToken(memberContext);
+            JwtToken refreshToken = tokenFactory.createRefreshToken(memberContext);
 
 
-        Cookie cookie = new Cookie("Authentitcation",refreshToken.getToken());
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(60 * 60* 24);
-        cookie.setPath("/");
-        response.addCookie(cookie);
-
-        refreshTokenRepository.deleteToken(memberContext.getUsername());
-        refreshTokenRepository.save(new RefreshTokenDB(memberContext.getUsername(),
-                refreshToken.getToken()));
-
-        Optional<String> nickname = memberRepository.getNickname(memberContext.getUsername());
-        nickname.ifPresent(s -> tokenMap.put("nickname", s));
+            Map<String, String> tokenMap = new HashMap<String, String>();
+            tokenMap.put("access_token", accessToken.getToken());
 
 
-        objectMapper.writeValue(response.getWriter(), tokenMap);
+            Cookie cookie = new Cookie("Authentitcation", refreshToken.getToken());
+            cookie.setHttpOnly(true);
+            cookie.setMaxAge(60 * 60 * 24);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+
+            refreshTokenRepository.deleteToken(memberContext.getUsername());
+            refreshTokenRepository.save(new RefreshTokenDB(memberContext.getUsername(),
+                    refreshToken.getToken()));
+
+            Optional<String> nickname = memberRepository.getNickname(memberContext.getUsername());
+            nickname.ifPresent(s -> tokenMap.put("nickname", s));
+
+
+            objectMapper.writeValue(response.getWriter(), tokenMap);
+        }
+        catch (IllegalArgumentException e){
+            log.debug("{}",e.getMessage());
+        }catch (NullPointerException e){
+            log.debug(e.getMessage());
+        }
     }
 
 

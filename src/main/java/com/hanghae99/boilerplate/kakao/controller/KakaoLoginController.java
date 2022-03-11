@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.kakao.service.KakaoLoginService;
 import com.hanghae99.boilerplate.security.Exception.ExceptionResponse;
 import io.jsonwebtoken.MalformedJwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 
 @RestController
+@Slf4j
+
 public class KakaoLoginController {
 
     @Autowired
@@ -32,10 +35,12 @@ public class KakaoLoginController {
      */
     @GetMapping("/api/kakao/login")
     public void  kakaoLogin(HttpServletRequest request, HttpServletResponse response, @RequestParam String code) throws IOException {
+        log.info("recive code : {}",code);
         try {
             kakaoLoginService.getKakaoToken(response,code);
 
         }catch (Exception e){
+            log.info(e.getMessage());
             objectMapper.writeValue(response.getWriter(),
                     ExceptionResponse.of(HttpStatus.NOT_ACCEPTABLE,e.getMessage()));
         }

@@ -130,7 +130,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
 
-        http.cors(Customizer.withDefaults())
+        http.cors()
+                .and()
                 .csrf().disable()
                 .exceptionHandling()
                 .accessDeniedHandler(deniedHandler)
@@ -156,6 +157,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.addAllowedOrigin("http://localhost:3000");
+        corsConfiguration.addAllowedOrigin("http://localhost:3001");
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setExposedHeaders(List.of("*"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
@@ -163,8 +166,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
         //주소를 특저애향함
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000",
-                "http://localhost:3001"));
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
 

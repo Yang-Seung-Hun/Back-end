@@ -2,6 +2,7 @@ package com.hanghae99.boilerplate.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.security.Exception.ExceptionResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,15 +15,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+@Slf4j
 @Component
 public class AjaxAuthenticationFailureHandler implements AuthenticationFailureHandler {
-
-
-
-
-
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+        log.debug("Authentication fail");
         ObjectMapper objectMapper=new ObjectMapper();
 
         response.setStatus(HttpStatus.UNAUTHORIZED.value());

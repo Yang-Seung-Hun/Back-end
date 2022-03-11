@@ -16,6 +16,7 @@ import com.hanghae99.boilerplate.security.model.RefreshTokenDB;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class RefreshTokenEndPoint {
 
     @Autowired
@@ -60,8 +62,10 @@ public class RefreshTokenEndPoint {
                 }
             }
         }catch (Exception e){
+            log.debug("{}" ,e.getMessage());
             return Optional.empty();
         }
+        log.debug("request.getCookies is empty or cookie.getName not matche Authentitcation" );
         return Optional.empty();
     }
     @Transactional(readOnly = true)
@@ -76,6 +80,7 @@ public class RefreshTokenEndPoint {
             MemberContext memberContext = MemberContext.create(email, authorityList);
             return Optional.of(memberContext);
         }catch (Exception e){
+            log.debug("{} ",e.getMessage());
             return Optional.empty();
         }
     }

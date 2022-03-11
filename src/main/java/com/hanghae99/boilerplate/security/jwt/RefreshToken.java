@@ -2,10 +2,12 @@ package com.hanghae99.boilerplate.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 public class RefreshToken {
     private Jws<Claims> claimsJws;
 
@@ -20,6 +22,7 @@ public class RefreshToken {
 
         if (scopes == null || scopes.isEmpty() ||
                 !scopes.stream().filter(s -> Scopes.REFRESH_TOKEN.authority().equals(s)).findFirst().isPresent()) {
+            log.info("RefreshToken.create >> scopes is null || scopes is empty.");
             return Optional.empty();
         }
         return Optional.of(new RefreshToken(claims));
