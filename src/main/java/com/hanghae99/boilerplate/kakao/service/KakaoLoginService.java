@@ -13,11 +13,13 @@ import com.hanghae99.boilerplate.security.jwt.TokenFactory;
 import com.hanghae99.boilerplate.security.jwt.from.JwtToken;
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import com.hanghae99.boilerplate.security.model.RefreshTokenDB;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -29,8 +31,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Log4j2
 public class KakaoLoginService {
-
 
     @Autowired
     Connection connection;
@@ -44,6 +46,7 @@ public class KakaoLoginService {
     RefreshTokenRepository  refreshTokenRepository;
 
     @JsonIgnoreProperties
+    @Transactional
     public void  getKakaoToken(HttpServletResponse response, String code) throws Exception {
         try {
 
@@ -51,6 +54,8 @@ public class KakaoLoginService {
             KakaoUserInformationDto user = connection.getaccessToken(code);
 
             TemporaryUser temporaryUser=  connection.getUserData(user.getAccess_token());
+
+            log.info("DEBUG >>> kakaoLoginService.getKakaoToken() : "+temporaryUser.toString());
 
             Optional<LoginResponseDto> loginResponseDto= registerMember.register(temporaryUser);
 
@@ -60,6 +65,8 @@ public class KakaoLoginService {
 
             JwtToken accessToken = tokenFactory.createAccessToken(memberContext);
             JwtToken refreshToken = tokenFactory.createRefreshToken(memberContext);
+            log.info("DEBUG >>> kakaoLoginService.getKakaoToken() : access_token >"+accessToken.toString());
+            log.info("DEBUG >>> kakaoLoginService.getKakaoToken() : refresh_token >"+refreshToken.toString());
 
             refreshTokenRepository.save(new RefreshTokenDB(memberContext.getUsername(), refreshToken.getToken()));
 
@@ -81,10 +88,13 @@ public class KakaoLoginService {
 
 
         } catch (MalformedURLException e) {
+            log.info("ERROR >>> kakaoLoginService.getKakaoToken() : "+e.toString()  );
             throw new MalformedURLException("bad request");
         } catch (IOException e) {
+            log.info("ERROR >>> kakaoLoginService.getKakaoToken() : "+e.toString()  );
             e.printStackTrace();
         }  catch (Exception e){
+            log.info("ERROR >>> kakaoLoginService.getKakaoToken() : "+e.toString()  );
             throw new Exception(e.getMessage());
         }
     }

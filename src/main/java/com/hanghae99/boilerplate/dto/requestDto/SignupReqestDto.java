@@ -14,8 +14,6 @@ public class SignupReqestDto {
     @NotBlank(message = "email을 입력하세요")
     private String email;
 
-
-
     @NotBlank(message = "nickname을 입력하세요")
     private String nickname;
 

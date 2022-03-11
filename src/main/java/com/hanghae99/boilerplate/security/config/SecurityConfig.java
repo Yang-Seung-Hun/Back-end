@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -28,6 +29,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 
 import java.util.Arrays;
@@ -37,6 +41,8 @@ import java.util.List;
 @EnableWebSecurity(debug = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String AUTHENTICATION_HEADER_NAME = "Authentitcation";
+    public static final String SWAGGER = "/swagger-ui/**";
+    public static final String SWAGGER_DOCS = "/swagger-resources/**";
     public static final String AUTHENTICATION_URL = "/api/login";
     public static final String AUTH_ROOT_URL = "/auth/**";
     public static final String REFRESH_TOKEN_URL = "/api/token";
@@ -66,6 +72,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     AjaxAuthenticationSuccessHandler successHandler;
 
+
     @Autowired
     TokenExtractor tokenExtractor;
     @Autowired
@@ -83,7 +90,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     ObjectMapper objectMapper;
 
 
-
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -94,17 +100,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     //AUTHENTICATION_URL만 AjaxLoginProcessingFilter(로그인 담당(를지난다
     protected AjaxLoginProcessingFilter buildAjaxLoginProcessingFilter() throws Exception {
         AjaxLoginProcessingFilter filter = new AjaxLoginProcessingFilter(AUTHENTICATION_URL,
-                new AjaxAuthenticationSuccessHandler(tokenFactory, memberRepository,refreshTokenRepository,objectMapper), failureHandler);
+                new AjaxAuthenticationSuccessHandler(tokenFactory, memberRepository, refreshTokenRepository, objectMapper), failureHandler);
         filter.setAuthenticationManager(this.authenticationManager);
         return filter;
     }
 
     //REFRESH_TOKEN_URL,와 AUTHENTICATION_URL는 스킵하고 API_ROOT_URL는 모두 인가처리해라
     protected JwtTokenAuthenticationProcessingFilter buildJwtTokenAuthenticationProcessingFilter() throws Exception {
-        List<String> pathsToSkip = Arrays.asList(REFRESH_TOKEN_URL ,SIGNUP_URL, AUTHENTICATION_URL);
+        List<String> pathsToSkip = Arrays.asList(REFRESH_TOKEN_URL, SIGNUP_URL, AUTHENTICATION_URL, SWAGGER, SWAGGER_DOCS);
         SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, AUTH_ROOT_URL);
         JwtTokenAuthenticationProcessingFilter filter = new JwtTokenAuthenticationProcessingFilter(failureHandler, tokenExtractor, matcher
-        ,refreshTokenEndPoint);
+                , refreshTokenEndPoint);
         filter.setAuthenticationManager(this.authenticationManager);
         return filter;
     }
@@ -122,8 +128,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .cors().disable()
+
+
+        http.cors(Customizer.withDefaults())
+                .csrf().disable()
                 .exceptionHandling()
                 .accessDeniedHandler(deniedHandler)
                 .authenticationEntryPoint(entryPoint);
@@ -131,11 +139,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-
+        http.logout()
+                .logoutUrl("/api/logout/{email}")
+                .deleteCookies(AUTHENTICATION_HEADER_NAME);
         http.
                 authorizeRequests()
-                .antMatchers(REFRESH_TOKEN_URL,SIGNUP_URL).permitAll()// Token refresh end-point
-                .antMatchers("/").permitAll()
+                .antMatchers(SIGNUP_URL, SWAGGER, SWAGGER_DOCS).permitAll()// Token refresh end-point
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(buildAjaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
@@ -143,4 +152,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setExposedHeaders(List.of("*"));
+        corsConfiguration.setAllowedHeaders(List.of("*"));
+        corsConfiguration.setAllowedMethods(List.of("*"));
+
+
+        //주소를 특저애향함
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000",
+                "http://localhost:3001"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfiguration);
+
+        return source;
+
+    }
 }
+
+
+

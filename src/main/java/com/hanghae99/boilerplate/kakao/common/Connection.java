@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.hanghae99.boilerplate.kakao.TemporaryUser;
 import com.hanghae99.boilerplate.kakao.KakaoUserInformationDto;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 @Component
+@Log4j2
 public class Connection {
 
     @Autowired
@@ -21,7 +23,6 @@ public class Connection {
     public KakaoUserInformationDto getaccessToken( String code) throws IOException {
         URL url = new URL("https://kauth.kakao.com/oauth/token");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
 
@@ -31,16 +32,17 @@ public class Connection {
 
         stringBuilder.append("grant_type=authorization_code");
         stringBuilder.append("&client_id=91ee90dad2384a8f06ab7106b2f92daf");
-        stringBuilder.append("&redirect_uri=http://localhost:8080/api/kakao/login");
+        stringBuilder.append("&redirect_uri=http://18.117.124.131/api/kakao/login");
         stringBuilder.append("&code=" + code);
 
         bufferedWriter.write(stringBuilder.toString());
         bufferedWriter.flush();
 
         int status = connection.getResponseCode();
-        if(status != 200)
+        if(status != 200) {
+            log.info("Connection.KakaoUserInformationDto  >>>bad status : "+ status);
             return null;
-
+        }
         JsonNode jsonNode = readConnectionInput(connection);
 
 
@@ -62,10 +64,14 @@ public class Connection {
         connection.setDoOutput(true);
         connection.setRequestProperty("Authorization", "Bearer " + token);
 
-        if(connection.getResponseCode() != 200)
+        if(connection.getResponseCode() != 200) {
+            log.info("Connection.getUserData  >>>bad status : "+ connection.getResponseCode());
+
             return null;
+        }
 
         JsonNode jsonNode = readConnectionInput(connection);
+        log.info("Connection.getUserData >>> " + jsonNode.toString());
         String connectedAt= jsonNode.get("connected_at").textValue();
 //        LocalDateTime register = StringToDate(connectedAt);
        String nickname= jsonNode.get("properties").get("nickname").textValue();

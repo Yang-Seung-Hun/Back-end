@@ -85,7 +85,7 @@ public class RefreshTokenEndPoint {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, String> tokenMap = new HashMap<String, String>();
         AccessToken accessToken =  tokenFactory.createAccessToken(memberContext);
-        tokenMap.put("access_token",accessToken.getToken());
+        tokenMap.put("Authentitcation",accessToken.getToken());
         response.setStatus(HttpStatus.OK.value());
         response.setHeader("access_token",accessToken.getToken());
         objectMapper.writeValue(response.getWriter(), tokenMap);

@@ -77,12 +77,7 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
                 refreshToken.getToken()));
 
         Optional<String> nickname = memberRepository.getNickname(memberContext.getUsername());
-          if(nickname.isPresent()){
-              tokenMap.put("nickname", nickname.get());
-          }
-          else{
-              tokenMap.put("$$$$", nickname.get());
-          }
+        nickname.ifPresent(s -> tokenMap.put("nickname", s));
 
 
         objectMapper.writeValue(response.getWriter(), tokenMap);

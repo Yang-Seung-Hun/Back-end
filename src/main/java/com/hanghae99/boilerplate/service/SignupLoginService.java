@@ -52,16 +52,5 @@ public class SignupLoginService {
         Map<String, String> tokenMap = new HashMap<String, String>();
         tokenMap.put("access_token",expiredToken.getToken());
         objectMapper.writeValue(response.getWriter(), tokenMap);
-
-        Cookie cookie = new Cookie("Authentitcation","null");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(60 * 60* 24);
-        cookie.setPath("/");
-        response.addCookie(cookie);
-
-        response.setStatus(HttpStatus.OK.value());
-
-
-
     }
 }

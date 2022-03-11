@@ -21,7 +21,9 @@ public class KakaoLoginController {
 
     @Autowired
     KakaoLoginService kakaoLoginService;
-    private final String URL = "kauth.kakao.com/oauth/authorize?client_id=91ee90dad2384a8f06ab7106b2f92daf&redirect_uri=http://localhost:8080/api/kakao/login&response_type=code";
+    private final String URL = "kauth.kakao.com/oauth/authorize?client_id=91ee90dad2384a8f06ab7106b2f92daf&redirect_uri=http://18.117.124.131/api/kakao/login&response_type=code";
+//        private final String URL = "kauth.kakao.com/oauth/authorize?client_id=91ee90dad2384a8f06ab7106b2f92daf&redirect_uri=http://localhost:8080/api/kakao/login&response_type=code";
+
     @Autowired
     ObjectMapper objectMapper;
 
@@ -29,10 +31,10 @@ public class KakaoLoginController {
      * @callback
      */
     @GetMapping("/api/kakao/login")
-    public void kakaoLogin(HttpServletRequest request, HttpServletResponse response, @RequestParam String code) throws IOException {
+    public void  kakaoLogin(HttpServletRequest request, HttpServletResponse response, @RequestParam String code) throws IOException {
         try {
             kakaoLoginService.getKakaoToken(response,code);
-            return;
+
         }catch (Exception e){
             objectMapper.writeValue(response.getWriter(),
                     ExceptionResponse.of(HttpStatus.NOT_ACCEPTABLE,e.getMessage()));
