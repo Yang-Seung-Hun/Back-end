@@ -2,6 +2,7 @@ package com.hanghae99.boilerplate.controller.rtc;
 
 import com.hanghae99.boilerplate.model.AudioChatMember;
 import com.hanghae99.boilerplate.model.AudioChatRole;
+import com.hanghae99.boilerplate.model.ChatLeaveDto;
 import io.openvidu.java.client.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @RestController
 @RequestMapping("/api/audio")
+@CrossOrigin("*")
 public class AudioController {
 
     // OpenVidu object as entrypoint of the SDK
@@ -42,7 +44,7 @@ public class AudioController {
     // 토큰을 발급하는 api. 음성 채팅방에 입장하는 지점.
     // AudioChatMember 형식에 맞춘 requestBody 를 받아와서 발급해주는 것이 좋지 않을까.
     @PostMapping(value = "/join")
-    public ResponseEntity<Object> getSessionIdAndToken(@RequestBody AudioChatMember chatMember) {
+    public ResponseEntity<Object> getToken(@RequestBody AudioChatMember chatMember) {
         //todo 로그인과 연결 후에는 로그인하지 않은 사용자일 경우 unauthorized 로 400 리턴하는 로직 추가
 
         Long roomId = chatMember.getRoomId(); // 참여요청한 멤버가 들어가려는 방 고유번호
@@ -64,12 +66,10 @@ public class AudioController {
         ConnectionProperties connectionProperties = new ConnectionProperties.Builder().type(ConnectionType.WEBRTC)
                 .role(role).data(serverData).build();
 
-
         // 이미 생성된 음성채팅방에 대한 참여 요청일 경우
         if (this.mapSessions.get(roomId) != null) {
             log.info("이미 존재하는 room 에 대한 참여요청입니다. roomId = {}", roomId);
             try {
-
                 // 방금 막 생성한 connectionProperties 를 기반으로 token 만들기
                 String token = this.mapSessions.get(roomId).createConnection(connectionProperties).getToken();
 
@@ -85,7 +85,6 @@ public class AudioController {
                 map.put("etc", "참여요청 성공!");
 
                 return ResponseEntity.ok().body(map);
-
 
             } catch (Exception e) {
                 log.error("기존 방에 참여를 요청했으나 exception 발생. errorMessage = {}", e.getMessage());
@@ -119,9 +118,44 @@ public class AudioController {
                 log.error("새로운 방 개설을 요청했으나 exception 발생. errorMessage = {}", e.getMessage());
                 return ResponseEntity.badRequest().body(e.getMessage());
             }
-
         }
+    }
 
+    @PostMapping(value = "/leave")
+    public ResponseEntity<Object> leaveRoom(@RequestBody ChatLeaveDto chatLeaveDto) {
+
+        log.info("채팅방 퇴장 요청입니다.", chatLeaveDto);
+
+        Long roomId = chatLeaveDto.getRoomId();
+        String token = chatLeaveDto.getToken();
+        String memberName = chatLeaveDto.getMemberName();
+
+        // 존재하는 방에 대한 퇴장 요청인 경우
+        if (this.mapSessions.get(roomId) != null && this.mapSessionNamesTokens.get(roomId) != null) {
+
+            // 유효한 토큰이었고, 삭제작업이 진행됨.
+            if (this.mapSessionNamesTokens.get(roomId).remove(token) != null) {
+                // 해당 멤버 퇴장 성공
+                log.info("{}님이 room {}에서 퇴장 성공!", memberName, roomId);
+                // 그런데 이 roomId에 대한 토큰이 전혀 없다면 ( 해당 음성채팅방 참여자가 남지 않았다면 )
+                if (this.mapSessionNamesTokens.get(roomId).isEmpty()) {
+                    // roomId 로 열린 session 삭제
+                    this.mapSessions.remove(roomId);
+                    log.info("더 이상 남아있는 사람이 없어요. 채팅방 {}도 삭제됩니다.", roomId);
+                }
+                String message = roomId + "에 대한 퇴장 요청 성공, 퇴장한 memberName: " + memberName;
+                return ResponseEntity.ok().body(message);
+            } else {
+                // 유효한 토큰이 아닌 경우
+                log.info("유효하지 않은 토큰입니다! 제출한 토큰은 {}", token);
+                String message = "유효하지 않은 토큰입니다! 제출한 토큰은" + token;
+                return ResponseEntity.badRequest().body(message);
+            }
+        } else {
+            log.info("존재하지 않는 방에 대한 퇴장 요청입니다.", roomId);
+            String message = "존재하지 않는 방에 대한 퇴장 요청입니다.";
+            return ResponseEntity.badRequest().body(message);
+        }
     }
 
 }
