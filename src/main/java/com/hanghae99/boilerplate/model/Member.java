@@ -1,4 +1,5 @@
 package com.hanghae99.boilerplate.model;
+import com.hanghae99.boilerplate.board.domain.*;
 import com.hanghae99.boilerplate.dto.requestDto.SignupReqestDto;
 import com.hanghae99.boilerplate.kakao.TemporaryUser;
 import lombok.EqualsAndHashCode;
@@ -6,7 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -46,4 +49,29 @@ public class Member {
         this.password="0000";
         this.roles.add(Role.USER);
     }
+
+    //추가
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE })
+    private List<Board> boards;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE })
+    private List<Comment> comments;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE })
+    private List<Reply> replies;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE })
+    private List<Vote> votes;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE })
+    private List<RecommendBoard> recommendBoards;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE })
+    private List<RecommendComment> recommendComments;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE })
+    private List<MyBoard> myBoards;
 }

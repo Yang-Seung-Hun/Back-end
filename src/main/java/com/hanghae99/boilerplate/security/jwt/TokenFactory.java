@@ -30,6 +30,9 @@ public class TokenFactory {
         }
 
         Claims claims = Jwts.claims().setSubject(memberContext.getUsername());
+
+        claims.put("memberId", memberContext.getMemberId());
+
         claims.put("scopes", memberContext.getAuthorities().stream().map(Authority ->
                 Authority.toString()).collect(Collectors.toList()));
 
@@ -55,6 +58,9 @@ public class TokenFactory {
             LocalDateTime currentTime = LocalDateTime.now();
 
             Claims claims = Jwts.claims().setSubject(memberContext.getUsername());
+
+            claims.put("memberId", memberContext.getMemberId());
+
             claims.put("scopes", Arrays.asList(Scopes.REFRESH_TOKEN.authority()));
 
             String token = Jwts.builder()

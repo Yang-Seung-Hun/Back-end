@@ -39,13 +39,15 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         try {
             jwsClaims = tokenVerifier.validateToken(rawAccessToken.getToken(), jwtConfig.getTokenSigningKey());
 
+            Long memberId = jwsClaims.getBody().get("memberId", Long.class);
+
             String sub = jwsClaims.getBody().getSubject();
             List<String> scopes = jwsClaims.getBody().get("scopes", List.class);
             List<GrantedAuthority> authorityList = scopes.stream()
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
 
-            MemberContext context = MemberContext.create(sub, authorityList);
+            MemberContext context = MemberContext.create(memberId, sub, authorityList);
             //새로운 토큰을 발급해준다
             return new JwtAuthenticationToken(context, context.getAuthorities());
         } catch (SignatureException e) {

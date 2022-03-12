@@ -18,10 +18,11 @@ public class RegisterMember {
         public Optional<LoginResponseDto> registerKakaoUserToMember(TemporaryUser temporaryUser){
             Member member = new Member(temporaryUser);
 
-            LoginResponseDto loginResponseDto = new LoginResponseDto(member.getEmail(), member.getNickname(),member.getRoles());
+            LoginResponseDto loginResponseDto = new LoginResponseDto(member.getId(), member.getEmail(), member.getNickname(),member.getRoles());
 
            if (!memberRepository.findByEmail(temporaryUser.getEmail()).isPresent()){
-               memberRepository.save(member);
+               Member member1 = memberRepository.save(member);
+               loginResponseDto.setId(member1.getId());
            }
 
            return Optional.of(loginResponseDto);

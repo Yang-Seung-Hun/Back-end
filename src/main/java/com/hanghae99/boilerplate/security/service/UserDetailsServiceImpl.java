@@ -20,11 +20,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetailsImpl loadUserByUsername(String email) throws UsernameNotFoundException {
         Member member = memberRepository.findByEmail(email).orElseThrow(
                 ()-> new UsernameNotFoundException("Not found user -> "+email)
         );
-        return new UserDetailsImpl(member.getEmail(),member.getPassword(),member.getRoles().stream().map( role ->
+        return new UserDetailsImpl(member.getId(), member.getEmail(),member.getPassword(),member.getRoles().stream().map( role ->
                 new SimpleGrantedAuthority(role.name())).collect(Collectors.toList()));
     }
 }

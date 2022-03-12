@@ -77,7 +77,10 @@ public class RefreshTokenEndPoint {
             List<GrantedAuthority> authorityList = scopes.stream()
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
-            MemberContext memberContext = MemberContext.create(email, authorityList);
+
+            Long memberId = jws.getBody().get("memberId", Long.class);
+
+            MemberContext memberContext = MemberContext.create(memberId, email, authorityList);
             return Optional.of(memberContext);
         }catch (Exception e){
             log.debug("{} ",e.getMessage());

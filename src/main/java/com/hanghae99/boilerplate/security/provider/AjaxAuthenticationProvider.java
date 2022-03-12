@@ -2,6 +2,8 @@ package com.hanghae99.boilerplate.security.provider;
 
 import com.hanghae99.boilerplate.model.Member;
 import com.hanghae99.boilerplate.security.model.MemberContext;
+import com.hanghae99.boilerplate.security.service.UserDetailsImpl;
+import com.hanghae99.boilerplate.security.service.UserDetailsServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -27,7 +29,7 @@ public class AjaxAuthenticationProvider implements AuthenticationProvider {
     PasswordEncoder passwordEncoder;
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    private UserDetailsServiceImpl userDetailsService;
 
 
     @Override
@@ -35,7 +37,7 @@ public class AjaxAuthenticationProvider implements AuthenticationProvider {
 
         String email = authentication.getName();
         String password = (String)authentication.getCredentials();
-        UserDetails  member = userDetailsService.loadUserByUsername(email);
+        UserDetailsImpl member = userDetailsService.loadUserByUsername(email);
 
         if(!passwordEncoder.matches(password,member.getPassword())){
             log.info("password not matches {} , {} ",member.getPassword(),password);
@@ -43,7 +45,7 @@ public class AjaxAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("패스워드가 일치하지 않습니다");
         }
 
-        MemberContext  memberContext = MemberContext.create(member.getUsername(),
+        MemberContext  memberContext = MemberContext.create(member.getMemberId(), member.getUsername(),
                 (List<GrantedAuthority>) member.getAuthorities());
         log.debug("id :{} , role :{} ",memberContext.getUsername(),memberContext.getAuthorities().get(0));
         return new UsernamePasswordAuthenticationToken(memberContext,null,memberContext.getAuthorities());

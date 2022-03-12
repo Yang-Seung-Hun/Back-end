@@ -60,7 +60,7 @@ public class KakaoLoginService {
 
             Optional<LoginResponseDto> loginResponseDto= registerMember.registerKakaoUserToMember(temporaryUser);
 
-            MemberContext memberContext = new MemberContext(loginResponseDto.get().getEmail(),
+            MemberContext memberContext = new MemberContext(loginResponseDto.get().getId() ,loginResponseDto.get().getEmail(),
                    loginResponseDto.get().getRole().stream().map(role ->
                            new SimpleGrantedAuthority(role.name())).collect(Collectors.toList()));
 

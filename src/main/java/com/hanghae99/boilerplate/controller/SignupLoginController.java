@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.dto.requestDto.SignupReqestDto;
 import com.hanghae99.boilerplate.security.Exception.ExceptionResponse;
 import com.hanghae99.boilerplate.service.SignupLoginService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+//import io.swagger.annotations.Api;
+//import io.swagger.annotations.ApiOperation;
 import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
-@Api(tags = {"회원가입 & 로그인"})
+//@Api(tags = {"회원가입 & 로그인"})
 @Slf4j
 @RestController
 public class SignupLoginController {
@@ -32,7 +32,7 @@ public class SignupLoginController {
     @Autowired
     ObjectMapper objectMapper;
 
-    @ApiOperation(value="회원가입 요청")
+//    @ApiOperation(value="회원가입 요청")
     @PostMapping("/api/signup")
     public ResponseEntity signup(@Valid @RequestBody SignupReqestDto signupReqest) {
         log.info("request signup!");
