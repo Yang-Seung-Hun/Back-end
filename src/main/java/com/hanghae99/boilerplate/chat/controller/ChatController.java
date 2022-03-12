@@ -1,6 +1,6 @@
-package com.hanghae99.boilerplate.controller.chat;
+package com.hanghae99.boilerplate.chat.controller;
 
-import com.hanghae99.boilerplate.model.chat.ChatMessage;
+import com.hanghae99.boilerplate.chat.model.textchat.ChatMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;

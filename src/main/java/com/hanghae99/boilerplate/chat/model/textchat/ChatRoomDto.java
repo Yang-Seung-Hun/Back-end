@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.model.chat;
+package com.hanghae99.boilerplate.chat.model.textchat;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

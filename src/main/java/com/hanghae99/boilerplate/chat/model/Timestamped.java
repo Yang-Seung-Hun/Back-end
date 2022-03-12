@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.model;
+package com.hanghae99.boilerplate.chat.model;
 
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;

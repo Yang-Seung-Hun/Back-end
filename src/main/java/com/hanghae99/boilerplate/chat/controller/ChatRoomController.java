@@ -1,8 +1,8 @@
-package com.hanghae99.boilerplate.controller.chat;
+package com.hanghae99.boilerplate.chat.controller;
 
-import com.hanghae99.boilerplate.model.chat.ChatRoom;
-import com.hanghae99.boilerplate.model.chat.ChatRoomDto;
-import com.hanghae99.boilerplate.repository.ChatRoomRepository;
+import com.hanghae99.boilerplate.chat.model.textchat.ChatRoom;
+import com.hanghae99.boilerplate.chat.model.textchat.ChatRoomDto;
+import com.hanghae99.boilerplate.chat.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

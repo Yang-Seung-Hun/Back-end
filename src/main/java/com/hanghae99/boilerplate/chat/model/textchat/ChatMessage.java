@@ -1,6 +1,6 @@
-package com.hanghae99.boilerplate.model.chat;
+package com.hanghae99.boilerplate.chat.model.textchat;
 
-import com.hanghae99.boilerplate.model.Timestamped;
+import com.hanghae99.boilerplate.chat.model.Timestamped;
 import lombok.Getter;
 import lombok.Setter;
 

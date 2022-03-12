@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.config;
+package com.hanghae99.boilerplate.chat.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -22,7 +22,6 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
         // -> 개발 서버의 접속 주소: ws://localhost:8080/ws-stomp
         // cors 대응을 위한 시도..
         registry.addEndpoint("/ws-stomp").setAllowedOriginPatterns("*")
-                .withSockJS().setSupressCors(true);
-        //todo 동섭님께 부탁해서 연결해서 1) setSupressCors 지우고 해보기
+                .withSockJS();
     }
 }

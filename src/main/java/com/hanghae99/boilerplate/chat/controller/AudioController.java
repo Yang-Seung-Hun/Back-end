@@ -1,8 +1,8 @@
-package com.hanghae99.boilerplate.controller.audio;
+package com.hanghae99.boilerplate.chat.controller;
 
-import com.hanghae99.boilerplate.model.audio.AudioChatLeaveDto;
-import com.hanghae99.boilerplate.model.audio.AudioChatEntryDto;
-import com.hanghae99.boilerplate.model.audio.AudioChatRole;
+import com.hanghae99.boilerplate.chat.model.audiochat.AudioChatLeaveDto;
+import com.hanghae99.boilerplate.chat.model.audiochat.AudioChatEntryDto;
+import com.hanghae99.boilerplate.chat.model.audiochat.AudioChatRole;
 import io.openvidu.java.client.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

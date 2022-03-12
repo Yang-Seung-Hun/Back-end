@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.model.audio;
+package com.hanghae99.boilerplate.chat.model.audiochat;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

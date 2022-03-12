@@ -1,6 +1,6 @@
-package com.hanghae99.boilerplate.repository;
+package com.hanghae99.boilerplate.chat.repository;
 
-import com.hanghae99.boilerplate.model.chat.ChatRoom;
+import com.hanghae99.boilerplate.chat.model.textchat.ChatRoom;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 //@Repository
