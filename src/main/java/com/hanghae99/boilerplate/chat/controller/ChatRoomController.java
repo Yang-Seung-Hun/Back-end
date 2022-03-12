@@ -1,7 +1,7 @@
 package com.hanghae99.boilerplate.chat.controller;
 
-import com.hanghae99.boilerplate.chat.model.textchat.ChatRoom;
-import com.hanghae99.boilerplate.chat.model.textchat.ChatRoomDto;
+import com.hanghae99.boilerplate.chat.model.ChatRoom;
+import com.hanghae99.boilerplate.chat.model.CreateChatRoomDto;
 import com.hanghae99.boilerplate.chat.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +31,9 @@ public class ChatRoomController {
 
     // 채팅방 생성 (채팅방명을 파라미터로)
     @PostMapping("/room")
-    public ResponseEntity<Map<String, Object>> createRoom(@RequestBody ChatRoomDto chatRoomDto) {
+    public ResponseEntity<Map<String, Object>> createRoom(@RequestBody CreateChatRoomDto createChatRoomDto) {
         //todo 방생성시 동일한 이름 중복되지 않게 해야 할 것.
-        ChatRoom room = new ChatRoom(chatRoomDto);
+        ChatRoom room = new ChatRoom(createChatRoomDto);
         chatRoomRepository.save(room);
         Map<String, Object> map = mapChatRoomInfo(room);
         return ResponseEntity.ok().body(map);
@@ -57,7 +57,7 @@ public class ChatRoomController {
         map.put("roomId", findRoom.getRoomId());
         map.put("roomName", findRoom.getRoomName());
         map.put("moderator", findRoom.getModerator());
-        map.put("participantCount", findRoom.getParticipantCount());
+        map.put("participantCount", findRoom.getMaxParticipantCount());
         map.put("content", findRoom.getContent());
         map.put("isPrivate", findRoom.getIsPrivate());
         return map;

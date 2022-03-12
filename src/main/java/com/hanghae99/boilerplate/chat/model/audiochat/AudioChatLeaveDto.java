@@ -6,9 +6,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class AudioChatLeaveDto {
-    Long roomId;
-    String memberName;
-    String role;
-    String token;
+    private Long roomId;
+    private String memberName;
+    private String role;
+    private String token;
 }
 
