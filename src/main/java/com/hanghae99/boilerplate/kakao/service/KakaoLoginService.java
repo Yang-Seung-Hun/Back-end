@@ -10,6 +10,7 @@ import com.hanghae99.boilerplate.kakao.common.Connection;
 import com.hanghae99.boilerplate.kakao.common.RegisterMember;
 import com.hanghae99.boilerplate.repository.RefreshTokenRepository;
 import com.hanghae99.boilerplate.security.jwt.TokenFactory;
+import com.hanghae99.boilerplate.security.jwt.extractor.TokenExtractor;
 import com.hanghae99.boilerplate.security.jwt.from.JwtToken;
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import com.hanghae99.boilerplate.security.model.RefreshTokenDB;
@@ -45,18 +46,17 @@ public class KakaoLoginService {
     ObjectMapper objectMapper;
     @Autowired
     RefreshTokenRepository  refreshTokenRepository;
-
+    @Autowired
+    TokenExtractor tokenExtractor;
     @JsonIgnoreProperties
     @Transactional
-    public void  getKakaoUserInformaiton(HttpServletResponse response, String code) throws Exception {
+    public void  getKakaoUserInformaiton(HttpServletResponse response, String kakaoAccessToken) throws Exception {
         try {
 
 
-            KakaoUserInformationDto user = connection.getaccessToken(code);
+//            KakaoUserInformationDto user = connection.getaccessToken(code);
+            TemporaryUser temporaryUser=  connection.getUserData(kakaoAccessToken);
 
-            TemporaryUser temporaryUser=  connection.getUserData(user.getAccess_token());
-
-            log.info(temporaryUser.toString());
 
             Optional<LoginResponseDto> loginResponseDto= registerMember.registerKakaoUserToMember(temporaryUser);
 
@@ -66,8 +66,8 @@ public class KakaoLoginService {
 
             JwtToken accessToken = tokenFactory.createAccessToken(memberContext);
             JwtToken refreshToken = tokenFactory.createRefreshToken(memberContext);
-            log.info(accessToken.toString());
-            log.info(refreshToken.toString());
+
+            log.info("kakao signup  email >>> ",memberContext.getUsername());
 
             refreshTokenRepository.save(new RefreshTokenDB(memberContext.getUsername(), refreshToken.getToken()));
 
@@ -81,7 +81,7 @@ public class KakaoLoginService {
             response.addCookie(cookie);
 
             Map<String, String> tokenMap = new HashMap<String, String>();
-            tokenMap.put("access_token", accessToken.getToken());
+            tokenMap.put("Authentitcation", accessToken.getToken());
             tokenMap.put("email",temporaryUser.getEmail());
             tokenMap.put("nickname",temporaryUser.getNickname());
 
