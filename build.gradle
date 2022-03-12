@@ -1,3 +1,5 @@
+
+
 buildscript {
     ext {
         queryDslVersion = "4.4.0"
@@ -46,6 +48,7 @@ dependencies {
 //    testCompileOnly 'org.projectlombok:lombok:1.18.22'
 //    testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
     //swagger
+    //Error command 
 //    implementation "io.springfox:springfox-swagger-ui:3.0.0"
 //    implementation "io.springfox:springfox-boot-starter:3.0.0"
 
