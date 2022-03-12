@@ -36,7 +36,7 @@ public class SignupLoginController {
             signupLoginService.signupRequest(signupReqest);
         }
         catch (Exception e){
-           return ResponseEntity.ok().body(new ResponseDto(HttpStatus.BAD_REQUEST,e.getMessage()));
+           return ResponseEntity.badRequest().body(new ResponseDto(HttpStatus.BAD_REQUEST,e.getMessage()));
         }
         return ResponseEntity.ok().body(new ResponseDto(HttpStatus.OK,"signup success"));
 
@@ -44,14 +44,10 @@ public class SignupLoginController {
 
 
 
-    @PostMapping("/api/logout/{email}")
-    public void  logout (HttpServletRequest request, HttpServletResponse response,@PathVariable String email) throws IOException {
-        if(email==null|| email.isBlank() ){
-            log.info("{email} is empty ");
-            response.setStatus(HttpStatus.OK.value());
-            return;
-        }
-        signupLoginService.logoutRequest(request,response,email);
+    @PostMapping("/api/logout")
+    public void  logout (HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        signupLoginService.logoutRequest(request,response);
     }
 
 

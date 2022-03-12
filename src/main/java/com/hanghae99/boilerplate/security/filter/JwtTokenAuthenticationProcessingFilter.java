@@ -1,6 +1,7 @@
 package com.hanghae99.boilerplate.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hanghae99.boilerplate.config.Redis;
 import com.hanghae99.boilerplate.security.Exception.ExceptionResponse;
 import com.hanghae99.boilerplate.security.RefreshTokenEndPoint;
 import com.hanghae99.boilerplate.security.config.SecurityConfig;
@@ -47,21 +48,19 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
 
     private TokenExtractor tokenExtractor;
 
-    private TokenFactory tokenFactory;
 
     private RefreshTokenEndPoint refreshTokenEndPoint;
 
-    private ObjectMapper objectMapper;
+
 
     public JwtTokenAuthenticationProcessingFilter(AuthenticationFailureHandler failureHandler,
                                                   TokenExtractor tokenExtractor
-            , RequestMatcher matcher, RefreshTokenEndPoint refreshTokenEndPoint, ObjectMapper objectMapper) {
+            , RequestMatcher matcher, RefreshTokenEndPoint refreshTokenEndPoint) {
 
         super(matcher);
         this.failureHandler = failureHandler;
         this.tokenExtractor = tokenExtractor;
         this.refreshTokenEndPoint = refreshTokenEndPoint;
-        this.objectMapper = objectMapper;
     }
 
 

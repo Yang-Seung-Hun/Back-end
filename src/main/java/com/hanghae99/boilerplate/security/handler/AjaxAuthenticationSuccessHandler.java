@@ -1,8 +1,10 @@
 package com.hanghae99.boilerplate.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hanghae99.boilerplate.config.Redis;
 import com.hanghae99.boilerplate.repository.MemberRepository;
 import com.hanghae99.boilerplate.repository.RefreshTokenRepository;
+import com.hanghae99.boilerplate.security.config.JwtConfig;
 import com.hanghae99.boilerplate.security.jwt.TokenFactory;
 import com.hanghae99.boilerplate.security.jwt.from.JwtToken;
 import com.hanghae99.boilerplate.security.model.MemberContext;
@@ -42,11 +44,19 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
     private TokenFactory tokenFactory;
 
     private ObjectMapper objectMapper;
-    public AjaxAuthenticationSuccessHandler(TokenFactory tokenFactory, MemberRepository memberRepository, RefreshTokenRepository refreshTokenRepository,ObjectMapper objectMapper) {
+
+    private JwtConfig jwtConfig;
+
+
+    private Redis redis;
+    public AjaxAuthenticationSuccessHandler(TokenFactory tokenFactory, MemberRepository memberRepository, RefreshTokenRepository refreshTokenRepository, ObjectMapper objectMapper, Redis redis,
+                                            JwtConfig jwtConfig) {
         this.memberRepository = memberRepository;
         this.tokenFactory = tokenFactory;
         this.refreshTokenRepository = refreshTokenRepository;
         this.objectMapper= objectMapper;
+        this.redis =redis;
+        this.jwtConfig = jwtConfig;
     }
 
 
@@ -74,10 +84,6 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
             response.addCookie(cookie);
 
             response.setHeader("Authorization",accessToken.getToken());
-            refreshTokenRepository.deleteToken(memberContext.getUsername());
-            refreshTokenRepository.save(new RefreshTokenDB(memberContext.getUsername(),
-                    refreshToken.getToken()));
-
 
 
             Optional<String> nickname = memberRepository.getNickname(memberContext.getUsername());
@@ -85,7 +91,12 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
             tokenMap.put("email",memberContext.getUsername());
 
             objectMapper.writeValue(response.getWriter(), tokenMap);
+
             log.info("{} login success" , memberContext.getUsername());
+
+            //redis에 refresh token 을 key로  저장
+            redis.setExpire(refreshToken.getToken(),memberContext.getUsername(),jwtConfig.getRefreshTokenExpTime());
+
 
         }
         catch (IllegalArgumentException e){

@@ -2,6 +2,7 @@ package com.hanghae99.boilerplate.security.config;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hanghae99.boilerplate.config.Redis;
 import com.hanghae99.boilerplate.repository.MemberRepository;
 import com.hanghae99.boilerplate.repository.RefreshTokenRepository;
 import com.hanghae99.boilerplate.security.Exception.AjaxAccessDeniedHandler;
@@ -89,6 +90,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     ObjectMapper objectMapper;
 
+    @Autowired
+    Redis redis;
+
+    @Autowired
+    JwtConfig jwtConfig;
 
     @Bean
     @Override
@@ -100,7 +106,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     //AUTHENTICATION_URL만 AjaxLoginProcessingFilter(로그인 담당(를지난다
     protected AjaxLoginProcessingFilter buildAjaxLoginProcessingFilter() throws Exception {
         AjaxLoginProcessingFilter filter = new AjaxLoginProcessingFilter(AUTHENTICATION_URL,
-                new AjaxAuthenticationSuccessHandler(tokenFactory, memberRepository, refreshTokenRepository, objectMapper), failureHandler);
+                new AjaxAuthenticationSuccessHandler(tokenFactory, memberRepository, refreshTokenRepository, objectMapper,redis,jwtConfig), failureHandler);
         filter.setAuthenticationManager(this.authenticationManager);
         return filter;
     }
@@ -110,7 +116,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         List<String> pathsToSkip = Arrays.asList(REFRESH_TOKEN_URL, SIGNUP_URL, AUTHENTICATION_URL, SWAGGER, SWAGGER_DOCS);
         SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, AUTH_ROOT_URL);
         JwtTokenAuthenticationProcessingFilter filter = new JwtTokenAuthenticationProcessingFilter(failureHandler, tokenExtractor, matcher
-                , refreshTokenEndPoint,objectMapper);
+                , refreshTokenEndPoint);
         filter.setAuthenticationManager(this.authenticationManager);
         return filter;
     }

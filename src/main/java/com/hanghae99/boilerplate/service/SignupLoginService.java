@@ -1,6 +1,7 @@
 package com.hanghae99.boilerplate.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hanghae99.boilerplate.config.Redis;
 import com.hanghae99.boilerplate.dto.requestDto.SignupReqestDto;
 import com.hanghae99.boilerplate.model.Member;
 import com.hanghae99.boilerplate.repository.MemberRepository;
@@ -30,14 +31,13 @@ public class SignupLoginService {
 
     @Autowired
     MemberRepository memberRepository;
-    @Autowired
-    RefreshTokenRepository refreshTokenRepository;
+
     @Autowired
     PasswordEncoder passwordEncoder;
     @Autowired
-    TokenFactory tokenFactory;
-    @Autowired
     ObjectMapper objectMapper;
+    @Autowired
+    Redis redis;
     @Transactional
     public void signupRequest(SignupReqestDto signupReqestDto) {
         boolean result = memberRepository.getEmail(signupReqestDto.getEmail()).isPresent();
@@ -51,14 +51,14 @@ public class SignupLoginService {
 
     }
 
-    public void logoutRequest(HttpServletRequest request, HttpServletResponse response,String email) throws IOException {
-        if(email!= null){
-            log.info("{} logout",email);
+    public void logoutRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        for (Cookie cookie :request.getCookies()){
+           if( cookie.getName().equals("Authorization")){
+               redis.removeData(cookie.getValue());
+           }
+
+
         }
-        refreshTokenRepository.deleteToken(email);
-        JwtToken expiredToken = tokenFactory.createExpiredToken();
-        Map<String, String> tokenMap = new HashMap<String, String>();
-        tokenMap.put("access_token",expiredToken.getToken());
-        objectMapper.writeValue(response.getWriter(), tokenMap);
     }
 }

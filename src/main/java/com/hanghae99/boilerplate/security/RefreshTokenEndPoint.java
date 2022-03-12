@@ -2,6 +2,7 @@ package com.hanghae99.boilerplate.security;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hanghae99.boilerplate.config.Redis;
 import com.hanghae99.boilerplate.repository.RefreshTokenRepository;
 import com.hanghae99.boilerplate.security.Exception.ExceptionResponse;
 import com.hanghae99.boilerplate.security.config.JwtConfig;
@@ -47,11 +48,7 @@ public class RefreshTokenEndPoint {
     @Autowired
     TokenVerifier tokenVerifier;
     @Autowired
-    RefreshTokenRepository refreshTokenRepository;
-    @Autowired
     TokenFactory tokenFactory;
-    @Autowired
-    TokenExtractor tokenExtractor;
 
 
     public Jws<Claims> getJwtClimas(HttpServletRequest request) {
@@ -70,11 +67,9 @@ public class RefreshTokenEndPoint {
         return null;
     }
 
-    @Transactional(readOnly = true)
     public Optional<MemberContext> getMemberContext(Jws<Claims> jws) {
         try {
             String email = jws.getBody().getSubject();
-            Optional<RefreshTokenDB> refreshToken = refreshTokenRepository.findById(email);
             List<String> scopes = jws.getBody().get("scopes", List.class);
             List<GrantedAuthority> authorityList = scopes.stream()
                     .map(SimpleGrantedAuthority::new)

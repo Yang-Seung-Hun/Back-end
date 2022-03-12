@@ -51,8 +51,7 @@ public class SignupLoginTest {
 
     @Autowired
     TokenFactory tokenFactory;
-    @Autowired
-    RefreshTokenRepository tokenRepository;
+
 
     /**
      * @100명 24s
@@ -241,7 +240,6 @@ public class SignupLoginTest {
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
         memberRepository.deleteAll();
-        tokenRepository.deleteAll();
 
     }
 
@@ -265,9 +263,9 @@ public class SignupLoginTest {
                         .cookie(cookie)
                         .header("Authorization","Bearer "+ accessToken))
                 .andDo(print())
+                .andExpect(header().exists("Authorization"))
                 .andExpect(status().isNotFound());
         memberRepository.deleteAll();
-        tokenRepository.deleteAll();
     }
 
 
