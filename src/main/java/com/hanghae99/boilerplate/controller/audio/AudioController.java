@@ -1,8 +1,9 @@
 package com.hanghae99.boilerplate.controller.audio;
 
+import com.hanghae99.boilerplate.model.audio.AudioChatLeaveDto;
 import com.hanghae99.boilerplate.model.audio.AudioChatMember;
 import com.hanghae99.boilerplate.model.audio.AudioChatRole;
-import com.hanghae99.boilerplate.model.audio.AudioChatLeaveDto;
+import com.hanghae99.boilerplate.repository.ChatRoomRepository;
 import io.openvidu.java.client.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +36,7 @@ public class AudioController {
     private String SECRET;
 
     // openVidu-server와 연결하기 위한 컨트롤러에는 secret 과, url 이 필요하다~
-    public AudioController(@Value("${openvidu.secret}") String secret, @Value("${openvidu.url}") String openviduUrl) {
+    public AudioController(@Value("${openvidu.secret}") String secret, @Value("${openvidu.url}") String openviduUrl, ChatRoomRepository chatRoomRepository) {
         this.SECRET = secret;
         this.OPENVIDU_URL = openviduUrl;
         this.openVidu = new OpenVidu(OPENVIDU_URL, SECRET);
@@ -52,7 +53,7 @@ public class AudioController {
         OpenViduRole role = OpenViduRole.SUBSCRIBER; // 기본은 SUBSCRIBER
         AudioChatRole reqRole = chatMember.getRole(); // 참여요청한 멤버 정보에 담긴 role 에 따라 openVidu role 변경
         if (reqRole == AudioChatRole.MODERATOR) {
-            role = OpenViduRole.SUBSCRIBER;
+            role = OpenViduRole.MODERATOR;
         } else if (reqRole == AudioChatRole.PUBLISHER) {
             role = OpenViduRole.PUBLISHER;
         }
@@ -78,12 +79,7 @@ public class AudioController {
 
                 // 참여요청 성공한 roomId, 요청한 memberName, 그리고 프론트에서 openvidu session connect 에 사용할 token 을 response 로 보내기
                 // (아마 프론트에서는 OpenVidu 객체에 대해 -> .initSession() -> .connect(a, b) 식으로 연결할 때 파라미터 a 로 token 을 넣어야 하는 것 같음)
-                Map<String, String> map = new HashMap<>();
-                map.put("roomId", roomId.toString());
-                map.put("memberName", chatMember.getMemberName());
-                map.put("token", token);
-                map.put("etc", "참여요청 성공!");
-
+                Map<String, String> map = getStringStringMap(chatMember, roomId, role, token, "참여요청 성공");
                 return ResponseEntity.ok().body(map);
 
             } catch (Exception e) {
@@ -94,6 +90,11 @@ public class AudioController {
             // 새로 음성채팅방을 개설하는 경우
             try {
                 log.info("새로운 room 개설 요청입니다. roomId = {}", roomId);
+
+                if (chatMember.getRole() != AudioChatRole.MODERATOR) {
+                    log.error("방장만이 방 개설 요청을 할 수 있습니다. 현재 role: {}", chatMember.getRole());
+                    return ResponseEntity.badRequest().body("방장만이 방 개설 요청을 할 수 있습니다.");
+                }
 
                 // 새 openVidu session 을 만들기
                 Session session = this.openVidu.createSession();
@@ -107,11 +108,7 @@ public class AudioController {
                 this.mapSessionNamesTokens.get(roomId).put(token, role);
 
                 // 개설요청 성공한 roomId, 요청한 memberName, 그리고 프론트에서 openvidu session connect 에 사용할 token 을 response 로 보내기
-                Map<String, String> map = new HashMap<>();
-                map.put("roomId", roomId.toString());
-                map.put("memberName", chatMember.getMemberName());
-                map.put("token", token);
-                map.put("etc", "개설요청 성공!");
+                Map<String, String> map = getStringStringMap(chatMember, roomId, role, token, "개설요청 성공");
                 return ResponseEntity.ok().body(map);
 
             } catch (Exception e) {
@@ -119,6 +116,16 @@ public class AudioController {
                 return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
+    }
+
+    private Map<String, String> getStringStringMap(AudioChatMember chatMember, Long roomId, OpenViduRole role, String token, String message) {
+        Map<String, String> map = new HashMap<>();
+        map.put("roomId", roomId.toString());
+        map.put("memberName", chatMember.getMemberName());
+        map.put("token", token);
+        map.put("role", role.toString());
+        map.put("etc", message);
+        return map;
     }
 
     @PostMapping(value = "/leave")
@@ -143,6 +150,13 @@ public class AudioController {
                     this.mapSessions.remove(roomId);
                     log.info("더 이상 남아있는 사람이 없어요. 채팅방 {}도 삭제됩니다.", roomId);
                 }
+                // 또는 나가려는 사람이 방장이라면 ?
+                if (chatLeaveDto.getRole().equals(OpenViduRole.MODERATOR.toString())) {
+                    // roomId 로 열린 session 삭제
+                    this.mapSessions.remove(roomId);
+                    log.info("방장이 퇴장했으므로 채팅방 {}도 삭제됩니다.", roomId);
+                }
+
                 String message = roomId + "에 대한 퇴장 요청 성공, 퇴장한 memberName: " + memberName;
                 return ResponseEntity.ok().body(message);
             } else {
