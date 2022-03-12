@@ -1,9 +1,8 @@
 package com.hanghae99.boilerplate.controller.audio;
 
 import com.hanghae99.boilerplate.model.audio.AudioChatLeaveDto;
-import com.hanghae99.boilerplate.model.audio.AudioChatMember;
+import com.hanghae99.boilerplate.model.audio.AudioChatEntryDto;
 import com.hanghae99.boilerplate.model.audio.AudioChatRole;
-import com.hanghae99.boilerplate.repository.ChatRoomRepository;
 import io.openvidu.java.client.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +35,7 @@ public class AudioController {
     private String SECRET;
 
     // openVidu-server와 연결하기 위한 컨트롤러에는 secret 과, url 이 필요하다~
-    public AudioController(@Value("${openvidu.secret}") String secret, @Value("${openvidu.url}") String openviduUrl, ChatRoomRepository chatRoomRepository) {
+    public AudioController(@Value("${openvidu.secret}") String secret, @Value("${openvidu.url}") String openviduUrl) {
         this.SECRET = secret;
         this.OPENVIDU_URL = openviduUrl;
         this.openVidu = new OpenVidu(OPENVIDU_URL, SECRET);
@@ -45,13 +44,13 @@ public class AudioController {
     // 토큰을 발급하는 api. 음성 채팅방에 입장하는 지점.
     // AudioChatMember 형식에 맞춘 requestBody 를 받아와서 발급해주는 것이 좋지 않을까.
     @PostMapping(value = "/join")
-    public ResponseEntity<Object> getToken(@RequestBody AudioChatMember chatMember) {
+    public ResponseEntity<Object> getToken(@RequestBody AudioChatEntryDto chatEntryDto) {
         //todo 로그인과 연결 후에는 로그인하지 않은 사용자일 경우 unauthorized 로 400 리턴하는 로직 추가
 
-        Long roomId = chatMember.getRoomId(); // 참여요청한 멤버가 들어가려는 방 고유번호
+        Long roomId = chatEntryDto.getRoomId(); // 참여요청한 멤버가 들어가려는 방 고유번호
 
         OpenViduRole role = OpenViduRole.SUBSCRIBER; // 기본은 SUBSCRIBER
-        AudioChatRole reqRole = chatMember.getRole(); // 참여요청한 멤버 정보에 담긴 role 에 따라 openVidu role 변경
+        AudioChatRole reqRole = chatEntryDto.getRole(); // 참여요청한 멤버 정보에 담긴 role 에 따라 openVidu role 변경
         if (reqRole == AudioChatRole.MODERATOR) {
             role = OpenViduRole.MODERATOR;
         } else if (reqRole == AudioChatRole.PUBLISHER) {
@@ -61,7 +60,7 @@ public class AudioController {
         // 예제를 보면, connectionProperties Builder()로 생성할 때,
         // 서버에서 데이터 optional 하게 보낼 수 있음. => .data(<여기에 serverData>)
         // 나도 일단 넣어볼까 ,, 나중에 데이터 내용 다시 정하고, 지금은 참여를 희망한 chatMember 의 memberName 을 넣어보기.
-        String serverData = chatMember.getMemberName();
+        String serverData = chatEntryDto.getMemberName();
 
         // role 과 optional 한 serverData 와 함께 WEBRTC 타입으로 connectionProperties 를 생성
         ConnectionProperties connectionProperties = new ConnectionProperties.Builder().type(ConnectionType.WEBRTC)
@@ -71,15 +70,27 @@ public class AudioController {
         if (this.mapSessions.get(roomId) != null) {
             log.info("이미 존재하는 room 에 대한 참여요청입니다. roomId = {}", roomId);
             try {
+
+                //특정 roomId에 유효하게 발급되어 있는 token의 수 세기 위한 시도들
+                log.info("{}번 room에 대해 발급된 유효한 token 개수는 {}", roomId, this.mapSessionNamesTokens.get(roomId).size());
+
+                int nowParticipants = this.mapSessionNamesTokens.get(roomId).size();
+                Long maxParticipants = chatEntryDto.getParticipantCount();
+                if ( maxParticipants <= nowParticipants) {
+                    log.info("{}번 room에 대해 수용가능 인원이 이미 찼어요. 현재 인원:{}, 최대 인원:{}", roomId, nowParticipants, maxParticipants);
+                    return ResponseEntity.badRequest().body("수용가능 인원이 이미 찼어요.");
+                }
+
                 // 방금 막 생성한 connectionProperties 를 기반으로 token 만들기
                 String token = this.mapSessions.get(roomId).createConnection(connectionProperties).getToken();
 
                 // token 을 키로 하고 role 을 값으로 갖는 map 객체를 현재 roomId(=sessionName)를 키로 갖는 더 상위 map 객체의 값으로 넣음.
                 this.mapSessionNamesTokens.get(roomId).put(token, role);
 
+
                 // 참여요청 성공한 roomId, 요청한 memberName, 그리고 프론트에서 openvidu session connect 에 사용할 token 을 response 로 보내기
                 // (아마 프론트에서는 OpenVidu 객체에 대해 -> .initSession() -> .connect(a, b) 식으로 연결할 때 파라미터 a 로 token 을 넣어야 하는 것 같음)
-                Map<String, String> map = getStringStringMap(chatMember, roomId, role, token, "참여요청 성공");
+                Map<String, String> map = getStringStringMap(chatEntryDto, roomId, role, token, "참여요청 성공");
                 return ResponseEntity.ok().body(map);
 
             } catch (Exception e) {
@@ -91,8 +102,8 @@ public class AudioController {
             try {
                 log.info("새로운 room 개설 요청입니다. roomId = {}", roomId);
 
-                if (chatMember.getRole() != AudioChatRole.MODERATOR) {
-                    log.error("방장만이 방 개설 요청을 할 수 있습니다. 현재 role: {}", chatMember.getRole());
+                if (chatEntryDto.getRole() != AudioChatRole.MODERATOR) {
+                    log.error("방장만이 방 개설 요청을 할 수 있습니다. 현재 role: {}", chatEntryDto.getRole());
                     return ResponseEntity.badRequest().body("방장만이 방 개설 요청을 할 수 있습니다.");
                 }
 
@@ -108,17 +119,18 @@ public class AudioController {
                 this.mapSessionNamesTokens.get(roomId).put(token, role);
 
                 // 개설요청 성공한 roomId, 요청한 memberName, 그리고 프론트에서 openvidu session connect 에 사용할 token 을 response 로 보내기
-                Map<String, String> map = getStringStringMap(chatMember, roomId, role, token, "개설요청 성공");
+                Map<String, String> map = getStringStringMap(chatEntryDto, roomId, role, token, "개설요청 성공");
                 return ResponseEntity.ok().body(map);
 
             } catch (Exception e) {
                 log.error("새로운 방 개설을 요청했으나 exception 발생. errorMessage = {}", e.getMessage());
+                log.error("새로운 방 개설을 요청했으나 exception 발생. e = {}", e);
                 return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
     }
 
-    private Map<String, String> getStringStringMap(AudioChatMember chatMember, Long roomId, OpenViduRole role, String token, String message) {
+    private Map<String, String> getStringStringMap(AudioChatEntryDto chatMember, Long roomId, OpenViduRole role, String token, String message) {
         Map<String, String> map = new HashMap<>();
         map.put("roomId", roomId.toString());
         map.put("memberName", chatMember.getMemberName());
