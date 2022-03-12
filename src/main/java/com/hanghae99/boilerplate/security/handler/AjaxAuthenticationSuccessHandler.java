@@ -65,29 +65,35 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
 
 
             Map<String, String> tokenMap = new HashMap<String, String>();
-            tokenMap.put("access_token", accessToken.getToken());
 
 
-            Cookie cookie = new Cookie("Authentitcation", refreshToken.getToken());
+            Cookie cookie = new Cookie("Authorization", refreshToken.getToken());
             cookie.setHttpOnly(true);
             cookie.setMaxAge(60 * 60 * 24);
             cookie.setPath("/");
             response.addCookie(cookie);
 
+            response.setHeader("Authorization",accessToken.getToken());
             refreshTokenRepository.deleteToken(memberContext.getUsername());
             refreshTokenRepository.save(new RefreshTokenDB(memberContext.getUsername(),
                     refreshToken.getToken()));
 
+
+
             Optional<String> nickname = memberRepository.getNickname(memberContext.getUsername());
             nickname.ifPresent(s -> tokenMap.put("nickname", s));
-
+            tokenMap.put("email",memberContext.getUsername());
 
             objectMapper.writeValue(response.getWriter(), tokenMap);
+            log.info("{} login success" , memberContext.getUsername());
+
         }
         catch (IllegalArgumentException e){
             log.debug("{}",e.getMessage());
         }catch (NullPointerException e){
             log.debug(e.getMessage());
+        }catch (Exception e){
+           log.info(e.getMessage());
         }
     }
 

@@ -4,6 +4,7 @@ import com.hanghae99.boilerplate.model.Role;
 import com.hanghae99.boilerplate.security.config.JwtConfig;
 import com.hanghae99.boilerplate.security.jwt.JwtAuthenticationToken;
 import com.hanghae99.boilerplate.security.jwt.RawAccessToken;
+import com.hanghae99.boilerplate.security.jwt.extractor.TokenExtractor;
 import com.hanghae99.boilerplate.security.jwt.extractor.TokenVerifier;
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import io.jsonwebtoken.*;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 
 import javax.crypto.spec.SecretKeySpec;
+import javax.validation.constraints.Null;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,15 +31,16 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     private JwtConfig jwtConfig;
     @Autowired
     private TokenVerifier tokenVerifier;
-
-
+    @Autowired
+    TokenExtractor tokenExtractor;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         RawAccessToken rawAccessToken = (RawAccessToken) authentication.getCredentials();
         Jws<Claims> jwsClaims;
         try {
-            jwsClaims = tokenVerifier.validateToken(rawAccessToken.getToken(), jwtConfig.getTokenSigningKey());
+
+            jwsClaims = tokenVerifier.validateToken( rawAccessToken.getToken(), jwtConfig.getTokenSigningKey());
 
             String sub = jwsClaims.getBody().getSubject();
             List<String> scopes = jwsClaims.getBody().get("scopes", List.class);
@@ -48,15 +51,11 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             MemberContext context = MemberContext.create(sub, authorityList);
             //새로운 토큰을 발급해준다
             return new JwtAuthenticationToken(context, context.getAuthorities());
-        } catch (SignatureException e) {
-            throw new SignatureException(e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            throw new JwtException(e.getMessage());
-        } catch (MalformedJwtException e) {
-            throw new MalformedJwtException(e.getMessage());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(e.getMessage());
-        } catch (ExpiredJwtException e) {
+        }catch (NullPointerException|SignatureException|UnsupportedJwtException|MalformedJwtException
+                |IllegalArgumentException e){
+            return null;
+        }
+      catch (ExpiredJwtException e) {
             throw new ExpiredJwtException(null,null,e.getMessage());
         }
     }

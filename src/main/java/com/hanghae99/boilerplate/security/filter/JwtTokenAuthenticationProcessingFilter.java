@@ -1,5 +1,7 @@
 package com.hanghae99.boilerplate.security.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hanghae99.boilerplate.security.Exception.ExceptionResponse;
 import com.hanghae99.boilerplate.security.RefreshTokenEndPoint;
 import com.hanghae99.boilerplate.security.config.SecurityConfig;
 import com.hanghae99.boilerplate.security.jwt.JwtAuthenticationToken;
@@ -12,6 +14,9 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwt;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
@@ -20,6 +25,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import javax.security.auth.message.AuthException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -45,39 +51,49 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
 
     private RefreshTokenEndPoint refreshTokenEndPoint;
 
+    private ObjectMapper objectMapper;
+
     public JwtTokenAuthenticationProcessingFilter(AuthenticationFailureHandler failureHandler,
                                                   TokenExtractor tokenExtractor
-            , RequestMatcher matcher,RefreshTokenEndPoint refreshTokenEndPoint) {
+            , RequestMatcher matcher, RefreshTokenEndPoint refreshTokenEndPoint, ObjectMapper objectMapper) {
 
         super(matcher);
         this.failureHandler = failureHandler;
         this.tokenExtractor = tokenExtractor;
-        this.refreshTokenEndPoint= refreshTokenEndPoint;
+        this.refreshTokenEndPoint = refreshTokenEndPoint;
+        this.objectMapper = objectMapper;
     }
 
 
     //매니저에게 검증을 맞긴다
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
-        String payload = request.getHeader(SecurityConfig.AUTHENTICATION_HEADER_NAME);
-        RawAccessToken token = new RawAccessToken(tokenExtractor.extract(payload));
+
+        RawAccessToken token = null;
         try {
-            Authentication authentication = getAuthenticationManager().authenticate(new JwtAuthenticationToken(token));
+            String payload = request.getHeader(SecurityConfig.AUTHENTICATION_HEADER_NAME);
+            token = new RawAccessToken(tokenExtractor.extract(payload));
+
+            return getAuthenticationManager().authenticate(new JwtAuthenticationToken(token));
         } catch (ExpiredJwtException e) {
-            log.debug("access_token Expired {}",e.getMessage() );
-            Optional<Jws<Claims>> jwt = refreshTokenEndPoint.getJwtClimas(request);
+            Jws<Claims> jwt = refreshTokenEndPoint.getJwtClimas(request);
+            if (jwt == null) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+               return null;
+            }
 
-            if (jwt.isEmpty())
-                throw new javax.security.sasl.AuthenticationException();
-            Optional<MemberContext> memberContext = refreshTokenEndPoint.getMemberContext(jwt.get());
-            if (memberContext.isEmpty())
-                throw new javax.security.sasl.AuthenticationException();
-
-            token =refreshTokenEndPoint.setNewAccessToken(memberContext.get(), response);
-            return new JwtAuthenticationToken(memberContext.get(), memberContext.get().getAuthorities());
+            Optional<MemberContext> memberContext = refreshTokenEndPoint.getMemberContext(jwt);
+            if (memberContext.isEmpty()) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                return null;
+            }
+            token = refreshTokenEndPoint.setNewAccessToken(memberContext.get(), response);
+            return new JwtAuthenticationToken(token);
+        } catch (Exception e) {
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.setHeader("error",e.getMessage());
+            return null;
         }
-        return getAuthenticationManager().authenticate(new JwtAuthenticationToken(token));
-
     }
 
     //인증 성공시
@@ -86,7 +102,8 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authResult);
         SecurityContextHolder.setContext(context);// 시큐리티 컨텍스트에 현재 유저 정보를 저장해둔다
-        chain.doFilter(request, response);
+            chain.doFilter(request, response);
+
     }
 
     //인증 실패시

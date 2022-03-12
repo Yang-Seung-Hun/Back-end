@@ -1,6 +1,7 @@
 package com.hanghae99.boilerplate.model;
 import com.hanghae99.boilerplate.dto.requestDto.SignupReqestDto;
 import com.hanghae99.boilerplate.kakao.TemporaryUser;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import java.util.Set;
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Member {
     @Id @GeneratedValue

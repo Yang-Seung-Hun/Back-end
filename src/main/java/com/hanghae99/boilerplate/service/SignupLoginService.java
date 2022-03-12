@@ -47,8 +47,7 @@ public class SignupLoginService {
         }
         signupReqestDto.setPassword(passwordEncoder.encode(signupReqestDto.getPassword()));
         memberRepository.save(new Member(signupReqestDto));
-        log.info("{} ,nickname {}" ,signupReqestDto.getEmail(),signupReqestDto.getNickname());
-        log.info("{}  signup" ,signupReqestDto.getEmail());
+        log.info("{} ,nickname {} signup" ,signupReqestDto.getEmail(),signupReqestDto.getNickname());
 
     }
 

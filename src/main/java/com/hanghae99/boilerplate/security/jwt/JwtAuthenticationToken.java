@@ -2,8 +2,10 @@ package com.hanghae99.boilerplate.security.jwt;
 
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 
+import javax.security.sasl.AuthenticationException;
 import java.util.Collection;
 
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
@@ -16,14 +18,17 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
         this.setAuthenticated(false);
     }
 
-    public JwtAuthenticationToken(MemberContext memberContext, Collection<? extends GrantedAuthority> authorities) {
+    public JwtAuthenticationToken(MemberContext memberContext, Collection<? extends GrantedAuthority> authorities)  {
         super(authorities);
         this.eraseCredentials();
         this.memberContext = memberContext;
         super.setAuthenticated(true); //
 
     }
+    public JwtAuthenticationToken(){
+        super(null );
 
+    }
     //애매한 부분
     @Override
 

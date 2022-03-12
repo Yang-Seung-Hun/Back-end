@@ -40,7 +40,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity(debug = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    public static final String AUTHENTICATION_HEADER_NAME = "Authentitcation";
+    public static final String AUTHENTICATION_HEADER_NAME = "Authorization";
     public static final String SWAGGER = "/swagger-ui/**";
     public static final String SWAGGER_DOCS = "/swagger-resources/**";
     public static final String AUTHENTICATION_URL = "/api/login";
@@ -110,7 +110,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         List<String> pathsToSkip = Arrays.asList(REFRESH_TOKEN_URL, SIGNUP_URL, AUTHENTICATION_URL, SWAGGER, SWAGGER_DOCS);
         SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, AUTH_ROOT_URL);
         JwtTokenAuthenticationProcessingFilter filter = new JwtTokenAuthenticationProcessingFilter(failureHandler, tokenExtractor, matcher
-                , refreshTokenEndPoint);
+                , refreshTokenEndPoint,objectMapper);
         filter.setAuthenticationManager(this.authenticationManager);
         return filter;
     }
@@ -120,10 +120,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(ajaxAuthenticationProvider);
         auth.authenticationProvider(jwtAuthenticationProvider);
-        String password = passwordEncoder.encode("1111");
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
-        auth.inMemoryAuthentication().withUser("user").password(password).roles("USER");
-        auth.inMemoryAuthentication().withUser("admin").password(password).roles("ADMIN");
+
     }
 
     @Override
