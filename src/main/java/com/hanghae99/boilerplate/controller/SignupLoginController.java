@@ -31,7 +31,7 @@ public class SignupLoginController {
 
     @ApiOperation(value="회원가입 요청")
     @PostMapping("/api/signup")
-    public ResponseEntity<ResponseDto> signup(@Valid @RequestBody SignupReqestDto signupReqest ){
+    public ResponseEntity signup(@Valid @RequestBody SignupReqestDto signupReqest ){
         try {
             signupLoginService.signupRequest(signupReqest);
         }
