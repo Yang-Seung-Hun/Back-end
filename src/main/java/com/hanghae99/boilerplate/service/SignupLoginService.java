@@ -31,7 +31,8 @@ public class SignupLoginService {
     Redis redis;
     @Transactional
     public void signupRequest(SignupReqestDto signupReqestDto) {
-        boolean result = memberRepository.getEmail(signupReqestDto.getEmail()).isPresent();
+        boolean result = memberRepository.existsMemberByEmail(signupReqestDto.getEmail());
+//        boolean result = memberRepository.getEmail(signupReqestDto.getEmail()).isPresent();
         if (result) {
             log.info("{} is already exist",signupReqestDto.getEmail());
             throw new IllegalArgumentException(signupReqestDto.getEmail() + " already" + "Exist!");
