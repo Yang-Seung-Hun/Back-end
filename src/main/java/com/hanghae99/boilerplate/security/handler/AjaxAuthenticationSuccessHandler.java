@@ -65,13 +65,13 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
         Map<String, String> tokenMap = new HashMap<String, String>();
 
 
-        Cookie cookie = new Cookie("Authorization", refreshToken.getToken());
+        Cookie cookie = new Cookie(jwtConfig.AUTHENTICATION_HEADER_NAME, refreshToken.getToken());
         cookie.setHttpOnly(true);
         cookie.setMaxAge(60 * 60 * 24);
         cookie.setPath("/");
         response.addCookie(cookie);
 
-        response.setHeader("Authorization", accessToken.getToken());
+        response.setHeader(jwtConfig.AUTHENTICATION_HEADER_NAME, accessToken.getToken());
 
 
         Optional<String> nickname = memberRepository.getNickname(memberContext.getUsername());
