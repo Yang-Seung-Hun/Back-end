@@ -10,6 +10,7 @@ import com.hanghae99.boilerplate.security.jwt.extractor.TokenVerifier;
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -45,15 +46,15 @@ public class RefreshTokenEndPoint {
                 }
             }
         } catch (Exception e) {
-            log.debug("{}", e.getMessage());
+            log.debug(e.getMessage());
             return null;
         }
-        log.debug("request.getCookies is empty or cookie.getName not matche Authentitcation");
         return null;
+
     }
 
+    //유효한 jws가 들어온다
     public Optional<MemberContext> getMemberContext(Jws<Claims> jws) {
-        try {
             String email = jws.getBody().getSubject();
             List<String> scopes = jws.getBody().get("scopes", List.class);
             List<GrantedAuthority> authorityList = scopes.stream()
@@ -61,10 +62,6 @@ public class RefreshTokenEndPoint {
                     .collect(Collectors.toList());
             MemberContext memberContext = MemberContext.create(email, authorityList);
             return Optional.of(memberContext);
-        } catch (Exception e) {
-            log.debug("{} ", e.getMessage());
-            return Optional.empty();
-        }
     }
 
 

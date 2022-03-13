@@ -282,10 +282,12 @@ public class SignupLoginTest {
                 .andExpect(status().isOk());
 
         String accessToken = makeExpiredToken(member.getEmail());
-        String refreshToken = makeRefreshToken(member.getEmail());
 
+      MvcResult mvcResult=  mockMvc.perform(post("/api/login")
+                .content(objectMapper.writeValueAsString(new LoginRequestDto(member.getEmail(),member.getPassword())))).andReturn();
 
-        Cookie cookie = new Cookie("Authorization", refreshToken);
+        Cookie[] cookies = mvcResult.getResponse().getCookies();
+        Cookie cookie = new Cookie("Authorization", cookies[0].getValue());
         mockMvc.perform(post("/auth")
                         .cookie(cookie)
                         .header("Authorization", "Bearer " + accessToken))

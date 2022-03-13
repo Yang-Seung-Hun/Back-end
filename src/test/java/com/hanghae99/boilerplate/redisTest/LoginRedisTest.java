@@ -92,7 +92,34 @@ public class LoginRedisTest {
 
 
     }
-    
+    @Test
+    public void 잘못된refreshtoken으로접근() throws Exception{
+        SignupReqestDto member = new SignupReqestDto("hojun", "password", "profile", "image");
+
+        mockMvc.perform(post("/api/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(member)))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        MvcResult mvcResult=  mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new LoginRequestDto(member.getEmail(), member.getPassword()))))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(header().exists(TOKEN))
+                .andExpect(cookie().exists(TOKEN))
+                .andReturn();
+
+        String refreshToken=  mvcResult.getResponse().getCookie(TOKEN).getValue();
+        Assertions.assertThat(redis.getData(refreshToken)).isEqualTo(member.getEmail());
+
+        Cookie cookie =new Cookie(TOKEN,refreshToken);
+
+        memberRepository.deleteAll();
+
+
+    }
 
 
 }

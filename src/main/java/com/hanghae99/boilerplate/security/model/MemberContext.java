@@ -14,11 +14,9 @@ public class MemberContext {
     //principal로 catsing 되는 객체
     private final String username;
     private final List<GrantedAuthority> authorities;
-    public static MemberContext create(String email,List<GrantedAuthority> authorities){
-        if(email==null || email.isBlank()){
-            throw new IllegalArgumentException("email is Blank Or Null");
-        } else {
-            return new MemberContext(email,authorities);
-        }
+
+    public static MemberContext create(String email, List<GrantedAuthority> authorities) {
+
+        return new MemberContext(email, authorities);
     }
 }
