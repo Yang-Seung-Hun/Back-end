@@ -65,14 +65,13 @@ public class KakaoLoginService {
             JwtToken accessToken = tokenFactory.createAccessToken(memberContext);
             JwtToken refreshToken = tokenFactory.createRefreshToken(memberContext);
 
-            log.info("kakao signup  email >>> ",memberContext.getUsername());
 
             redis.setExpire(refreshToken.getToken(),memberContext.getUsername(), jwtConfig.getRefreshTokenExpTime());
 
             response.setCharacterEncoding("UTF-8");
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setStatus(HttpStatus.OK.value());
-            Cookie cookie = new Cookie("Authentitcation",refreshToken.getToken());
+            Cookie cookie = new Cookie(jwtConfig.AUTHENTICATION_HEADER_NAME,refreshToken.getToken());
             cookie.setHttpOnly(true);
             cookie.setMaxAge(60 * 60* 48);
             cookie.setPath("/");
@@ -82,6 +81,9 @@ public class KakaoLoginService {
             tokenMap.put("email",temporaryUser.getEmail());
             tokenMap.put("nickname",temporaryUser.getNickname());
             objectMapper.writeValue(response.getWriter(),tokenMap);
+
+
+            log.info("kakao user login  email : {} ",memberContext.getUsername());
 
             response.setHeader(jwtConfig.AUTHENTICATION_HEADER_NAME,accessToken.getToken());
 

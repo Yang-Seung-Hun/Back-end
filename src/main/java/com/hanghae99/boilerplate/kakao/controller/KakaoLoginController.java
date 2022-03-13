@@ -34,7 +34,7 @@ public class KakaoLoginController {
      */
     @GetMapping("/api/kakao/login")
     public void  kakaoLogin(HttpServletRequest request, HttpServletResponse response, @RequestHeader String Authorization) throws IOException {
-        log.info("request TOKKEN - {}",Authorization);
+        log.info("kakao-TOKKEN : {}",Authorization);
         try {
             kakaoLoginService.getKakaoUserInformaiton(response,Authorization);
 
