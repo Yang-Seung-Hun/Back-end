@@ -1,8 +1,7 @@
-package com.hanghae99.boilerplate.dto.responseDto;
+package com.hanghae99.boilerplate.signupLogin.dto.responseDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.http.HttpStatus;
 

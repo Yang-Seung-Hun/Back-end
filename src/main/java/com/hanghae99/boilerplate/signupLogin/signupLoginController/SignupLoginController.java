@@ -1,10 +1,10 @@
-package com.hanghae99.boilerplate.controller;
+package com.hanghae99.boilerplate.signupLogin.signupLoginController;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hanghae99.boilerplate.dto.requestDto.SignupReqestDto;
-import com.hanghae99.boilerplate.dto.responseDto.ResponseDto;
-import com.hanghae99.boilerplate.service.SignupLoginService;
+import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
+import com.hanghae99.boilerplate.signupLogin.dto.responseDto.ResponseDto;
+import com.hanghae99.boilerplate.signupLogin.service.SignupLoginService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.Map;
 
 @Api(tags = {"회원가입 & 로그인"})
 @Slf4j

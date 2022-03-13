@@ -1,9 +1,9 @@
-package com.hanghae99.boilerplate.kakao.common;
+package com.hanghae99.boilerplate.signupLogin.kakao.common;
 
-import com.hanghae99.boilerplate.dto.responseDto.LoginResponseDto;
-import com.hanghae99.boilerplate.kakao.TemporaryUser;
-import com.hanghae99.boilerplate.model.Member;
-import com.hanghae99.boilerplate.repository.MemberRepository;
+import com.hanghae99.boilerplate.signupLogin.dto.responseDto.LoginResponseDto;
+import com.hanghae99.boilerplate.signupLogin.kakao.TemporaryUser;
+import com.hanghae99.boilerplate.memberManager.model.Member;
+import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

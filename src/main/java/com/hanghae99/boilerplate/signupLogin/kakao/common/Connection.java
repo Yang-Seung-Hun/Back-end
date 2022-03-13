@@ -1,11 +1,10 @@
-package com.hanghae99.boilerplate.kakao.common;
+package com.hanghae99.boilerplate.signupLogin.kakao.common;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.hanghae99.boilerplate.kakao.TemporaryUser;
-import lombok.extern.log4j.Log4j2;
+import com.hanghae99.boilerplate.signupLogin.kakao.TemporaryUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

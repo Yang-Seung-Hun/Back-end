@@ -1,13 +1,13 @@
-package com.hanghae99.boilerplate.kakao.service;
+package com.hanghae99.boilerplate.signupLogin.kakao.service;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.config.Redis;
-import com.hanghae99.boilerplate.dto.responseDto.LoginResponseDto;
-import com.hanghae99.boilerplate.kakao.TemporaryUser;
-import com.hanghae99.boilerplate.kakao.common.Connection;
-import com.hanghae99.boilerplate.kakao.common.RegisterMember;
+import com.hanghae99.boilerplate.signupLogin.dto.responseDto.LoginResponseDto;
+import com.hanghae99.boilerplate.signupLogin.kakao.TemporaryUser;
+import com.hanghae99.boilerplate.signupLogin.kakao.common.Connection;
+import com.hanghae99.boilerplate.signupLogin.kakao.common.RegisterMember;
 import com.hanghae99.boilerplate.security.config.JwtConfig;
 import com.hanghae99.boilerplate.security.jwt.TokenFactory;
 import com.hanghae99.boilerplate.security.jwt.from.JwtToken;

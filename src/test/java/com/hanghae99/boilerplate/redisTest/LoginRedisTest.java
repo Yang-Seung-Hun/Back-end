@@ -1,10 +1,9 @@
 package com.hanghae99.boilerplate.redisTest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.config.Redis;
-import com.hanghae99.boilerplate.dto.requestDto.SignupReqestDto;
-import com.hanghae99.boilerplate.repository.MemberRepository;
+import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
+import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import com.hanghae99.boilerplate.security.model.login.LoginRequestDto;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;

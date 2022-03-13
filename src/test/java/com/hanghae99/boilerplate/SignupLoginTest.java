@@ -2,9 +2,9 @@ package com.hanghae99.boilerplate;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hanghae99.boilerplate.dto.requestDto.SignupReqestDto;
-import com.hanghae99.boilerplate.model.Role;
-import com.hanghae99.boilerplate.repository.MemberRepository;
+import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
+import com.hanghae99.boilerplate.memberManager.model.Role;
+import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import com.hanghae99.boilerplate.security.config.JwtConfig;
 import com.hanghae99.boilerplate.security.jwt.AccessToken;
 import com.hanghae99.boilerplate.security.jwt.TokenFactory;

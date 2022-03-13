@@ -1,6 +1,6 @@
-package com.hanghae99.boilerplate.model;
-import com.hanghae99.boilerplate.dto.requestDto.SignupReqestDto;
-import com.hanghae99.boilerplate.kakao.TemporaryUser;
+package com.hanghae99.boilerplate.memberManager.model;
+import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
+import com.hanghae99.boilerplate.signupLogin.kakao.TemporaryUser;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

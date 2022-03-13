@@ -1,7 +1,7 @@
 package com.hanghae99.boilerplate.security.service;
 
-import com.hanghae99.boilerplate.model.Member;
-import com.hanghae99.boilerplate.repository.MemberRepository;
+import com.hanghae99.boilerplate.memberManager.model.Member;
+import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

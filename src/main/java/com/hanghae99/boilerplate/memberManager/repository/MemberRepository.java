@@ -1,6 +1,6 @@
-package com.hanghae99.boilerplate.repository;
+package com.hanghae99.boilerplate.memberManager.repository;
 
-import com.hanghae99.boilerplate.model.Member;
+import com.hanghae99.boilerplate.memberManager.model.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 
-public interface MemberRepository extends JpaRepository<Member , Long>  {
+public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByEmail(String email);
 
     @Query("select m.nickname from Member m " +

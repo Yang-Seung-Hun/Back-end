@@ -1,10 +1,9 @@
-package com.hanghae99.boilerplate.kakao.controller;
+package com.hanghae99.boilerplate.signupLogin.kakao.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hanghae99.boilerplate.kakao.service.KakaoLoginService;
+import com.hanghae99.boilerplate.signupLogin.kakao.service.KakaoLoginService;
 import com.hanghae99.boilerplate.security.Exception.ExceptionResponse;
-import io.jsonwebtoken.MalformedJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 @RestController
 @Slf4j

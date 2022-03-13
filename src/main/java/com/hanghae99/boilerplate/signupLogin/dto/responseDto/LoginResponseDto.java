@@ -1,9 +1,8 @@
-package com.hanghae99.boilerplate.dto.responseDto;
+package com.hanghae99.boilerplate.signupLogin.dto.responseDto;
 
-import com.hanghae99.boilerplate.model.Role;
+import com.hanghae99.boilerplate.memberManager.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Set;
 

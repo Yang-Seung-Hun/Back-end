@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.dto.requestDto;
+package com.hanghae99.boilerplate.signupLogin.dto.requestDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -3,7 +3,7 @@ package com.hanghae99.boilerplate.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.config.Redis;
-import com.hanghae99.boilerplate.repository.MemberRepository;
+import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import com.hanghae99.boilerplate.security.Exception.AjaxAccessDeniedHandler;
 import com.hanghae99.boilerplate.security.Exception.AjaxLoginAuthenticationEntryPoint;
 import com.hanghae99.boilerplate.security.RefreshTokenEndPoint;
@@ -25,7 +25,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
