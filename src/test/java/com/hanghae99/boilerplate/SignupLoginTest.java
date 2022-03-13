@@ -5,11 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.dto.requestDto.SignupReqestDto;
 import com.hanghae99.boilerplate.model.Role;
 import com.hanghae99.boilerplate.repository.MemberRepository;
-import com.hanghae99.boilerplate.repository.RefreshTokenRepository;
+import com.hanghae99.boilerplate.security.config.JwtConfig;
+import com.hanghae99.boilerplate.security.jwt.AccessToken;
 import com.hanghae99.boilerplate.security.jwt.TokenFactory;
 import com.hanghae99.boilerplate.security.jwt.from.JwtToken;
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import com.hanghae99.boilerplate.security.model.login.LoginRequestDto;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,11 +24,14 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.Cookie;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,10 +59,6 @@ public class SignupLoginTest {
     @Autowired
     TokenFactory tokenFactory;
 
-
-    /**
-     * @100명 24s
-     */
 
     @Test
     @DisplayName("정상적인 입력으로 회원가입")
@@ -144,8 +147,8 @@ public class SignupLoginTest {
                 .andExpect(status().isOk());
 
         mockMvc.perform(post("/api/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new LoginRequestDto(member.getEmail(),member.getPassword()))))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new LoginRequestDto(member.getEmail(), member.getPassword()))))
                 .andExpect(status().isOk())
                 .andExpect(header().exists("Authorization"))
                 .andExpect(jsonPath("nickname").exists())
@@ -165,7 +168,7 @@ public class SignupLoginTest {
 
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new LoginRequestDto(member.getEmail(),""))))
+                        .content(objectMapper.writeValueAsString(new LoginRequestDto(member.getEmail(), ""))))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("message").exists());
@@ -184,7 +187,7 @@ public class SignupLoginTest {
 
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new LoginRequestDto("",member.getPassword()))))
+                        .content(objectMapper.writeValueAsString(new LoginRequestDto("", member.getPassword()))))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("message").exists());
@@ -195,16 +198,33 @@ public class SignupLoginTest {
     @Transactional
     public void 그냥auth경로에접근() throws Exception {
         mockMvc.perform(post("/auth"))
-                .andExpect(status().isUnauthorized());
-    }
-    @Test
-    @Transactional
-    public void Authentitcation헤더에잘못된값넣고접근()throws Exception{
-        mockMvc.perform(post("/auth")
-                .header("Authorization","123"))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    @Transactional
+    public void Authorization헤더에잘못된값넣고접근() throws Exception {
+        mockMvc.perform(post("/auth")
+                        .header("Authorization", "123"))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void Authorization헤더잘못된서명() throws Exception {
+        Set<Role> roles = new HashSet<>();
+        roles.add(Role.USER);
+        MemberContext memberContext = new MemberContext("hojun", roles.stream().map(role ->
+                new SimpleGrantedAuthority(role.name())).collect(Collectors.toList()));
+
+        mockMvc.perform(post("/auth")
+                        .header("Authorization",  createBadSignToken(memberContext)))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+
+    }
+
     @Test
     @Transactional
     public void 발급받은토큰으로auth경로에접근() throws Exception {
@@ -215,17 +235,25 @@ public class SignupLoginTest {
                 .andExpect(status().isOk());
 
 
-        String token = makeAccessToken(member.getEmail());
+        MvcResult mvcResult = mockMvc.perform(post("/api/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new LoginRequestDto(member.getEmail(), member.getPassword()))))
+                .andExpect(status().isOk())
+                .andExpect(header().exists("Authorization"))
+                .andExpect(cookie().exists("Authorization"))
+                .andReturn();
+        String token = mvcResult.getResponse().getHeader("Authorization");
         mockMvc.perform(post("/auth")
-                .header("Authorization","Bearer "+token))
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNotFound());
         memberRepository.deleteAll();
 
 
     }
+
     @Test
     @Transactional
-    public void 토큰만료쿠키없음uth경로접근() throws Exception{
+    public void 토큰만료쿠키없음auth경로접근() throws Exception {
 
         SignupReqestDto member = signup();
         mockMvc.perform(post("/api/signup")
@@ -236,7 +264,7 @@ public class SignupLoginTest {
         String expiredToken = makeExpiredToken(member.getEmail());
         System.out.println(expiredToken);
         mockMvc.perform(post("/auth")
-                .header("Authorization","Bearer "+expiredToken))
+                        .header("Authorization", "Bearer " + expiredToken))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
         memberRepository.deleteAll();
@@ -254,14 +282,13 @@ public class SignupLoginTest {
                 .andExpect(status().isOk());
 
         String accessToken = makeExpiredToken(member.getEmail());
-        System.out.println(accessToken);
         String refreshToken = makeRefreshToken(member.getEmail());
 
 
-        Cookie cookie = new Cookie("Authorization",refreshToken);
+        Cookie cookie = new Cookie("Authorization", refreshToken);
         mockMvc.perform(post("/auth")
                         .cookie(cookie)
-                        .header("Authorization","Bearer "+ accessToken))
+                        .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
                 .andExpect(header().exists("Authorization"))
                 .andExpect(status().isNotFound());
@@ -269,12 +296,11 @@ public class SignupLoginTest {
     }
 
 
+    private String makeAccessToken(String email) {
 
-    private String  makeAccessToken(String email){
-
-        Set<Role>roles= new HashSet<>();
+        Set<Role> roles = new HashSet<>();
         roles.add(Role.USER);
-        MemberContext memberContext = new MemberContext(email,roles.stream().map(role->
+        MemberContext memberContext = new MemberContext(email, roles.stream().map(role ->
                 new SimpleGrantedAuthority(role.name())).collect(Collectors.toList()));
 
         JwtToken accessToken = tokenFactory.createAccessToken(memberContext);
@@ -282,26 +308,26 @@ public class SignupLoginTest {
     }
 
 
-    private String makeExpiredToken(String email){
+    private String makeExpiredToken(String email) {
 
-        Set<Role>roles= new HashSet<>();
+        Set<Role> roles = new HashSet<>();
         roles.add(Role.USER);
-        MemberContext memberContext = new MemberContext(email,roles.stream().map(role->
+        MemberContext memberContext = new MemberContext(email, roles.stream().map(role ->
                 new SimpleGrantedAuthority(role.name())).collect(Collectors.toList()));
 
-        JwtToken accessToken = tokenFactory.createTestTokenExpired(memberContext);
+        JwtToken accessToken = createTestTokenExpired(memberContext);
         return accessToken.getToken();
     }
-    private String makeRefreshToken(String email){
-        Set<Role>roles= new HashSet<>();
+
+    private String makeRefreshToken(String email) {
+        Set<Role> roles = new HashSet<>();
         roles.add(Role.USER);
-        MemberContext memberContext = new MemberContext(email,roles.stream().map(role->
+        MemberContext memberContext = new MemberContext(email, roles.stream().map(role ->
                 new SimpleGrantedAuthority(role.name())).collect(Collectors.toList()));
 
         JwtToken accessToken = tokenFactory.createRefreshToken(memberContext);
         return accessToken.getToken();
     }
-
 
 
     private SignupReqestDto signup() throws Exception {
@@ -312,6 +338,55 @@ public class SignupLoginTest {
         SignupReqestDto member = new SignupReqestDto(email, nickname, password, profileImageUrl);
         return member;
     }
+
+    @Autowired
+    JwtConfig jwtConfig;
+
+    //테스트코드
+    public JwtToken createTestTokenExpired(MemberContext memberContext) {
+        Claims claims = Jwts.claims().setSubject(memberContext.getUsername());
+        claims.put("scopes", memberContext.getAuthorities().stream().map(Authority ->
+                Authority.toString()).collect(Collectors.toList()));
+
+        LocalDateTime cur = LocalDateTime.now();
+
+        String token = Jwts.builder()
+                .setClaims(claims)
+                .setIssuer(jwtConfig.getTokenIssuer())
+                .setIssuedAt(Date.from(cur.atZone(ZoneId.systemDefault()).toInstant()))
+                .setExpiration(Date.from(cur
+                        .minusDays(jwtConfig.getTokenExpirationTime())
+                        .atZone(ZoneId.systemDefault()).toInstant()))
+                .signWith(SignatureAlgorithm.HS512, jwtConfig.getTokenSigningKey())
+                .compact();
+        return new AccessToken(token, claims);
+
+    }
+
+    @Test
+
+    public String createBadSignToken(MemberContext memberContext) {
+        Claims claims = Jwts.claims().setSubject(memberContext.getUsername());
+        claims.put("scopes", memberContext.getAuthorities().stream().map(Authority ->
+                Authority.toString()).collect(Collectors.toList()));
+
+        LocalDateTime cur = LocalDateTime.now();
+
+        String token = Jwts.builder()
+                .setClaims(claims)
+                .setIssuer(jwtConfig.getTokenIssuer())
+                .setIssuedAt(Date.from(cur.atZone(ZoneId.systemDefault()).toInstant()))
+                .setExpiration(Date.from(cur
+                        .minusDays(jwtConfig.getTokenExpirationTime())
+                        .atZone(ZoneId.systemDefault()).toInstant()))
+                .signWith(SignatureAlgorithm.HS512,"badSign")
+                .compact();
+        return token;
+
+    }
 }
+
+
+
 
 
