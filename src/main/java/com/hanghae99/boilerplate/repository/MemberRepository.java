@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 
-public interface MemberRepository extends JpaRepository<Member , Long> {
+public interface MemberRepository extends JpaRepository<Member , Long>  {
     Optional<Member> findByEmail(String email);
 
     @Query("select m.nickname from Member m " +
@@ -16,9 +16,9 @@ public interface MemberRepository extends JpaRepository<Member , Long> {
             "m.email = :email")
     Optional<String>  getNickname(@Param("email")String email);
 
-    @Query("select m.email from Member m " +
-            "where " +
-            "m.email=:email")
-    Optional<String>  getEmail(@Param("email")String email);
+
+    boolean existsMemberByEmail(String email);
+
+
 
 }
