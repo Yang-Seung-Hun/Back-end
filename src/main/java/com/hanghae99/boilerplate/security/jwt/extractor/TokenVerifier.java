@@ -37,16 +37,10 @@ public class TokenVerifier {
         try {
             claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
             return claims;
-        } catch (UnsupportedJwtException e) {
+        } catch (UnsupportedJwtException|MalformedJwtException|SignatureException|IllegalArgumentException e) {
             throw new JwtException(e.getMessage());
-        } catch (MalformedJwtException e) {
-            throw new MalformedJwtException(e.getMessage());
-        } catch (SignatureException e) {
-            throw new SignatureException(e.getMessage());
-        } catch (ExpiredJwtException e) {
+        }  catch (ExpiredJwtException e) {
             throw new ExpiredJwtException(null, null, "Jwt Expired !!");
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(e.getMessage());
         }
 
     }

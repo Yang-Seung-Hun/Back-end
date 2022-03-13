@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Getter
 @AllArgsConstructor
 public class AccessToken implements JwtToken {
 

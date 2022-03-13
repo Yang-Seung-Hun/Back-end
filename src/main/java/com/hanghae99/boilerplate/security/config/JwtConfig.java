@@ -22,7 +22,7 @@ public class JwtConfig {
 
     public  String defaultEmail="$$$$";
 
-    public static final String AUTHENTICATION_HEADER_NAME = "Authentitcation";
+    public static final String AUTHENTICATION_HEADER_NAME = "Authorization";
 
 
 }

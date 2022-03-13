@@ -52,7 +52,6 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
     private RefreshTokenEndPoint refreshTokenEndPoint;
 
 
-
     public JwtTokenAuthenticationProcessingFilter(AuthenticationFailureHandler failureHandler,
                                                   TokenExtractor tokenExtractor
             , RequestMatcher matcher, RefreshTokenEndPoint refreshTokenEndPoint) {
@@ -78,21 +77,16 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
             Jws<Claims> jwt = refreshTokenEndPoint.getJwtClimas(request);
             if (jwt == null) {
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
-               return null;
+                return null;
             }
 
             Optional<MemberContext> memberContext = refreshTokenEndPoint.getMemberContext(jwt);
-            if (memberContext.isEmpty()) {
-                response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                return null;
-            }
+
             token = refreshTokenEndPoint.setNewAccessToken(memberContext.get(), response);
             return new JwtAuthenticationToken(token);
-        } catch (Exception e) {
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setHeader("error",e.getMessage());
-            return null;
+
         }
+
     }
 
     //인증 성공시
@@ -101,7 +95,7 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authResult);
         SecurityContextHolder.setContext(context);// 시큐리티 컨텍스트에 현재 유저 정보를 저장해둔다
-            chain.doFilter(request, response);
+        chain.doFilter(request, response);
 
     }
 

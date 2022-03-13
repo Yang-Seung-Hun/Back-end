@@ -4,7 +4,6 @@ package com.hanghae99.boilerplate.security.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.config.Redis;
 import com.hanghae99.boilerplate.repository.MemberRepository;
-import com.hanghae99.boilerplate.repository.RefreshTokenRepository;
 import com.hanghae99.boilerplate.security.Exception.AjaxAccessDeniedHandler;
 import com.hanghae99.boilerplate.security.Exception.AjaxLoginAuthenticationEntryPoint;
 import com.hanghae99.boilerplate.security.RefreshTokenEndPoint;
@@ -21,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -53,8 +51,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     AuthenticationManager authenticationManager;
     @Autowired
-    UserDetailsService userDetailsService;
-    @Autowired
     AjaxAuthenticationProvider ajaxAuthenticationProvider;
 
     @Autowired
@@ -81,8 +77,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     MemberRepository memberRepository;
-    @Autowired
-    RefreshTokenRepository refreshTokenRepository;
+
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -106,7 +101,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     //AUTHENTICATION_URL만 AjaxLoginProcessingFilter(로그인 담당(를지난다
     protected AjaxLoginProcessingFilter buildAjaxLoginProcessingFilter() throws Exception {
         AjaxLoginProcessingFilter filter = new AjaxLoginProcessingFilter(AUTHENTICATION_URL,
-                new AjaxAuthenticationSuccessHandler(tokenFactory, memberRepository, refreshTokenRepository, objectMapper,redis,jwtConfig), failureHandler);
+                new AjaxAuthenticationSuccessHandler(tokenFactory, memberRepository, objectMapper,redis,jwtConfig), failureHandler);
         filter.setAuthenticationManager(this.authenticationManager);
         return filter;
     }

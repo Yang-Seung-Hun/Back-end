@@ -31,8 +31,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     private JwtConfig jwtConfig;
     @Autowired
     private TokenVerifier tokenVerifier;
-    @Autowired
-    TokenExtractor tokenExtractor;
+
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -51,12 +50,10 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             MemberContext context = MemberContext.create(sub, authorityList);
             //새로운 토큰을 발급해준다
             return new JwtAuthenticationToken(context, context.getAuthorities());
-        }catch (NullPointerException|SignatureException|UnsupportedJwtException|MalformedJwtException
-                |IllegalArgumentException e){
-            return null;
-        }
-      catch (ExpiredJwtException e) {
+        } catch (ExpiredJwtException e) {
             throw new ExpiredJwtException(null,null,e.getMessage());
+        }catch (JwtException|NullPointerException e){
+            return null;
         }
     }
 

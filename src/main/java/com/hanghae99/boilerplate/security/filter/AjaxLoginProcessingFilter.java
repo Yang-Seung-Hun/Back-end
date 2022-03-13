@@ -7,7 +7,6 @@ import com.hanghae99.boilerplate.security.Exception.ExceptionResponse;
 import com.hanghae99.boilerplate.security.handler.AjaxAuthenticationFailureHandler;
 import com.hanghae99.boilerplate.security.handler.AjaxAuthenticationSuccessHandler;
 import com.hanghae99.boilerplate.security.model.login.      LoginRequestDto;
-import com.hanghae99.boilerplate.security.util.WebUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -59,21 +58,14 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(loginRequestDto.getEmail(), loginRequestDto.getPassword());
 //            IOException, JsonParseException, JsonMappingException
             return this.getAuthenticationManager().authenticate(token);
+            //입력값에 대한 에러만 처리해준다
         } catch (JsonParseException|JsonMappingException| NullPointerException e  ){
             log.info(e.getMessage());
             response.setStatus(HttpStatus.BAD_REQUEST.value());
             objectMapper.writeValue(response.getWriter(),ExceptionResponse.of(HttpStatus.BAD_REQUEST,e.getMessage()));
 
-        }catch (BadCredentialsException e){
-            log.info(e.getMessage());
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            objectMapper.writeValue(response.getWriter(),ExceptionResponse.of(HttpStatus.UNAUTHORIZED,e.getMessage()));
         }
-        catch (Exception e){
-            log.info( e.getMessage());
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            objectMapper.writeValue(response.getWriter(),ExceptionResponse.of(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage()));
-        }
+        //나머지 에러가 발생하면 unsuccessfulAuthentication로 이동한다
         return null;
     }
 

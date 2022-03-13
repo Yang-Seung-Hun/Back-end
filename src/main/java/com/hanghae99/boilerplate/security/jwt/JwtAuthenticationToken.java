@@ -18,15 +18,11 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
         this.setAuthenticated(false);
     }
 
-    public JwtAuthenticationToken(MemberContext memberContext, Collection<? extends GrantedAuthority> authorities)  {
+    public JwtAuthenticationToken(MemberContext memberContext, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.eraseCredentials();
         this.memberContext = memberContext;
         super.setAuthenticated(true); //
-
-    }
-    public JwtAuthenticationToken(){
-        super(null );
 
     }
     //애매한 부분
@@ -34,8 +30,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
     public  void setAuthenticated(boolean authenticated){
         if (authenticated) {
-            throw new IllegalArgumentException(
-                    "Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead");
+            throw new IllegalArgumentException();
         }
         super.setAuthenticated(false);
     }
