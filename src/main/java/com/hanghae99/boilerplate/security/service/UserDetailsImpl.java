@@ -12,7 +12,6 @@ import java.util.Collection;
 
 
 @Getter
-@Setter
 @AllArgsConstructor
 public class UserDetailsImpl implements UserDetails {
 

@@ -28,9 +28,6 @@ public class TokenVerifier {
     JwtConfig jwtConfig;
     public Jws<Claims> validateToken(String jwtToken, String secretKey) {
 
-        if (jwtToken == null || jwtToken.isBlank()) {
-            throw new AuthenticationServiceException("Authorization  cannot be blank");
-        }
 
 //      String  jwtToken = header.substring(HEADER_PREFIX.length(), header.length());
         Jws<Claims> claims = null;
