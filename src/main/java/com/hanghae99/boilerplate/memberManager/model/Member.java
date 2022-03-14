@@ -49,6 +49,7 @@ public class Member {
         this.password="0000";
         this.roles.add(Role.USER);
         this.roles.add(Role.KAKAO);
+
     }
 
 
