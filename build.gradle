@@ -1,8 +1,15 @@
+
+
+buildscript {
+    ext {
+        queryDslVersion = "4.4.0"
+    }
+}
+
 plugins {
-//	id 'org.springframework.boot' version '2.4.0'
-	id 'org.springframework.boot' version '2.5.10'
-	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-	id 'java'
+    id 'org.springframework.boot' version '2.5.10'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
 }
 
 group = 'com.hanghae99'
@@ -10,32 +17,43 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-	// https://mvnrepository.com/artifact/org.projectlombok/lombok
-//	compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.22'
-
-	compileOnly 'org.projectlombok:lombok:1.18.22'
-	annotationProcessor 'org.projectlombok:lombok:1.18.22'
-
-	testCompileOnly 'org.projectlombok:lombok:1.18.22'
-	testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
+    //fcm
+    implementation 'com.google.firebase:firebase-admin:6.8.1'
 
 
-	//swagger
-	implementation "io.springfox:springfox-swagger-ui:3.0.0"
-	implementation "io.springfox:springfox-boot-starter:3.0.0"
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    //testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+
+//	//lombok
+//	compileOnly 'org.projectlombok:lombok'
+//	annotationProcessor 'org.projectlombok:lombok'
+//	testCompileOnly 'org.projectlombok:lombok'
+//	testAnnotationProcessor 'org.projectlombok:lombok'
+
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+
+//    testCompileOnly 'org.projectlombok:lombok:1.18.22'
+//    testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
+    //swagger
+    //Error command
+//    implementation "io.springfox:springfox-swagger-ui:3.0.0"
+//    implementation "io.springfox:springfox-boot-starter:3.0.0"
+
+    //mysql
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.22'
 
 	//socket
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
@@ -81,7 +99,61 @@ dependencies {
 //	compile group: 'com.github.kstyrc', name: 'embedded-redis', version: '0.6'
 
 }
+    //security
+    implementation group: 'org.springframework.security', name: 'spring-security-core', version: '5.6.2'
+    implementation group: 'org.springframework.security', name: 'spring-security-web', version: '5.6.2'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.4.0'
 
-tasks.named('test') {
-	useJUnitPlatform()
+    //jpa
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.5.1'
+
+    //model mapper
+    implementation 'org.modelmapper:modelmapper:2.4.5'
+    // https://mvnrepository.com/artifact/org.springframework.security.oauth/spring-security-oauth2
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+    // https://mvnrepository.com/artifact/com.auth0/java-jwt
+    implementation group: 'com.auth0', name: 'java-jwt', version: '3.16.0'
+
+    //gosn
+    implementation 'com.google.code.gson:gson:2.8.7'
+
+    //model mapper
+    // https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-mapper-asl
+    implementation group: 'org.codehaus.jackson', name: 'jackson-mapper-asl', version: '1.9.13'
+
+
+    //valid
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    //log
+//    implementation('org.slf4j:jcl-over-slf4j')
+//    implementation('ch.qos.logback:logback-classic')
+
+//test
+// https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
+// https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine
+//    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.3'
+//    testImplementation group: 'org.springfraFmework.security', name: 'spring-security-test', version: '5.6.2'
+//    implementation 'org.testng:testng:7.5'
+
+    implementation group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: '2.4.8'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
+
+    // QueryDSL
+    implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
+    annotationProcessor(
+            "javax.persistence:javax.persistence-api",
+            "javax.annotation:javax.annotation-api",
+            "com.querydsl:querydsl-apt:${queryDslVersion}:jpa")
+
+
+    //elk
+    implementation 'org.springframework.data:spring-data-elasticsearch:4.2.2'
+
+    //redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+
 }
+
