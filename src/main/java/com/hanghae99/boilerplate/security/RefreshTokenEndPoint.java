@@ -67,7 +67,7 @@ public class RefreshTokenEndPoint {
 
     public RawAccessToken setNewAccessToken(MemberContext memberContext, HttpServletResponse response) throws IOException {
         AccessToken accessToken = tokenFactory.createAccessToken(memberContext);
-        response.setHeader("Authorization",accessToken.getToken());
+        response.setHeader(JwtConfig.AUTHENTICATION_HEADER_NAME,accessToken.getToken());
         return new RawAccessToken(accessToken.getToken());
     }
 

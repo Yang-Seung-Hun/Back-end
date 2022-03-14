@@ -71,7 +71,6 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
         try {
             String payload = request.getHeader(SecurityConfig.AUTHENTICATION_HEADER_NAME);
             token = new RawAccessToken(tokenExtractor.extract(payload));
-
             return getAuthenticationManager().authenticate(new JwtAuthenticationToken(token));
         } catch (ExpiredJwtException e) {
             Jws<Claims> jwt = refreshTokenEndPoint.getJwtClimas(request);
@@ -83,7 +82,7 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
             Optional<MemberContext> memberContext = refreshTokenEndPoint.getMemberContext(jwt);
 
             token = refreshTokenEndPoint.setNewAccessToken(memberContext.get(), response);
-            return new JwtAuthenticationToken(token);
+            return getAuthenticationManager().authenticate(new JwtAuthenticationToken(token));
 
         }
 
@@ -92,9 +91,10 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
     //인증 성공시
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(authResult);
-        SecurityContextHolder.setContext(context);// 시큐리티 컨텍스트에 현재 유저 정보를 저장해둔다
+//        SecurityContext context = SecurityContextHolder.createEmptyContext();
+//        context.setAuthentication(authResult);
+        SecurityContextHolder.getContext().setAuthentication(authResult);
+//        SecurityContextHolder.setContext(context);// 시큐리티 컨텍스트에 현재 유저 정보를 저장해둔다
         chain.doFilter(request, response);
 
     }

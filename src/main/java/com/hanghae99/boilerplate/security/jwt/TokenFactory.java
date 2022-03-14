@@ -55,7 +55,7 @@ public class TokenFactory {
                     .setIssuer(jwtConfig.getTokenIssuer())
                     .setIssuedAt(Date.from(currentTime.atZone(ZoneId.systemDefault()).toInstant()))
                     .setExpiration(Date.from(currentTime
-                            .plusMinutes(jwtConfig.getRefreshTokenExpTime())
+                            .plusDays(jwtConfig.getRefreshTokenExpTime())
                             .atZone(ZoneId.systemDefault()).toInstant()))
                     .signWith(SignatureAlgorithm.HS512, jwtConfig.getTokenSigningKey())
                     .compact();

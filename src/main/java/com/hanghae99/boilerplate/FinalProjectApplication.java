@@ -2,6 +2,7 @@ package com.hanghae99.boilerplate;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.dom4j.rule.Mode;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
@@ -21,9 +22,10 @@ public class FinalProjectApplication {
 	}
 
 	@Bean
-	public ObjectMapper objectMapper(){
+	public ObjectMapper objectMapper() {
 		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+		objectMapper.registerModule(new JavaTimeModule());
+		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		return objectMapper;
 	}
 	@Bean

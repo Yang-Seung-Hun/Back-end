@@ -20,40 +20,41 @@ public class Connection {
     @Autowired
     ObjectMapper objectMapper;
 
-//    public KakaoUserInformationDto getaccessToken(String code) throws IOException {
-//        URL url = new URL("https://kauth.kakao.com/oauth/token");
-//        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-//        connection.setRequestMethod("POST");
-//        connection.setDoOutput(true);
-//
-//        BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
-//        //문자열 처리 속도 향상
-//        StringBuilder stringBuilder = new StringBuilder();
-////        private final  String URL =  "https://kauth.kakao.com/oauth/authorize?client_id=61d258f52ee7b081b616d4119c86ba99&redirect_uri=http://localhost:3000/oauth/kakao/callback&response_type=code"
-//
-//        stringBuilder.append("grant_type=authorization_code");
-////        stringBuilder.append("&client_id=91ee90dad2384a8f06ab7106b2f92daf");
-//        stringBuilder.append("client_id=61d258f52ee7b081b616d4119c86ba99");
-////        stringBuilder.append("&redirect_uri=http://18.117.124.131/api/kakao/login");
-////        stringBuilder.append("&redirect_uri=http://localhost:8080/api/kakao/login");
-//        stringBuilder.append("&redirect_uri=http://localhost:3000/oauth/kakao/callback");
-//        stringBuilder.append("&code=" + code);
-//
-//        bufferedWriter.write(stringBuilder.toString());
-//        bufferedWriter.flush();
-//
-//        int status = connection.getResponseCode();
-//        if (status != 200) {
-//            log.info("bad status : {}", status);
-//            return null;
-//        }
-//        KakaoUserInformationDto user = objectMapper.readValue(readConnectionStringToObject(connection), KakaoUserInformationDto.class);
-//        log.info(" get  kakao access_token  success");
-//        bufferedWriter.close();
-//
-//
-//        return user;
-//    }
+    public KakaoUserData getaccessToken( String code) throws IOException {
+        URL url = new URL("https://kauth.kakao.com/oauth/token");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+
+        BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
+        //문자열 처리 속도 향상
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("grant_type=authorization_code");
+        stringBuilder.append("&client_id=91ee90dad2384a8f06ab7106b2f92daf");
+
+//        stringBuilder.append("&redirect_uri=http://18.117.124.131/api/kakao/login");
+        stringBuilder.append("&redirect_uri=http://localhost:3000/api/kakao/login");
+
+        stringBuilder.append("&code=" + code);
+
+        bufferedWriter.write(stringBuilder.toString());
+        bufferedWriter.flush();
+
+        int status = connection.getResponseCode();
+        if(status != 200) {
+            log.info("Bad Status getAccessToken  : {}",status);
+            return null;
+        }
+
+
+        KakaoUserData user = objectMapper.readValue(readConnectionStringToObject(connection), KakaoUserData.class);
+        bufferedWriter.close();
+
+
+        return user;
+    }
 
     public TemporaryUser getUserData(String token) throws IOException {
 
@@ -64,10 +65,10 @@ public class Connection {
 
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
-        connection.setRequestProperty("Authorization",token);
+        connection.setRequestProperty("Authorization","Bearer "+ token);
 
         if (connection.getResponseCode() != 200) {
-            log.info("bad status : " + connection.getResponseCode());
+            log.info("bad status getUserData : " + connection.getResponseCode());
             return null;
         }
 
@@ -101,16 +102,17 @@ public class Connection {
         return jsonNode;
     }
 
-//    public String readConnectionStringToObject(HttpURLConnection connection) throws IOException {
-//        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-//        String line = "";
-//        String result = "";
-//        while ((line = bufferedReader.readLine()) != null) {
-//            result += line;
-//        }
-//        bufferedReader.close();
-//        return result;
-//    }
+    public String readConnectionStringToObject(HttpURLConnection connection) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        String line = "";
+        String result = "";
+        while ((line = bufferedReader.readLine()) != null) {
+            result += line;
+        }
+        bufferedReader.close();
+        return result;
+    }
+
 
 //    public LocalDateTime StringToDate(String date){
 //

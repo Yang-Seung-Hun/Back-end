@@ -4,27 +4,36 @@ package com.hanghae99.boilerplate.signupLogin.kakao.service;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.config.Redis;
+import com.hanghae99.boilerplate.security.jwt.RawAccessToken;
+import com.hanghae99.boilerplate.security.jwt.extractor.TokenVerifier;
 import com.hanghae99.boilerplate.signupLogin.dto.responseDto.LoginResponseDto;
 import com.hanghae99.boilerplate.signupLogin.kakao.TemporaryUser;
 import com.hanghae99.boilerplate.signupLogin.kakao.common.Connection;
+import com.hanghae99.boilerplate.signupLogin.kakao.common.KakaoUserData;
 import com.hanghae99.boilerplate.signupLogin.kakao.common.RegisterMember;
 import com.hanghae99.boilerplate.security.config.JwtConfig;
 import com.hanghae99.boilerplate.security.jwt.TokenFactory;
 import com.hanghae99.boilerplate.security.jwt.from.JwtToken;
 import com.hanghae99.boilerplate.security.model.MemberContext;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.security.sasl.AuthenticationException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,59 +54,17 @@ public class KakaoLoginService {
     Redis redis;
 
     @Autowired
+    TokenVerifier tokenVerifier;
+    @Autowired
     JwtConfig jwtConfig;
+
     @JsonIgnoreProperties
-    @Transactional
-    public void  getKakaoUserInformaiton(HttpServletResponse response, String kakaoAccessToken) throws Exception {
-        try {
+    public TemporaryUser getKakaoUserInformation(String code) throws IOException {
 
-
-//            KakaoUserInformationDto user = connection.getaccessToken(code);
-            TemporaryUser temporaryUser=  connection.getUserData(kakaoAccessToken);
-
-
-            Optional<LoginResponseDto> loginResponseDto= registerMember.registerKakaoUserToMember(temporaryUser);
-
-            MemberContext memberContext = new MemberContext(loginResponseDto.get().getEmail(),
-                   loginResponseDto.get().getRole().stream().map(role ->
-                           new SimpleGrantedAuthority(role.name())).collect(Collectors.toList()));
-
-            JwtToken accessToken = tokenFactory.createAccessToken(memberContext);
-            JwtToken refreshToken = tokenFactory.createRefreshToken(memberContext);
-
-
-            redis.setExpire(refreshToken.getToken(),memberContext.getUsername(), jwtConfig.getRefreshTokenExpTime());
-
-            response.setCharacterEncoding("UTF-8");
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setStatus(HttpStatus.OK.value());
-            Cookie cookie = new Cookie(jwtConfig.AUTHENTICATION_HEADER_NAME,refreshToken.getToken());
-            cookie.setHttpOnly(true);
-            cookie.setMaxAge(60 * 60* 48);
-            cookie.setPath("/");
-            response.addCookie(cookie);
-
-            Map<String, String> tokenMap = new HashMap<String, String>();
-            tokenMap.put("email",temporaryUser.getEmail());
-            tokenMap.put("nickname",temporaryUser.getNickname());
-            objectMapper.writeValue(response.getWriter(),tokenMap);
-
-
-            log.info("kakao user login  email : {} ",memberContext.getUsername());
-
-            response.setHeader(jwtConfig.AUTHENTICATION_HEADER_NAME,accessToken.getToken());
-
-        } catch (MalformedURLException e) {
-            log.info(e.toString()  );
-            throw new MalformedURLException("bad request");
-        } catch (IOException e) {
-            log.info(e.toString()  );
-            e.printStackTrace();
-        }  catch (Exception e){
-            log.info(e.toString()  );
-            throw new Exception(e.getMessage());
-        }
+        KakaoUserData user = connection.getaccessToken(code);
+        TemporaryUser temporaryUser = connection.getUserData(user.getAccess_token());
+        log.info("{} login kakao ", temporaryUser.getEmail());
+        return temporaryUser;
     }
-
-
 }
+

@@ -20,5 +20,6 @@ public class JwtConfig {
 
     public static final String AUTHENTICATION_HEADER_NAME = "Authorization";
 
+    public static final String TOKEN_TYPE   = "Bearer ";
 
 }

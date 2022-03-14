@@ -7,6 +7,7 @@ import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -17,12 +18,13 @@ public class RegisterMember {
         @Autowired
         private MemberRepository memberRepository;
 
+        @Transactional
         public Optional<LoginResponseDto> registerKakaoUserToMember(TemporaryUser temporaryUser){
             Member member = new Member(temporaryUser);
 
             LoginResponseDto loginResponseDto = new LoginResponseDto(member.getEmail(), member.getNickname(),member.getRoles());
 
-           if (!memberRepository.findByEmail(temporaryUser.getEmail()).isPresent()){
+           if (!memberRepository.existsMemberByEmail(temporaryUser.getEmail())){
                log.info("kakao signup user email : {}",loginResponseDto.getEmail());
                memberRepository.save(member);
            }

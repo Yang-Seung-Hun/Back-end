@@ -47,5 +47,6 @@ public class Member {
         this.nickname= temporaryUser.getNickname();
         this.password="0000";
         this.roles.add(Role.USER);
+        this.roles.add(Role.KAKAO);
     }
 }
