@@ -26,4 +26,9 @@ public class ChatController {
         messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
         log.info("받은 chatMessage의 sender는: {}", message.getSender());
     }
+//
+//    //todo 찬반투표라는 pub -> 해당 sub 에 투표현황 send
+//    @MessageMapping("/chat/vote")
+//    public void vote()
+
 }
