@@ -3,7 +3,10 @@ package com.hanghae99.boilerplate.noti.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.messaging.*;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.WebpushConfig;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +55,15 @@ public class FCMService {
 
         // See documentation on defining a message payload.
         // link?
+
+        System.out.println("fcmfcmfcmfcm");
+
         String targetToken = getToken(userId);
+        System.out.println(messageMap);
+        System.out.println(targetToken);
+        System.out.println(userId);
+        System.out.println(tokenMap);
+        System.out.println("sdfsdfsdfsdfdsfsdfsd");
         messageMap.put("Df","Df");
         String _message = makeMessage(targetToken, title, body);
         Message message = Message.builder()

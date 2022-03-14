@@ -1,13 +1,11 @@
 package com.hanghae99.boilerplate.security.provider;
 
-import com.hanghae99.boilerplate.model.Role;
 import com.hanghae99.boilerplate.security.config.JwtConfig;
 import com.hanghae99.boilerplate.security.jwt.JwtAuthenticationToken;
 import com.hanghae99.boilerplate.security.jwt.RawAccessToken;
 import com.hanghae99.boilerplate.security.jwt.extractor.TokenVerifier;
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.impl.crypto.DefaultJwtSigner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -16,10 +14,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
-
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component

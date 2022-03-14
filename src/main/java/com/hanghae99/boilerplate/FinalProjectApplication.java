@@ -2,42 +2,46 @@ package com.hanghae99.boilerplate;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.dom4j.rule.Mode;
-import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-//import springfox.documentation.swagger2.annotations.EnableSwagger2;
-//
-//@EnableSwagger2
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+
 @SpringBootApplication
+@EnableCaching
 public class FinalProjectApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(FinalProjectApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(FinalProjectApplication.class, args);
+    }
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**").allowedOrigins("http://localhost:3000");
+            }
+        };
+    }
 
-	@Bean
-	public ObjectMapper objectMapper(){
-		ObjectMapper objectMapper = new ObjectMapper();
+    @Bean
+    public ObjectMapper objectMapper(){
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
 
-		objectMapper.registerModule(new JavaTimeModule());
-
-		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
-		return objectMapper;
-	}
-	@Bean
-	public BCryptPasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+        return objectMapper;
+    }
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
 
-	@Bean
-	public ModelMapper modelMapper(){
-		ModelMapper modelMapper = new ModelMapper();
-		return modelMapper;
-	}
 
 }

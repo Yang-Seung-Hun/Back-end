@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,7 +32,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,6 +40,8 @@ import java.util.List;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String AUTHENTICATION_HEADER_NAME = "Authentitcation";
     public static final String SWAGGER = "/swagger-ui/**";
+    public static final String INDE = "/";
+
     public static final String SWAGGER_DOCS = "/swagger-resources/**";
     public static final String AUTHENTICATION_URL = "/api/login";
     public static final String AUTH_ROOT_URL = "/auth/**";
@@ -107,7 +107,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     //REFRESH_TOKEN_URL,와 AUTHENTICATION_URL는 스킵하고 API_ROOT_URL는 모두 인가처리해라
     protected JwtTokenAuthenticationProcessingFilter buildJwtTokenAuthenticationProcessingFilter() throws Exception {
-        List<String> pathsToSkip = Arrays.asList(REFRESH_TOKEN_URL, SIGNUP_URL, AUTHENTICATION_URL, SWAGGER, SWAGGER_DOCS);
+        List<String> pathsToSkip = Arrays.asList(INDE,REFRESH_TOKEN_URL, SIGNUP_URL, AUTHENTICATION_URL, SWAGGER, SWAGGER_DOCS);
         SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, AUTH_ROOT_URL);
         JwtTokenAuthenticationProcessingFilter filter = new JwtTokenAuthenticationProcessingFilter(failureHandler, tokenExtractor, matcher
                 , refreshTokenEndPoint);
@@ -130,7 +130,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
 
-        http.cors()
+        http.cors().configurationSource(corsConfigurationSource())
                 .and()
                 .csrf().disable()
                 .exceptionHandling()
@@ -145,7 +145,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .deleteCookies(AUTHENTICATION_HEADER_NAME);
         http.
                 authorizeRequests()
-                .antMatchers(SIGNUP_URL, SWAGGER, SWAGGER_DOCS).permitAll()// Token refresh end-point
+                .antMatchers(INDE, SIGNUP_URL, SWAGGER, SWAGGER_DOCS).permitAll()// Token refresh end-point
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(buildAjaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class)

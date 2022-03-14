@@ -212,19 +212,23 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public void createReply(ReplyRequestDto replyRequestDto, MemberContext user) throws ExecutionException, InterruptedException, JsonProcessingException {
-        Optional<Comment> comment = commentRepository.findById(replyRequestDto.getCommentId());
+    public void createReply(Long commentId, ReplyRequestDto replyRequestDto, MemberContext user) throws ExecutionException, InterruptedException, JsonProcessingException {
+        Optional<Comment> comment = commentRepository.findById(commentId);
         Optional<Member> member = memberRepository.findById(user.getMemberId());
+
         Reply reply = Reply.builder()
                 .comment(comment.get())
-                .member(member.get())
+                .memberId(member.get().getId())
                 .createdAt(LocalDateTime.now())
                 .content(replyRequestDto.getContent())
                 .build();
         replyRepository.save(reply);
 
+        System.out.println(reply+ "저장");
+
         //push
-        fcmService.sendMessageTo(member.get().getId(), "댓글 Notification",  comment.get().getContent() + "에 대댓글이 달렸습니다");
+        System.out.println(comment.get().getMember().getNickname());
+        fcmService.sendMessageTo(comment.get().getMember().getId(), "댓글 Notification",  comment.get().getContent() + "에 대댓글이 달렸습니다");
     }
 
     @Override
@@ -232,7 +236,6 @@ public class BoardServiceImpl implements BoardService {
     public List<ReplyResponseDto> showReplies(Long commentId) {
         return commentRepository.findById(commentId).get().getReplies().stream()
                 .map(Reply::toDto).collect(Collectors.toList());
-        //push , 읽음처리
 
     }
 

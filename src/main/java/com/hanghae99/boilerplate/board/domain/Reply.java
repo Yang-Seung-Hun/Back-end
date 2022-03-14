@@ -9,20 +9,23 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import lombok.ToString;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Entity
 @Builder
+@ToString(exclude = "comment")
 public class Reply {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name ="member_id")
-    private Member member;
+//    @ManyToOne
+//    @JoinColumn(name ="member_id")
+//    private Member member;
+    private Long memberId;
 
     @ManyToOne
     @JoinColumn(name ="comment_id")
@@ -37,7 +40,7 @@ public class Reply {
                 .replyId(this.id)
                 .commentId(this.comment.getId())
                 .content(this.content)
-                .memberId(this.member.getId())
+                .memberId(this.memberId)
                 .createdAt(this.createdAt)
                 .build();
     }

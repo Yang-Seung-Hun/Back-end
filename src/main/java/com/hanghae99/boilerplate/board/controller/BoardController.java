@@ -91,8 +91,9 @@ public class BoardController {
 
     //대댓글 달기
     @PostMapping("/api/comment/{commentId}/reply")
-    public BaseResponse createReply(@RequestBody ReplyRequestDto replyRequestDto, @AuthenticationPrincipal MemberContext user) throws ExecutionException, InterruptedException, JsonProcessingException {
-        boardService.createReply(replyRequestDto, user);
+    public BaseResponse createReply(@PathVariable Long commentId ,@RequestBody ReplyRequestDto replyRequestDto, @AuthenticationPrincipal MemberContext user) throws ExecutionException, InterruptedException, JsonProcessingException {
+
+        boardService.createReply(commentId, replyRequestDto, user);
         return new BaseResponse("ok");
     }
     //대댓글 보기

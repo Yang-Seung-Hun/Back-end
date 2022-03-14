@@ -1,8 +1,6 @@
 package com.hanghae99.boilerplate.security.util;
 
 
-import org.springframework.security.web.savedrequest.SavedRequest;
-
 //컨텐츠 타입 검사
 public class WebUtil {
     public static final String CONTENT_TYPE = "Content-Type";
