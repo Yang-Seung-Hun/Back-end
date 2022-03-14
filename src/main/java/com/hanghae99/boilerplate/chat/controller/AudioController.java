@@ -1,11 +1,12 @@
 package com.hanghae99.boilerplate.chat.controller;
 
-import com.hanghae99.boilerplate.chat.model.ChatRoom;
+import com.hanghae99.boilerplate.chat.model.ChatRoomResDto;
 import com.hanghae99.boilerplate.chat.model.CloseChatRoomDto;
 import com.hanghae99.boilerplate.chat.model.audiochat.AudioChatEntryDto;
 import com.hanghae99.boilerplate.chat.model.audiochat.AudioChatLeaveDto;
 import com.hanghae99.boilerplate.chat.model.audiochat.AudioChatRole;
 import com.hanghae99.boilerplate.chat.repository.ChatRoomRepository;
+import com.hanghae99.boilerplate.chat.service.ChatRoomService;
 import io.openvidu.java.client.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,10 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -41,14 +40,17 @@ public class AudioController {
     private String SECRET;
 
     // openVidu-server와 연결하기 위한 컨트롤러에는 secret 과, url 이 필요하다~
-    public AudioController(@Value("${openvidu.secret}") String secret, @Value("${openvidu.url}") String openviduUrl, ChatRoomRepository chatRoomRepository) {
+    public AudioController(@Value("${openvidu.secret}") String secret, @Value("${openvidu.url}") String openviduUrl, ChatRoomRepository chatRoomRepository, ChatRoomService chatRoomService) {
         this.SECRET = secret;
         this.OPENVIDU_URL = openviduUrl;
         this.openVidu = new OpenVidu(OPENVIDU_URL, SECRET);
         this.chatRoomRepository = chatRoomRepository;
+        this.chatRoomService = chatRoomService;
     }
 
     private ChatRoomRepository chatRoomRepository;
+
+    private ChatRoomService chatRoomService;
 
     // 토큰을 발급하는 api. 음성 채팅방에 입장하는 지점.
     // AudioChatMember 형식에 맞춘 requestBody 를 받아와서 발급해주는 것이 좋지 않을까.
@@ -85,7 +87,7 @@ public class AudioController {
 
                 int nowParticipants = this.mapSessionNamesTokens.get(roomId).size();
                 Long maxParticipants = chatEntryDto.getParticipantCount();
-                if ( maxParticipants <= nowParticipants) {
+                if (maxParticipants <= nowParticipants) {
                     log.info("{}번 room에 대해 수용가능 인원이 이미 찼어요. 현재 인원:{}, 최대 인원:{}", roomId, nowParticipants, maxParticipants);
                     return ResponseEntity.badRequest().body("수용가능 인원이 이미 찼어요.");
                 }
@@ -113,7 +115,8 @@ public class AudioController {
 
                 if (chatEntryDto.getRole() != AudioChatRole.MODERATOR) {
                     log.error("방장만이 방 개설 요청을 할 수 있습니다. 현재 role: {}", chatEntryDto.getRole());
-                    return ResponseEntity.badRequest().body("방장만이 방 개설 요청을 할 수 있습니다.");
+                    String message = "방장만이 방 개설 요청을 할 수 있습니다. 현재 role: "+ chatEntryDto.getRole();
+                    throw new IllegalArgumentException(message);
                 }
 
                 // 새 openVidu session 을 만들기
@@ -183,50 +186,38 @@ public class AudioController {
             } else {
                 // 유효한 토큰이 아닌 경우
                 log.info("유효하지 않은 토큰입니다! 제출한 토큰은 {}", token);
-                String message = "유효하지 않은 토큰입니다! 제출한 토큰은 " + token;
-                return ResponseEntity.badRequest().body(message);
+                String message = "유효하지 않은 토큰입니다! 제출한 토큰: " + token;
+                throw new IllegalArgumentException(message);
             }
         } else {
             log.info("존재하지 않는 방에 대한 퇴장 요청입니다.", roomId);
             String message = "존재하지 않는 방에 대한 퇴장 요청입니다.";
-            return ResponseEntity.badRequest().body(message);
+            throw new IllegalArgumentException(message);
         }
     }
 
     @Transactional
     @PostMapping(value = "/close")
-    public ResponseEntity<Object> closeRoom(@RequestBody CloseChatRoomDto closeChatRoomDto) {
+    public ResponseEntity<ChatRoomResDto> closeRoom(@RequestBody CloseChatRoomDto closeChatRoomDto) {
 
         Long roomId = closeChatRoomDto.getRoomId();
         String token = closeChatRoomDto.getToken();
 
         if (!AudioChatRole.MODERATOR.equals(closeChatRoomDto.getRole())) {
-            return ResponseEntity.badRequest().body("방장이 아니면 방을 종료할 수 없습니다.");
+            throw new IllegalArgumentException("방장이 아니면 방을 종료할 수 없습니다.");
         }
-
         if (this.mapSessionNamesTokens.get(roomId).get(token) == null) {
-            return ResponseEntity.badRequest().body("유효한 토큰이 아니므로 방을 종료할 권한이 없습니다.");
+            throw new IllegalArgumentException("유효한 토큰이 아니므로 방을 종료할 권한이 없습니다.");
         }
 
-        Optional<ChatRoom> room = chatRoomRepository.findById(roomId);
-        if (!room.isPresent()) {
-            return ResponseEntity.badRequest().body("해당 아이디의 방이 존재하지 않습니다.");
-        }
+        ChatRoomResDto roomResDto = chatRoomService.closeRoom(closeChatRoomDto);
 
-        // 최종 참여인원, 찬성수, 반대수를 업데이트
-        room.get().setTotalParticipantCount(closeChatRoomDto.getTotalParticipantCount());
-        room.get().setAgreeCount(closeChatRoomDto.getAgreeCount());
-        room.get().setDisagreeCount(closeChatRoomDto.getDisagreeCount());
-
-        LocalDateTime dateAndtime = LocalDateTime.now();
-        room.get().setClosedAt(dateAndtime);
-
-        // 메모리 상에서만 관리되고 있는 거긴 하지만, 개설된 방 삭제.
+        // 메모리 상에서만 관리되고 있는 거긴 하지만, 개설된 방 삭제. //todo 이 친구는 무용해질 것 ..
         this.mapSessionNamesTokens.remove(roomId);
         this.mapSessions.remove(roomId);
 
         //todo 리턴양식 바꾸기 entity 직접 안 다루도록.
-        return ResponseEntity.ok().body(room.get());
+        return ResponseEntity.ok().body(roomResDto);
     }
 
 }

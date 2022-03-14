@@ -8,12 +8,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ChatRoom extends Timestamped {
+public class ChatRoom extends Timestamped implements Serializable {
+
+    private static final long serialVersionUID = 6494678977089006639L;
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomId;
     private String roomName;   //방 제목

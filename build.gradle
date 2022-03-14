@@ -60,8 +60,25 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	runtimeOnly 'com.h2database:h2'
 
-	// local로 embedded redis
+	// redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+	//embedded-redis
+	implementation 'it.ozimov:embedded-redis:0.7.2'
+	implementation 'org.webjars.bower:bootstrap:4.3.1'
+	implementation 'org.webjars.bower:vue:2.5.16'
+	implementation 'org.webjars.bower:axios:0.17.1'
+	implementation 'org.webjars:sockjs-client:1.1.2'
+	implementation 'org.webjars:stomp-websocket:2.3.3-1'
+	implementation 'com.google.code.gson:gson:2.8.0'
+
+
+//	//embedded-redis
+//	implementation 'com.github.kstyrc:embedded-redis:0.6'
+
+
+
+//	compile group: 'com.github.kstyrc', name: 'embedded-redis', version: '0.6'
 
 }
 

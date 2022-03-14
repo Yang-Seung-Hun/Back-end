@@ -1,17 +1,17 @@
 package com.hanghae99.boilerplate.chat.controller;
 
 import com.hanghae99.boilerplate.chat.model.ChatRoom;
+import com.hanghae99.boilerplate.chat.model.ChatRoomResDto;
 import com.hanghae99.boilerplate.chat.model.CreateChatRoomDto;
 import com.hanghae99.boilerplate.chat.repository.ChatRoomRepository;
+import com.hanghae99.boilerplate.chat.repository.RedisChatRoomRepository;
+import com.hanghae99.boilerplate.chat.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController
@@ -21,45 +21,35 @@ import java.util.Optional;
 public class ChatRoomController {
 
     private final ChatRoomRepository chatRoomRepository;
+    private final RedisChatRoomRepository redisChatRoomRepository;
+    private final ChatRoomService chatRoomService;
+
+    // 채팅방 생성
+    @PostMapping("/room")
+    public ResponseEntity<ChatRoomResDto> createRoom(@RequestBody CreateChatRoomDto createChatRoomDto) {
+        //todo 방생성시 동일한 이름 중복되지 않게 해야 할 것. (chatRoomService 에서)
+        ChatRoomResDto roomResDto = chatRoomService.save(createChatRoomDto);
+        return ResponseEntity.ok().body(roomResDto);
+    }
 
     // 모든 채팅방 목록 조회
     @GetMapping("/rooms")
-    public ResponseEntity<List<ChatRoom>> room() {
-        List<ChatRoom> rooms = chatRoomRepository.findAll();
-        return ResponseEntity.ok().body(rooms);
-    }
-
-    // 채팅방 생성 (채팅방명을 파라미터로)
-    @PostMapping("/room")
-    public ResponseEntity<Map<String, Object>> createRoom(@RequestBody CreateChatRoomDto createChatRoomDto) {
-        //todo 방생성시 동일한 이름 중복되지 않게 해야 할 것.
-        ChatRoom room = new ChatRoom(createChatRoomDto);
-        chatRoomRepository.save(room);
-        Map<String, Object> map = mapChatRoomInfo(room);
-        return ResponseEntity.ok().body(map);
+    public ResponseEntity<List<ChatRoom>> findAll() {
+        List<ChatRoom> allFromDb = chatRoomService.findAllFromDb();
+//        List<ChatRoom> allFromRedis = chatRoomService.findAllFromRedis();
+        return ResponseEntity.ok().body(allFromDb);
     }
 
     // 특정 채팅방 조회
     //todo chatRoomService 만들어서 entity를 controller 에서 다루지 않도록.
     @GetMapping("/room/{roomId}")
-    public ResponseEntity<Object> roomInfo(@PathVariable Long roomId) {
-        Optional<ChatRoom> room = chatRoomRepository.findById(roomId);
-        if (!room.isPresent()) {
-            return ResponseEntity.badRequest().body("존재하지 않는 roomId 입니다.");
-        }
-        ChatRoom findRoom = room.get();
-        Map<String, Object> map = mapChatRoomInfo(findRoom);
-        return ResponseEntity.ok().body(map);
+    public ResponseEntity<ChatRoomResDto> roomInfo(@PathVariable Long roomId) {
+
+        ChatRoomResDto roomResDto = chatRoomService.findByIdFromDb(roomId);
+//        ChatRoomResDto roomResDtoFromRedis = chatRoomService.findByIdFromRedis(roomId);
+
+        return ResponseEntity.ok().body(roomResDto);
+//        return ResponseEntity.ok().body(mapRedis);
     }
 
-    private Map<String, Object> mapChatRoomInfo(ChatRoom findRoom) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("roomId", findRoom.getRoomId());
-        map.put("roomName", findRoom.getRoomName());
-        map.put("moderator", findRoom.getModerator());
-        map.put("participantCount", findRoom.getMaxParticipantCount());
-        map.put("content", findRoom.getContent());
-        map.put("isPrivate", findRoom.getIsPrivate());
-        return map;
-    }
 }
