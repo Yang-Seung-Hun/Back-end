@@ -93,12 +93,17 @@ dependencies {
     testImplementation group: 'it.ozimov', name: 'embedded-redis', version: '0.7.2'
 
 
-    //QueryDsl
-    implementation "com.querydsl:querydsl-jpa:5.0.0"
-    annotationProcessor(
-            "javax.persistence:javax.persistence-api",
-            "javax.annotation:javax.annotation-api",
-            "com.querydsl:querydsl-apt:5.0.0:jpa")
+//    // QueryDSL
+//    implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
+//    annotationProcessor(
+//            "javax.persistence:javax.persistence-api",
+//            "javax.annotation:javax.annotation-api",
+//            "com.querydsl:querydsl-apt:${queryDslVersion}:jpa")
+//
+//    //fcm
+//    implementation 'com.google.firebase:firebase-admin:6.8.1'
+//    //elk
+//    implementation 'org.springframework.data:spring-data-elasticsearch:4.2.2'
 
 }
 

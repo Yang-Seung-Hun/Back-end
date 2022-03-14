@@ -5,9 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -49,4 +50,6 @@ public class Member {
         this.roles.add(Role.USER);
         this.roles.add(Role.KAKAO);
     }
+
+
 }
