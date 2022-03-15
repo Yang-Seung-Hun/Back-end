@@ -35,9 +35,10 @@ public class ChatRoomController {
     // 모든 채팅방 목록 조회
     @GetMapping("/rooms")
     public ResponseEntity<List<ChatRoom>> findAll() {
-        List<ChatRoom> allFromDb = chatRoomService.findAllFromDb();
-//        List<ChatRoom> allFromRedis = chatRoomService.findAllFromRedis();
-        return ResponseEntity.ok().body(allFromDb);
+//        List<ChatRoom> allFromDb = chatRoomService.findAllFromDb();
+        List<ChatRoom> allFromRedis = chatRoomService.findAllFromRedis();
+//        return ResponseEntity.ok().body(allFromDb);
+        return ResponseEntity.ok().body(allFromRedis);
     }
 
     // 특정 채팅방 조회

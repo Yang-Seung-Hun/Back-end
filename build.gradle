@@ -98,7 +98,7 @@ dependencies {
 
 //	compile group: 'com.github.kstyrc', name: 'embedded-redis', version: '0.6'
 
-}
+
     //security
     implementation group: 'org.springframework.security', name: 'spring-security-core', version: '5.6.2'
     implementation group: 'org.springframework.security', name: 'spring-security-web', version: '5.6.2'

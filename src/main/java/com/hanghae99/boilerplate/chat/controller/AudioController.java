@@ -27,6 +27,8 @@ public class AudioController {
     // OpenVidu object as entrypoint of the SDK
     private OpenVidu openVidu;
 
+    //todo 개별서버 메모리에만 존재하는 map 이 아니라, 여러 서버가 공유하는 redis에 반영해야 해..!
+
     // Collection to pair session names and OpenVidu Session objects
     private Map<Long, Session> mapSessions = new ConcurrentHashMap<>();
 
@@ -56,7 +58,7 @@ public class AudioController {
     // AudioChatMember 형식에 맞춘 requestBody 를 받아와서 발급해주는 것이 좋지 않을까.
     @PostMapping(value = "/join")
     public ResponseEntity<Object> getToken(@RequestBody AudioChatEntryDto chatEntryDto) {
-        //todo 로그인과 연결 후에는 로그인하지 않은 사용자일 경우 unauthorized 로 400 리턴하는 로직 추가
+        //todo 로그인 처리
 
         Long roomId = chatEntryDto.getRoomId(); // 참여요청한 멤버가 들어가려는 방 고유번호
 
@@ -212,11 +214,10 @@ public class AudioController {
 
         ChatRoomResDto roomResDto = chatRoomService.closeRoom(closeChatRoomDto);
 
-        // 메모리 상에서만 관리되고 있는 거긴 하지만, 개설된 방 삭제. //todo 이 친구는 무용해질 것 ..
+        // 메모리 상에서만 관리되고 있는 거긴 하지만, 개설된 방 삭제. //todo 이 친구는 무용해질 것 .. 이걸 redis 에서 다루어야.
         this.mapSessionNamesTokens.remove(roomId);
         this.mapSessions.remove(roomId);
 
-        //todo 리턴양식 바꾸기 entity 직접 안 다루도록.
         return ResponseEntity.ok().body(roomResDto);
     }
 

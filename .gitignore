@@ -38,3 +38,4 @@ out/
 
 key.p12
 application.properties
+application-local.properties

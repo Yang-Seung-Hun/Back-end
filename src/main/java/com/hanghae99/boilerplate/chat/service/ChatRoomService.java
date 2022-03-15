@@ -23,7 +23,6 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final RedisChatRoomRepository redisChatRoomRepository;
 
-
     @Transactional
     public ChatRoomResDto save(CreateChatRoomDto createChatRoomDto) {
         ChatRoom room = new ChatRoom(createChatRoomDto);
