@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-
 REPOSITORY=/home/ubuntu/Mople
-cd $REPOSITORY
+
 
 APP_NAME=boilerplate-0.0.1-SNAPSHOT.jar
 
@@ -12,10 +11,14 @@ if [ -z $CURRENT_PID ]
 then
   echo "> 종료할것 없음."
 else
-  echo "> kill -9 $CURRENT_PID"
-  sudo  kill -9 $CURRENT_PID
+  echo "> kill -15 $CURRENT_PID"
+  sudo  kill -15 $CURRENT_PID
   sleep 5
 fi
 
-sudo nohup java -jar  $APP_NAME > ./nohup.out 2>&1 &
+JAR_NAME=$(ls -tr $REPOSITORY/*.jar | tail -n 1)
 
+
+chmod +x $JAR_NAME
+
+nohup java -jar  $JAR_NAME >  $REPOSITORY/nohup.out 2>&1 &
