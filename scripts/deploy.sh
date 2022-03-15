@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPOSITORY=/home/ubuntu/Mople
+REPOSITORY=/home/ubuntu/M1
 
 
 
