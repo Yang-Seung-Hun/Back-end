@@ -19,6 +19,7 @@ public class RedisSubscriber {
     public void sendMessage(String publishMessage) {
         try {
             ChatMessage chatMessage = objectMapper.readValue(publishMessage, ChatMessage.class);
+            log.info("RedisSubscriber - chatMassage: {}, {}", chatMessage.getMessage(), chatMessage.getType());
             messagingTemplate.convertAndSend("/sub/chat/room/" + chatMessage.getRoomId(), chatMessage);
 
         } catch (Exception e) {

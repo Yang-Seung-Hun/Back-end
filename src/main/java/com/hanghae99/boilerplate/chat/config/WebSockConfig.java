@@ -1,14 +1,19 @@
 package com.hanghae99.boilerplate.chat.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
+@RequiredArgsConstructor
 @EnableWebSocketMessageBroker
 public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
+
+    private final StompHandler stompHandler;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -25,5 +30,10 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
         //todo 테스트 동안만 /api로 열어두고 나중에 제거 -> 인증인가
         registry.addEndpoint("/api/ws-stomp").setAllowedOriginPatterns("*")
                 .withSockJS();
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(stompHandler);
     }
 }

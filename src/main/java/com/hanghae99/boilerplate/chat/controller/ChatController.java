@@ -17,7 +17,7 @@ public class ChatController {
 
     //    private final SimpMessageSendingOperations messagingTemplate; //when using only stomp
 //    private final RedisChatRoomRepository redisChatRoomRepository;
-    //    private final RedisPublisher redisPublisher;
+//        private final RedisPublisher redisPublisher;
     private final RedisTemplate<String, Object> redisTemplate;
     private final ChannelTopic channelTopic;
 
