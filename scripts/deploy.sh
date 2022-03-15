@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
-REPOSITORY=/home/ubuntu/Mople
+REPOSITORY=/home/ubuntu/app
 
 
-APP_NAME=boilerplate-0.0.1-SNAPSHOT.jar
 
-CURRENT_PID=$(pgrep -fl APP_NAME | grep java | awk '{print $1}')
+
+APP_NAME=boilerplate
+
+CURRENT_PID=$(pgrep -fl $APP_NAME | grep java | awk '{print $1}')
 if [ -z $CURRENT_PID ]
 then
   echo "> 종료할것 없음."
