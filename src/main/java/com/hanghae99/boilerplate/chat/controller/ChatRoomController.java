@@ -48,7 +48,6 @@ public class ChatRoomController {
     }
 
 
-
     // 특정 채팅방 조회
     @GetMapping("/room/{roomId}")
     public ResponseEntity<ChatRoomResDto> roomInfo(@PathVariable Long roomId) {
