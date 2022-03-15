@@ -4,6 +4,7 @@ os: linux
 files:
   - source: /
     destination: /opt/ghwns6743
+    
 permissions:
   - object: /opt/ghwns6743/
     owner: ubuntu
