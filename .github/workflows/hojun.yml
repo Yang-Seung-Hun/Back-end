@@ -57,7 +57,7 @@ jobs:
           --application-name ghwns6743 \
           --deployment-group-name ghwns6743 \
           --file-exists-behavior OVERWRITE \
-          --s3-location bucket=springboot-intro-build,bundleType=zip,key=springboot-intro-build.zip \
+          --s3-location bucket=ghwns6743,bundleType=zip,key=springboot-intro-build.zip \
           --region ap-northeast-2
           
           
