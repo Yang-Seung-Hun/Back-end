@@ -5,6 +5,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class Test {
+    @GetMapping("/")
+    public String t(){
+        return "======";
+    }
 
     @GetMapping("/test")
     public String test(){
