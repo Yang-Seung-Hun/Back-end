@@ -74,19 +74,15 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     public ChatRoomResDto closeRoom(CloseChatRoomDto closeChatRoomDto) {
 
         Long roomId = closeChatRoomDto.getRoomId();
-        Optional<ChatRoom> optionalChatRoom = getChatRoom(roomId);
+        Optional<ChatRoom> optionalChatRoom = getChatRoom(roomId); //예외처리 포함
         ChatRoom room = optionalChatRoom.get();
 
-        // 최종 참여인원, 찬성수, 반대수를 업데이트
-        room.setTotalParticipantCount(closeChatRoomDto.getTotalParticipantCount());
-        room.setAgreeCount(closeChatRoomDto.getAgreeCount());
-        room.setDisagreeCount(closeChatRoomDto.getDisagreeCount());
-        // 종료시간
-        LocalDateTime dateAndtime = LocalDateTime.now();
-        room.setClosedAt(dateAndtime);
+        Long totalParticipantCount = closeChatRoomDto.getTotalParticipantCount();
+        Long agreeCount = closeChatRoomDto.getAgreeCount();
+        Long disagreeCount = closeChatRoomDto.getDisagreeCount();
 
-        //redis 에서도 제거
-
+        // 최종 참여인원, 찬성수, 반대수, 종료시간, 진행중 여부를 업데이트
+        room.closeChatRoom(totalParticipantCount, agreeCount, disagreeCount, LocalDateTime.now(), false);
 
         return new ChatRoomResDto(room);
     }
@@ -98,6 +94,11 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             throw new IllegalArgumentException("해당 아이디의 방이 존재하지 않습니다.");
         }
         return room;
+    }
+
+    // 조건
+    public List<ChatRoomResDto> findOnAirChatRooms() {
+        return chatRoomRepository.findOnAirChatRooms();
     }
 
 

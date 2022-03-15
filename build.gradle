@@ -1,20 +1,26 @@
-
-
 buildscript {
     ext {
-        queryDslVersion = "4.4.0"
+        queryDslVersion = "5.0.0"
+    }
+    dependencies {
+        classpath("gradle.plugin.com.ewerk.gradle.plugins:querydsl-plugin:1.0.10")
     }
 }
 
 plugins {
     id 'org.springframework.boot' version '2.5.10'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    //querydsl 추가
+    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
     id 'java'
 }
+
 
 group = 'com.hanghae99'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
+
+//apply plugin: "com.ewerk.gradle.plugins.querydsl"
 
 configurations {
     compileOnly {
@@ -36,21 +42,9 @@ dependencies {
     //testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 
-//	//lombok
-//	compileOnly 'org.projectlombok:lombok'
-//	annotationProcessor 'org.projectlombok:lombok'
-//	testCompileOnly 'org.projectlombok:lombok'
-//	testAnnotationProcessor 'org.projectlombok:lombok'
-
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
 
-//    testCompileOnly 'org.projectlombok:lombok:1.18.22'
-//    testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
-    //swagger
-    //Error command
-//    implementation "io.springfox:springfox-swagger-ui:3.0.0"
-//    implementation "io.springfox:springfox-boot-starter:3.0.0"
 
     //mysql
     implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.22'
@@ -58,15 +52,6 @@ dependencies {
 	//socket
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
-	//채팅 웹화면 구현에 필요한 라이브러리 freemarker, webjar - 테스트만 해보고 프론트와 연결시 다 지울 듯.
-//	implementation 'org.springframework.boot:spring-boot-starter-freemarker'
-//	implementation 'org.webjars.bower:bootstrap:4.3.1'
-//	implementation 'org.webjars.bower:vue:2.5.16'
-//	implementation 'org.webjars.bower:axios:0.17.1'
-//	implementation 'org.webjars:sockjs-client:1.1.2'
-//	implementation 'org.webjars:stomp-websocket:2.3.3-1'
-//	implementation 'com.google.code.gson:gson:2.8.0'
-//	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
 	implementation 'org.springframework.boot:spring-boot-devtools'
 
@@ -83,20 +68,6 @@ dependencies {
 
 	//embedded-redis
 	implementation 'it.ozimov:embedded-redis:0.7.2'
-	implementation 'org.webjars.bower:bootstrap:4.3.1'
-	implementation 'org.webjars.bower:vue:2.5.16'
-	implementation 'org.webjars.bower:axios:0.17.1'
-	implementation 'org.webjars:sockjs-client:1.1.2'
-	implementation 'org.webjars:stomp-websocket:2.3.3-1'
-	implementation 'com.google.code.gson:gson:2.8.0'
-
-
-//	//embedded-redis
-//	implementation 'com.github.kstyrc:embedded-redis:0.6'
-
-
-
-//	compile group: 'com.github.kstyrc', name: 'embedded-redis', version: '0.6'
 
 
     //security
@@ -141,11 +112,15 @@ dependencies {
 
 
     // QueryDSL
+//    implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
+//    annotationProcessor(
+//            "javax.persistence:javax.persistence-api",
+//            "javax.annotation:javax.annotation-api",
+//            "com.querydsl:querydsl-apt:${queryDslVersion}:jpa")
+    //querydsl 추가
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
-    annotationProcessor(
-            "javax.persistence:javax.persistence-api",
-            "javax.annotation:javax.annotation-api",
-            "com.querydsl:querydsl-apt:${queryDslVersion}:jpa")
+    implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
+    implementation "com.querydsl:querydsl-core:${queryDslVersion}"
 
 
     //elk
@@ -154,6 +129,26 @@ dependencies {
     //redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-
 }
 
+
+//querydsl 추가 시작
+def querydslDir = "$buildDir/generated/querydsl"
+
+querydsl {
+    jpa = true
+    querydslSourcesDir = querydslDir
+}
+sourceSets {
+    main.java.srcDir querydslDir
+}
+compileQuerydsl{
+    options.annotationProcessorPath = configurations.querydsl
+}
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+    querydsl.extendsFrom compileClasspath
+}
+//querydsl 추가 끝

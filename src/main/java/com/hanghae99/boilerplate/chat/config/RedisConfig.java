@@ -1,5 +1,6 @@
 package com.hanghae99.boilerplate.chat.config;
 
+import com.hanghae99.boilerplate.chat.pubsub.RedisSubscriber;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
@@ -8,7 +9,9 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
@@ -20,6 +23,11 @@ public class RedisConfig {
 
     @Value("${spring.redis.host}")
     public String host;
+
+    @Bean
+    public ChannelTopic channelTopic() {
+        return new ChannelTopic("chatroom");
+    }
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory(RedisProperties redisProperties) {
@@ -39,6 +47,12 @@ public class RedisConfig {
         container.setConnectionFactory(connectionFactory);
         return container;
     }
+
+    @Bean
+    public MessageListenerAdapter listenerAdapter(RedisSubscriber subscriber) {
+        return new MessageListenerAdapter(subscriber, "sendMessage");
+    }
+
 
     /**
      * 어플리케이션에서 사용할 redisTemplate 설정

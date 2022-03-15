@@ -22,7 +22,7 @@ public class ChatRoom extends Timestamped implements Serializable {
     private Long roomId;
     private String roomName;   //방 제목
     private String moderator;  //방장(개설자)
-    //todo participantCount: 수용인원 / 최대참여인원 구분해서 네이밍해야 하겠지?
+    //todo participantCount: 수용인원 / 실참여인원 구분해서 네이밍해야 하겠지?
     private Long maxParticipantCount;
     private String content;  //토론 내용 (개요랄까)
     private Boolean isPrivate;  //비공개 여부 true: 비공개, false: 공개
@@ -35,24 +35,15 @@ public class ChatRoom extends Timestamped implements Serializable {
     private Long disagreeCount= 0L;
 
     private LocalDateTime closedAt;
+    private Boolean onAir = true;
 
-    public void setTotalParticipantCount(Long totalParticipantCount) {
+    public void closeChatRoom(Long totalParticipantCount, Long agreeCount, Long disagreeCount, LocalDateTime closedAt, Boolean onAir) {
         this.totalParticipantCount = totalParticipantCount;
-    }
-
-    public void setAgreeCount(Long agreeCount) {
         this.agreeCount = agreeCount;
-    }
-
-    public void setDisagreeCount(Long disagreeCount) {
         this.disagreeCount = disagreeCount;
-    }
-
-
-    public void setClosedAt(LocalDateTime closedAt) {
         this.closedAt = closedAt;
+        this.onAir = onAir;
     }
-
 
     public ChatRoom(CreateChatRoomDto dto) {
         this.roomName = dto.getRoomName();

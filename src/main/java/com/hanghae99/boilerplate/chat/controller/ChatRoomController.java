@@ -40,6 +40,15 @@ public class ChatRoomController {
 //        return ResponseEntity.ok().body(allFromRedis);
     }
 
+    // 진행 중인 채팅방 조회 : 어떤 채팅방이든 종료시 cache evict
+    @GetMapping("/rooms/onair")
+    public ResponseEntity<List<ChatRoomResDto>> findOnair() {
+        List<ChatRoomResDto> chatrooms =  chatRoomServiceImpl.findOnAirChatRooms();
+        return ResponseEntity.ok().body(chatrooms);
+    }
+
+
+
     // 특정 채팅방 조회
     @GetMapping("/room/{roomId}")
     public ResponseEntity<ChatRoomResDto> roomInfo(@PathVariable Long roomId) {

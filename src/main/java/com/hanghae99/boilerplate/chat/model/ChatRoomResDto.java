@@ -1,5 +1,6 @@
 package com.hanghae99.boilerplate.chat.model;
 
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -21,6 +22,7 @@ public class ChatRoomResDto implements Serializable {
     private Long disagreeCount= 0L;
     private LocalDateTime createAt;
     private LocalDateTime closedAt;
+    private Boolean onAir = true;
 
     public ChatRoomResDto(ChatRoom room) {
         roomId = room.getRoomId();
@@ -34,5 +36,22 @@ public class ChatRoomResDto implements Serializable {
         disagreeCount = room.getDisagreeCount();
         createAt = room.getCreatedAt();
         closedAt = room.getClosedAt();
+        onAir = room.getOnAir();
+    }
+
+    @QueryProjection
+    public ChatRoomResDto(Long roomId, String roomName, String moderator, Long maxParticipantCount, String content, Boolean isPrivate, Long totalParticipantCount, Long agreeCount, Long disagreeCount, LocalDateTime createAt, LocalDateTime closedAt, Boolean onAir) {
+        this.roomId = roomId;
+        this.roomName = roomName;
+        this.moderator = moderator;
+        this.maxParticipantCount = maxParticipantCount;
+        this.content = content;
+        this.isPrivate = isPrivate;
+        this.totalParticipantCount = totalParticipantCount;
+        this.agreeCount = agreeCount;
+        this.disagreeCount = disagreeCount;
+        this.createAt = createAt;
+        this.closedAt = closedAt;
+        this.onAir = onAir;
     }
 }
