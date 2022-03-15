@@ -77,13 +77,20 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         Optional<ChatRoom> optionalChatRoom = getChatRoom(roomId); //예외처리 포함
         ChatRoom room = optionalChatRoom.get();
 
-        Long totalParticipantCount = closeChatRoomDto.getTotalParticipantCount();
-        Long agreeCount = closeChatRoomDto.getAgreeCount();
-        Long disagreeCount = closeChatRoomDto.getDisagreeCount();
+        Long totalParticipantCount = closeChatRoomDto.getTotalParticipantCount(); //이것도 백에서 할 수 있는 부분일 것 같다.
+
+        // redis 에서 모아둔 찬성-반대수를 집계
+        Long agreeCount = redisChatRoomRepository.reportAgreeCount(roomId.toString());
+        Long disagreeCount = redisChatRoomRepository.reportDisagreeCount(roomId.toString());
+
+        log.info("[찬반 집계] 채팅방 {}이 종료됩니다. 찬성: {}, 반대: {}", roomId, agreeCount, disagreeCount);
+
 
         // 최종 참여인원, 찬성수, 반대수, 종료시간, 진행중 여부를 업데이트
         room.closeChatRoom(totalParticipantCount, agreeCount, disagreeCount, LocalDateTime.now(), false);
 
+        // redis 에서 삭제
+        redisChatRoomRepository.removeRoom(roomId.toString());
         return new ChatRoomResDto(room);
     }
 

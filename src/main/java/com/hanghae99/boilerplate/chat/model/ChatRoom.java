@@ -53,5 +53,23 @@ public class ChatRoom extends Timestamped implements Serializable {
         this.isPrivate = dto.getIsPrivate();
     }
 
+    public ChatRoom addAgree() {
+        this.agreeCount ++;
+        return this;
+    }
 
+    public ChatRoom addDisagree() {
+        this.disagreeCount ++;
+        return this;
+    }
+
+    public ChatRoom subAgree() {
+        this.agreeCount --;
+        return this;
+    }
+
+    public ChatRoom subDisagree() {
+        this.disagreeCount --;
+        return this;
+    }
 }
