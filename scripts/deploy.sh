@@ -8,7 +8,8 @@ CURRENT_PID=$(pgrep -fl $APP_NAME | grep java | awk '{print $1}')
 if [ -z $CURRENT_PID ]
 then
   echo "> 종료할것 없음." 
-  
+
+
 else
   echo "> kill -15 $CURRENT_PID"
   sudo  kill -15 $CURRENT_PID
