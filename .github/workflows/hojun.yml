@@ -42,7 +42,7 @@ jobs:
 
         # 파일 압축
       - name: Make zip file
-        run: zip -r ./springboot-intro-build.zip ./deploy
+        run: zip -r ./$GITHUB_SHA.zip ./deploy
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
