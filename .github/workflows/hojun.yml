@@ -3,22 +3,18 @@ name: deploy1
 on:
   push:
     branches: [ main ]
-env:
-  PROJECT_NAME: Mople
+
 jobs:
-  deploy:
-    name: DEPLOY
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
-        with:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v2
+        with: 
+          distribution: 'zulu' # See 'Supported distributions' for available options
           java-version: '11'
-          
+
           
         
       - name: Grant execute permission for gradlew
@@ -26,25 +22,48 @@ jobs:
         shell: bash
 
       - name: Build with Gradle
-        run: ./gradlew build
-        shell: bash
-        
+        run: ./gradlew clean build
+
+      # 전송할 파일을 담을 디렉토리 생성
+      - name: Make Directory
+        run: mkdir -p deploy
+
+        # Jar 파일 복사
+      - name: Copy Jar
+        run: cp ./build/libs/*.jar ./deploy
+
+      # appspec.yml 파일 복사
+      - name: Copy appspec.yml
+        run: cp appspec.yml ./deploy
+
+      - name: Copy script
+        run: cp deploy.sh ./deploy
+
+        # 파일 압축
       - name: Make zip file
-        run: zip -qq -r ./$GITHUB_SHA.zip .
-        shell: bash
+        run: zip -r ./springboot-intro-build.zip ./deploy
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.SECRET_KEY }}
-          aws-region:  ap-northeast-2
-
-      - name: Upload to S3
-        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://ghwns6743/$PROJECT_NAME/$GITHUB_SHA.zip
-
-      - name: Code Deploy
-        run: aws deploy create-deployment --application-name ghwns6743 --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name ghwns6743 --s3-location bucket=ghwns6743,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
+      - name: Deliver to AWS S3
+        env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_KEY }}
+        run: |
+            aws s3 cp \
+            --region ap-northeast-2 \
+            --acl private ./springboot-intro-build.zip s3://ghwns6743/
 
 
-  
+      - name: Deploy
+        env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_KEY }}
+        run: |
+            aws deploy create-deployment \
+            --application-name ghwns6743 \
+            --deployment-group-name ghwns6743 \
+            --file-exists-behavior OVERWRITE \
+            --s3-location bucket=ghwns6743,bundleType=zip,key=springboot-intro-build.zip \
+            --region ap-northeast-2
+
+
+          
