@@ -4,8 +4,7 @@ REPOSITORY=/home/ubuntu/Mople
 cd $REPOSITORY
 
 APP_NAME=boilerplate-0.0.1-SNAPSHOT.jar
-# JAR_NAME=$(ls $REPOSITORY/build/libs/ | grep '.jar' | tail -n 1)
-# JAR_PATH=$REPOSITORY/build/libs/$JAR_NAME
+
 
 CURRENT_PID=$(pgrep -f $APP_NAME)
 
@@ -18,5 +17,4 @@ else
   sleep 5
 fi
 
-echo "> $JAR_PATH 배포"
-nohup java -jar boilerplate-0.0.1-SNAPSHOT.jar
+nohup java -jar $APP_NAME &
