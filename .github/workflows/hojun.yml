@@ -6,23 +6,25 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+      runs-on: ubuntu-18.04
 
-    steps:
+      steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-java@v2
-        with: 
-          distribution: 'zulu' # See 'Supported distributions' for available options
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
           java-version: '11'
-
+          distribution: 'temurin'
           
-        
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
         shell: bash
-
+        
       - name: Build with Gradle
-        run: ./gradlew clean build
+        uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
+        with:
+          arguments: build
+
 
       # 전송할 파일을 담을 디렉토리 생성
       - name: Make Directory
@@ -59,13 +61,3 @@ jobs:
         run: aws deploy create-deployment --application-name ghwns6743 --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name ghwns6743 --s3-location bucket=ghwns6743,bundleType=zip,key=$GITHUB_SHA.zip  
 
         
-#         run: |
-#             aws deploy create-deployment \
-#             --application-name ghwns6743 \
-#             --deployment-group-name ghwns6743  \
-# #             --file-exists-behavior OVERWRITE \
-#             --s3-location bucket=ghwns6743,bundleType=zip,key=springboot-intro-build.zip \
-#             --region ap-northeast-2
-
-
-          
