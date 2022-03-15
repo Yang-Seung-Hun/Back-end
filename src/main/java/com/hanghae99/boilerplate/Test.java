@@ -11,6 +11,6 @@ public class Test {
     }
     @GetMapping("/")
     public String test2(){
-        return "haha";
+        return "change message";
     }
 }
