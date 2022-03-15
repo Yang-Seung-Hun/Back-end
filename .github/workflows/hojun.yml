@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
 
     steps:
       - uses: actions/checkout@v2
@@ -28,6 +28,7 @@ jobs:
       - name: Make Directory
         run: mkdir -p deploy
 
+
         # Jar 파일 복사
       - name: Copy Jar
         run: cp ./build/libs/*.jar ./deploy
@@ -41,29 +42,30 @@ jobs:
 
         # 파일 압축
       - name: Make zip file
-        run: zip -r ./springboot-intro-build.zip ./deploy
+        run: zip -r ./$GITHUB_SHA.zip ./deploy
 
-      - name: Deliver to AWS S3
-        env:
-            AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_KEY }}
-        run: |
-            aws s3 cp \
-            --region ap-northeast-2 \
-            --acl private ./springboot-intro-build.zip s3://ghwns6743/
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY  }}
+          aws-region: ap-northeast-2
 
+
+      - name: Upload to S3
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://ghwns6743/$GITHUB_SHA.zip
 
       - name: Deploy
-        env:
-            AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_KEY }}
-        run: |
-            aws deploy create-deployment \
-            --application-name ghwns6743 \
-            --deployment-group-name ghwns6743 \
-            --file-exists-behavior OVERWRITE \
-            --s3-location bucket=ghwns6743,bundleType=zip,key=springboot-intro-build.zip \
-            --region ap-northeast-2
+        run: aws deploy create-deployment --application-name ghwns6743 --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name ghwns6743 --s3-location bucket=ghwns6743,bundleType=zip,key=$GITHUB_SHA.zip  
+
+        
+#         run: |
+#             aws deploy create-deployment \
+#             --application-name ghwns6743 \
+#             --deployment-group-name ghwns6743  \
+# #             --file-exists-behavior OVERWRITE \
+#             --s3-location bucket=ghwns6743,bundleType=zip,key=springboot-intro-build.zip \
+#             --region ap-northeast-2
 
 
           
