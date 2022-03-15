@@ -3,6 +3,8 @@ name: deploy1
 on:
   push:
     branches: [ main ]
+env:
+  PROJECT_NAME: Mople
 jobs:
   deploy:
     name: DEPLOY
@@ -39,10 +41,10 @@ jobs:
           aws-region:  ap-northeast-2
 
       - name: Upload to S3
-        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://ghwns6743/server/$GITHUB_SHA.zip
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://ghwns6743/$PROJECT_NAME/$GITHUB_SHA.zip
 
       - name: Code Deploy
-        run: aws deploy create-deployment --application-name ghwns6743 --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name ghwns6743 --s3-location bucket=ghwns6743,bundleType=zip,key = server/$GITHUB_SHA.zip
+        run: aws deploy create-deployment --application-name ghwns6743 --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name ghwns6743 --s3-location bucket=ghwns6743,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
 
 
   
