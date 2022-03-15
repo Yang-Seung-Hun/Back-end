@@ -3,11 +3,13 @@ package com.hanghae99.boilerplate.chat.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-public class ChatRoomResDto {
+public class ChatRoomResDto implements Serializable {
+
     private Long roomId;
     private String roomName;   //방 제목
     private String moderator;  //방장(개설자)

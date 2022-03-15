@@ -56,7 +56,6 @@ public class RedisChatRoomRepository {
     public void enterChatRoom(Long roomId) {
         ChannelTopic topic = topics.get(roomId.toString());
         if (topic == null)
-//            topic = new ChannelTopic(roomId);
             // todo : redis 의 channelTopic은 String밖에 안되는 건가..??
             topic = new ChannelTopic(roomId.toString());
         redisMessageListener.addMessageListener(redisSubscriber, topic);

@@ -37,7 +37,9 @@ public class ChatController {
     }
 //
 //    //todo 찬반투표라는 pub -> 해당 sub 에 투표현황 send
-//    @MessageMapping("/chat/vote")
-//    public void vote()
+    @MessageMapping("/chat/vote")
+    public void vote() {
+
+    }
 
 }

@@ -6,7 +6,7 @@ import com.hanghae99.boilerplate.chat.model.audiochat.AudioChatEntryDto;
 import com.hanghae99.boilerplate.chat.model.audiochat.AudioChatLeaveDto;
 import com.hanghae99.boilerplate.chat.model.audiochat.AudioChatRole;
 import com.hanghae99.boilerplate.chat.repository.ChatRoomRepository;
-import com.hanghae99.boilerplate.chat.service.ChatRoomService;
+import com.hanghae99.boilerplate.chat.service.ChatRoomServiceImpl;
 import io.openvidu.java.client.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,17 +42,17 @@ public class AudioController {
     private String SECRET;
 
     // openVidu-server와 연결하기 위한 컨트롤러에는 secret 과, url 이 필요하다~
-    public AudioController(@Value("${openvidu.secret}") String secret, @Value("${openvidu.url}") String openviduUrl, ChatRoomRepository chatRoomRepository, ChatRoomService chatRoomService) {
+    public AudioController(@Value("${openvidu.secret}") String secret, @Value("${openvidu.url}") String openviduUrl, ChatRoomRepository chatRoomRepository, ChatRoomServiceImpl chatRoomServiceImpl) {
         this.SECRET = secret;
         this.OPENVIDU_URL = openviduUrl;
         this.openVidu = new OpenVidu(OPENVIDU_URL, SECRET);
         this.chatRoomRepository = chatRoomRepository;
-        this.chatRoomService = chatRoomService;
+        this.chatRoomServiceImpl = chatRoomServiceImpl;
     }
 
     private ChatRoomRepository chatRoomRepository;
 
-    private ChatRoomService chatRoomService;
+    private ChatRoomServiceImpl chatRoomServiceImpl;
 
     // 토큰을 발급하는 api. 음성 채팅방에 입장하는 지점.
     // AudioChatMember 형식에 맞춘 requestBody 를 받아와서 발급해주는 것이 좋지 않을까.
@@ -212,7 +212,7 @@ public class AudioController {
             throw new IllegalArgumentException("유효한 토큰이 아니므로 방을 종료할 권한이 없습니다.");
         }
 
-        ChatRoomResDto roomResDto = chatRoomService.closeRoom(closeChatRoomDto);
+        ChatRoomResDto roomResDto = chatRoomServiceImpl.closeRoom(closeChatRoomDto);
 
         // 메모리 상에서만 관리되고 있는 거긴 하지만, 개설된 방 삭제. //todo 이 친구는 무용해질 것 .. 이걸 redis 에서 다루어야.
         this.mapSessionNamesTokens.remove(roomId);
