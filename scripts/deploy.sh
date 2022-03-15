@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
 
-REPOSITORY=/home/ubuntu/M1
-
-
-
+REPOSITORY=/home/ubuntu/Mople
 
 APP_NAME=boilerplate
 
-CURRENT_PID=$(pgrep -fl APP_NAME | grep java | awk '{print $1}')
+CURRENT_PID=$(pgrep -fl $APP_NAME | grep java | awk '{print $1}')
 if [ -z $CURRENT_PID ]
 then
   echo "> 종료할것 없음." 

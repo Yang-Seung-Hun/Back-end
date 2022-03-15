@@ -3,7 +3,7 @@ os: linux
 
 files:
   - source: /
-    destination: /home/ubuntu/M1
+    destination: /home/ubuntu/Mople
     overwrite: yes
 
 
