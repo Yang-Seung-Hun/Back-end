@@ -3,15 +3,15 @@ os: linux
 
 files:
   - source: /
-    destination: /opt/ghwns6743
-    
+    destination: /home/ubuntu/Mople
 permissions:
-  - object: /opt/ghwns6743/
+  - object: /home/ubuntu/Mople
     owner: ubuntu
     group: ubuntu
     mode: 755
+
 hooks:
   AfterInstall:
     - location: deploy.sh
-      timeout: 120
+      timeout: 60
       runas: root
