@@ -48,19 +48,3 @@ jobs:
           --region ap-northeast-2 \
           --acl private \ 
 	        ./springboot-intro-build.zip s3://springboot-intro-build/
-
-#       - name: Configure AWS credentials
-#         uses: aws-actions/configure-aws-credentials@v1
-#         with:
-#           aws-access-key-id: ${{ secrets.ACCESS_KEY }}
-#           aws-secret-access-key: ${{ secrets.SECRET_KEY }}
-#           aws-region:  ap-northeast-2
-
-#       - name: Upload to S3
-#         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://ghwns6743/$PROJECT_NAME/$GITHUB_SHA.zip
-
-#       - name: Code Deploy
-#         run: aws deploy create-deployment --application-name ghwns6743 --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name ghwns6743 --s3-location bucket=ghwns6743,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
-
-
-  
