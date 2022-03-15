@@ -44,7 +44,7 @@ jobs:
 
         # 파일 압축
       - name: Make zip file
-        run: zip -r ./$GITHUB_SHA.zip ./deploy
+        run: zip -r ./springboot-intro-build.zip ./deploy
 
       - name: Deliver to AWS S3
         env:
