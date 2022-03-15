@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class Test {
     @GetMapping("/")
     public String t(){
-        return "======";
+        return "=====1=";
     }
 
     @GetMapping("/test")
