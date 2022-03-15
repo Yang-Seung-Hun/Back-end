@@ -39,8 +39,26 @@ public class ChatRoomRepositoryImpl implements ChatRoomRepositoryCustom{
     }
 
     @Override
-    public List<ChatRoomResDto> findByRoomName(String keyword) {
-        return null;
+    public List<ChatRoomResDto> findByKeyword(String keyword) {
+        return queryFactory
+                .select(new QChatRoomResDto(
+                        chatRoom.roomId,
+                        chatRoom.roomName,
+                        chatRoom.moderator,
+                        chatRoom.maxParticipantCount,
+                        chatRoom.content,
+                        chatRoom.isPrivate,
+                        chatRoom.totalParticipantCount,
+                        chatRoom.agreeCount,
+                        chatRoom.disagreeCount,
+                        chatRoom.createdAt,
+                        chatRoom.closedAt,
+                        chatRoom.onAir
+                ))
+                .from(chatRoom)
+                .where(chatRoom.roomName.contains(keyword)
+                        .or(chatRoom.content.contains(keyword))) //todo 이건 원래 넣기로 하진 않았던 부분! 논의드려야함~ 왠지 실시간 방은 넣어도 될 것 같아서.
+                .fetch();
     }
 
 

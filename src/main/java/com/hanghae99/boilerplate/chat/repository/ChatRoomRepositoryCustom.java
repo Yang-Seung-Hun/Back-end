@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface ChatRoomRepositoryCustom {
     List<ChatRoomResDto> findOnAirChatRooms();
-    List<ChatRoomResDto> findByRoomName(String keyword);
+    List<ChatRoomResDto> findByKeyword(String keyword);
 }

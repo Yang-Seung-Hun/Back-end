@@ -47,6 +47,13 @@ public class ChatRoomController {
         return ResponseEntity.ok().body(chatrooms);
     }
 
+    // 채팅방 name ( + contents) 중에서 키워드 검색
+    @GetMapping("/rooms/{keyword}")
+    public ResponseEntity<List<ChatRoomResDto>> findByKeyword(@PathVariable String keyword) {
+        List<ChatRoomResDto> chatrooms =  chatRoomServiceImpl.findByKeyword(keyword);
+        return ResponseEntity.ok().body(chatrooms);
+    }
+
 
     // 특정 채팅방 조회
     @GetMapping("/room/{roomId}")
@@ -57,6 +64,13 @@ public class ChatRoomController {
 
         return ResponseEntity.ok().body(roomResDto);
 //        return ResponseEntity.ok().body(mapRedis);
+    }
+
+    // 임시 - 전체삭제
+    @DeleteMapping("/rooms/del/all")
+    public String deleteAll() {
+        chatRoomServiceImpl.deleteAll();
+        return "모두 삭제완료!";
     }
 
 }

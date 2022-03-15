@@ -97,9 +97,18 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     // 조건
+    @Override
     public List<ChatRoomResDto> findOnAirChatRooms() {
         return chatRoomRepository.findOnAirChatRooms();
     }
 
+    @Override
+    public List<ChatRoomResDto> findByKeyword(String keyword) {
+        return chatRoomRepository.findByKeyword(keyword);
+    }
 
+
+    public void deleteAll() {
+        chatRoomRepository.deleteAll();
+    }
 }

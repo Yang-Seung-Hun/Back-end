@@ -20,4 +20,8 @@ public interface ChatRoomService {
 
     ChatRoomResDto closeRoom(CloseChatRoomDto closeChatRoomDto);
 
+    List<ChatRoomResDto> findOnAirChatRooms();
+
+    List<ChatRoomResDto> findByKeyword(String keyword);
+
     }
