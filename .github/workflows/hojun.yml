@@ -51,16 +51,11 @@ jobs:
           aws-region: ap-northeast-2
 
 
-
-      - name: Deliver to AWS S3
-        run: |
-            aws s3 cp \
-            --region ap-northeast-2 \
-            --acl private ./springboot-intro-build.zip s3://ghwns6743/
-
+      - name: Upload to S3
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://ghwns6743/$GITHUB_SHA.zip
 
       - name: Deploy
-        run: aws deploy create-deployment --application-name ghwns6743 --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name ghwns6743 --s3-location bucket=ghwns6743,bundleType=zip,key=springboot-intro-build.zip  
+        run: aws deploy create-deployment --application-name ghwns6743 --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name ghwns6743 --s3-location bucket=ghwns6743,bundleType=zip,key=$GITHUB_SHA.zip  
 
         
 #         run: |
