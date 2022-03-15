@@ -38,7 +38,6 @@ jobs:
       - name: Make zip file
         run: zip -r -qq -j ./springboot-intro-build.zip ./deploy
         
-      # S3 Bucket으로 copy
       - name: Deliver to AWS S3
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
@@ -47,4 +46,4 @@ jobs:
           aws s3 cp \
           --region ap-northeast-2 \
           --acl private \ 
-	        ./springboot-intro-build.zip s3://springboot-intro-build/
+./springboot-intro-build.zip s3://springboot-intro-build/
