@@ -5,11 +5,12 @@ files:
   - source: /
     destination: /home/ubuntu/Mople
 permissions:
-  - object: /home/ubuntu/Mople
+  - object: /
     pattern: "**"
     owner: ubuntu
     group: ubuntu
-    mode: 755
+
+
 
 hooks:
   AfterInstall:
