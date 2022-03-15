@@ -9,4 +9,8 @@ public class Test {
     public String test(){
         return "hello";
     }
+    @GetMapping("/")
+    public String test2(){
+        return "haha";
+    }
 }
