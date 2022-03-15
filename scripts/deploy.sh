@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPOSITORY=/home/ubuntu/app
+REPOSITORY=/home/ubuntu/Mople
 
 
 
