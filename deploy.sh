@@ -17,4 +17,5 @@ else
   sleep 5
 fi
 
-nohup java -jar $APP_NAME &
+nohup java -jar  $APP_NAME > ./nohup.out 2>&1 &
+
