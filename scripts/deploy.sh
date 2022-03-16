@@ -18,7 +18,7 @@ fi
 
 echo "> 새 어플리케이션 배포"
 
-JAR_NAME=$(ls -tr $REPOSITORY/*.jar | tail -n 1)
+JAR_NAME=boilerplate-0.0.1-SNAPSHOT.jar
 
 echo "> JAR Name: $JAR_NAME"
 echo "> $JAR_NAME에 실행권한 추가"
