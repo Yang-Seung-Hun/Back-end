@@ -40,7 +40,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     @CacheEvict(cacheNames = "board", allEntries = true) // , key = "#username")
     public void createBoard(BoardRequestDto boardRequestDto, MemberContext user){
-        Optional<Member> member = memberRepository.findByEmail(user.getUsername());
+        Optional<Member> member = memberRepository.findById(user.getMemberId());
         Board board = boardRepository.save(boardRequestDto.toEntity(member.get()));
     }
 
@@ -83,7 +83,7 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     public void recommendBoard(Long boardId, MemberContext user) {
         Optional<Board> board = boardRepository.findById(boardId);
-        Optional<Member> member = memberRepository.findByEmail(user.getUsername());
+        Optional<Member> member = memberRepository.findById(user.getMemberId());
         Optional<RecommendBoard> recommendBoard = recommendBoardRepository.findByBoardAndMember(board.get(), member.get());
 
         if (member.get().getRecommendBoards().isEmpty()){
@@ -104,7 +104,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     @Transactional
     public void agreeBoard(Long boardId, MemberContext user) {
-        Optional<Member> member = memberRepository.findByEmail(user.getUsername());
+        Optional<Member> member = memberRepository.findById(user.getMemberId());
         Optional<Board> board = boardRepository.findById(boardId);
         Optional<Vote> vote = voteRepository.findByBoardAndMember(board.get(), member.get());
 
@@ -130,7 +130,7 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     public void disagreeBoard(Long boardId, MemberContext user) {
         Optional<Board> board = boardRepository.findById(boardId);
-        Optional<Member> member = memberRepository.findByEmail(user.getUsername());
+        Optional<Member> member = memberRepository.findById(user.getMemberId());
         Optional<Vote> vote = voteRepository.findByBoardAndMember(board.get(), member.get());
 
         if (vote.isEmpty()){
@@ -157,7 +157,7 @@ public class BoardServiceImpl implements BoardService {
     public void createComment(CommentRequestDto commentRequestDto, MemberContext user) {
 
         Board board = boardRepository.findById(commentRequestDto.getBoardId()).orElse(new Board());
-        Optional<Member> member = memberRepository.findByEmail(user.getUsername());
+        Optional<Member> member = memberRepository.findById(user.getMemberId());
         Comment comment = Comment.builder()
                 .board(board)
                 .member(member.get())
@@ -191,7 +191,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     @Transactional
     public void recommendComment(Long commentId, MemberContext user) {
-        Optional<Member> member = memberRepository.findByEmail(user.getUsername());
+        Optional<Member> member = memberRepository.findById(user.getMemberId());
 
         Optional<Comment> comment = commentRepository.findById(commentId);
         Optional<RecommendComment> recommendComment = recommendCommentRepository.findByCommentAndMember(comment.get(), member.get());
@@ -212,19 +212,23 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public void createReply(ReplyRequestDto replyRequestDto, MemberContext user) throws ExecutionException, InterruptedException, JsonProcessingException {
-        Optional<Comment> comment = commentRepository.findById(replyRequestDto.getCommentId());
-        Optional<Member> member = memberRepository.findByEmail(user.getUsername());
+    public void createReply(Long commentId, ReplyRequestDto replyRequestDto, MemberContext user) throws ExecutionException, InterruptedException, JsonProcessingException {
+        Optional<Comment> comment = commentRepository.findById(commentId);
+        Optional<Member> member = memberRepository.findById(user.getMemberId());
+
         Reply reply = Reply.builder()
                 .comment(comment.get())
-                .member(member.get())
+                .memberId(member.get().getId())
                 .createdAt(LocalDateTime.now())
                 .content(replyRequestDto.getContent())
                 .build();
         replyRepository.save(reply);
 
+        System.out.println(reply+ "저장");
+
         //push
-        fcmService.sendMessageTo(member.get().getId(), "댓글 Notification",  comment.get().getContent() + "에 대댓글이 달렸습니다");
+        System.out.println(comment.get().getMember().getNickname());
+        fcmService.sendMessageTo(comment.get().getMember().getId(), "댓글 Notification",  comment.get().getContent() + "에 대댓글이 달렸습니다");
     }
 
     @Override
@@ -232,16 +236,15 @@ public class BoardServiceImpl implements BoardService {
     public List<ReplyResponseDto> showReplies(Long commentId) {
         return commentRepository.findById(commentId).get().getReplies().stream()
                 .map(Reply::toDto).collect(Collectors.toList());
-        //push , 읽음처리
 
     }
 
     @Override
     public List<BoardResponseDto> getMyBoard(MemberContext user) {
         //N+1
-        System.out.println(memberRepository.findByEmailJoinFetch(user.getUsername()).get(0).getMyBoards().get(0).getBoard().getContent());
+        System.out.println(memberRepository.findByIdJoinFetch(user.getMemberId()).get(0).getMyBoards().get(0).getBoard().getContent());
 
-        return memberRepository.findByEmailJoinFetch(user.getUsername())
+        return memberRepository.findByIdJoinFetch(user.getMemberId())
                 .get(0)
                 .getMyBoards()
                 .stream()
@@ -253,7 +256,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public void setMyBoard(Long boardId, MemberContext user) {
         Board board = boardRepository.findById(boardId).get();
-        Optional<Member> member = memberRepository.findByEmail(user.getUsername());
+        Optional<Member> member = memberRepository.findById(user.getMemberId());
         MyBoard myBoard = MyBoard.builder()
                         .board(board)
                         .member(member.get()

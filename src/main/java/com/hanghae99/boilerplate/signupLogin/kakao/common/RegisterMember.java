@@ -1,5 +1,6 @@
 package com.hanghae99.boilerplate.signupLogin.kakao.common;
 
+import com.hanghae99.boilerplate.security.model.MemberContext;
 import com.hanghae99.boilerplate.signupLogin.dto.responseDto.LoginResponseDto;
 import com.hanghae99.boilerplate.signupLogin.kakao.TemporaryUser;
 import com.hanghae99.boilerplate.memberManager.model.Member;
@@ -19,17 +20,20 @@ public class RegisterMember {
         private MemberRepository memberRepository;
 
         @Transactional
-        public Optional<LoginResponseDto> registerKakaoUserToMember(TemporaryUser temporaryUser){
-            Member member = new Member(temporaryUser);
+        public MemberContext registerKakaoUserToMember(TemporaryUser temporaryUser){
 
-            LoginResponseDto loginResponseDto = new LoginResponseDto(member.getEmail(), member.getNickname(),member.getRoles());
 
-           if (!memberRepository.existsMemberByEmail(temporaryUser.getEmail())){
-               log.info("kakao signup user email : {}",loginResponseDto.getEmail());
-               memberRepository.save(member);
-           }
+            Optional<Member> findMember= memberRepository.findByEmail(temporaryUser.getEmail());
 
-           return Optional.of(loginResponseDto);
+
+            //존재x
+            if(findMember.isEmpty()){
+                     Member member=memberRepository.save(new Member(temporaryUser));
+                     return new MemberContext(member);
+            }
+            //존재0
+            return new MemberContext(memberRepository.save(findMember.get()));
+
 
         }
 }

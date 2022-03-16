@@ -1,6 +1,8 @@
 package com.hanghae99.boilerplate.security.provider;
 
 import com.hanghae99.boilerplate.security.model.MemberContext;
+import com.hanghae99.boilerplate.security.service.UserDetailsImpl;
+import com.hanghae99.boilerplate.security.service.UserDetailsServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -22,17 +24,15 @@ public class AjaxAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
     PasswordEncoder passwordEncoder;
-
     @Autowired
-    private UserDetailsService userDetailsService;
-
+    UserDetailsService userDetailsService;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         try {
             String email = authentication.getName();
             String password = (String) authentication.getCredentials();
-            UserDetails member = userDetailsService.loadUserByUsername(email);
+            UserDetailsImpl member = (UserDetailsImpl)userDetailsService.loadUserByUsername(email);
 
             if (!passwordEncoder.matches(password, member.getPassword())) {
                 log.info("password not matches {} , {} ", member.getPassword(), password);
@@ -41,7 +41,9 @@ public class AjaxAuthenticationProvider implements AuthenticationProvider {
             }
 
             MemberContext memberContext = MemberContext.create(member.getUsername(),
-                    (List<GrantedAuthority>) member.getAuthorities());
+                    (List<GrantedAuthority>) member.getAuthorities(),member.getNickname(),member.getUserId());
+
+
             log.debug("id :{} , role :{} ", memberContext.getUsername(), memberContext.getAuthorities().get(0));
             return new UsernamePasswordAuthenticationToken(memberContext, null, memberContext.getAuthorities());
         }catch (Exception e){

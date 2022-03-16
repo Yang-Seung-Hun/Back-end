@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface MemberCustomRepository {
 
-    List<Member> findByEmailJoinFetch(String email);
+    List<Member> findByIdJoinFetch(Long Id);
 
 }

@@ -52,11 +52,7 @@ public class KakaoLoginController {
     public void kakaoLogin(@RequestParam String code, HttpServletResponse response) throws Exception {
         log.info("kakao-TOKKEN : {}", code);
         TemporaryUser temporaryUser = kakaoLoginService.getKakaoUserInformation(code);
-        Optional<LoginResponseDto> loginResponseDto = registerMember.registerKakaoUserToMember(temporaryUser);
-
-        MemberContext memberContext = new MemberContext(loginResponseDto.get().getEmail(),
-                loginResponseDto.get().getRole().stream().map(role ->
-                        new SimpleGrantedAuthority(role.name())).collect(Collectors.toList()));
+        MemberContext memberContext = registerMember.registerKakaoUserToMember(temporaryUser);
 
         JwtToken accessToken = tokenFactory.createAccessToken(memberContext);
         JwtToken refreshToken = tokenFactory.createRefreshToken(memberContext);

@@ -90,10 +90,11 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
     //인증 성공시
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-//        SecurityContext context = SecurityContextHolder.createEmptyContext();
-//        context.setAuthentication(authResult);
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authResult);
+        SecurityContextHolder.setContext(context);// 시큐리티 컨텍스트에 현재 유저 정보를 저장해둔다
         SecurityContextHolder.getContext().setAuthentication(authResult);
-//        SecurityContextHolder.setContext(context);// 시큐리티 컨텍스트에 현재 유저 정보를 저장해둔다
+
         chain.doFilter(request, response);
 
     }

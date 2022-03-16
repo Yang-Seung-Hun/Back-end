@@ -43,7 +43,7 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
                                             JwtConfig jwtConfig) {
         this.memberRepository = memberRepository;
         this.tokenFactory = tokenFactory;
-        this.objectMapper = objectMapper;
+            this.objectMapper = objectMapper;
         this.redis = redis;
         this.jwtConfig = jwtConfig;
     }
@@ -74,8 +74,7 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
         response.setHeader(JwtConfig.AUTHENTICATION_HEADER_NAME, accessToken.getToken());
 
 
-        Optional<String> nickname = memberRepository.getNickname(memberContext.getUsername());
-        nickname.ifPresent(s -> tokenMap.put("nickname", s));
+        tokenMap.put("nickname", memberContext.getNickname());
         tokenMap.put("email", memberContext.getUsername());
 
         objectMapper.writeValue(response.getWriter(), tokenMap);

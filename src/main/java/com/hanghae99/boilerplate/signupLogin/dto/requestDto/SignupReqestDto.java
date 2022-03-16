@@ -10,6 +10,7 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class SignupReqestDto {
 
     @NotBlank(message = "email을 입력하세요")

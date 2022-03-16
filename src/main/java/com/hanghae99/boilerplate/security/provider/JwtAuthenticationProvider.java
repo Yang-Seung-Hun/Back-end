@@ -40,8 +40,10 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             List<GrantedAuthority> authorityList = scopes.stream()
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
+            String nickname =jwsClaims.getBody().getAudience() ;
+            Long memberId = Long.valueOf(jwsClaims.getBody().getIssuer());
 
-            MemberContext context = MemberContext.create(sub, authorityList);
+            MemberContext context = MemberContext.create(sub, authorityList ,nickname,memberId);
             //새로운 토큰을 발급해준다
             return new JwtAuthenticationToken(context, context.getAuthorities());
         } catch (ExpiredJwtException e) {

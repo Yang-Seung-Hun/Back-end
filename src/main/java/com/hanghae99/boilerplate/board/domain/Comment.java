@@ -6,17 +6,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.ToString;
+import lombok.ToString;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Entity
 @Builder
+@ToString(exclude = {"replies", "board","member"})
 public class Comment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
@@ -58,6 +62,6 @@ public class Comment {
         this.recommendCount--;
     }
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "comment", cascade = CascadeType.PERSIST)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "comment", cascade = CascadeType.PERSIST)
     private List<Reply> replies;
 }

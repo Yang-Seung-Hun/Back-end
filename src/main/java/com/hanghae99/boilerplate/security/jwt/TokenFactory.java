@@ -33,7 +33,8 @@ public class TokenFactory {
 
         String token = Jwts.builder()
                 .setClaims(claims)
-                .setIssuer(jwtConfig.getTokenIssuer())
+                .setIssuer( String.valueOf(memberContext.getMemberId())) // Issuer : member ID
+                .setAudience(memberContext.getNickname())                //Audience :member nickname
                 .setIssuedAt(Date.from(cur.atZone(ZoneId.systemDefault()).toInstant()))
                 .setExpiration(Date.from(cur
                         .plusMinutes(jwtConfig.getTokenExpirationTime())
@@ -52,7 +53,8 @@ public class TokenFactory {
 
             String token = Jwts.builder()
                     .setClaims(claims)
-                    .setIssuer(jwtConfig.getTokenIssuer())
+                    .setIssuer( String.valueOf(memberContext.getMemberId())) // Issuer : member ID
+                    .setAudience(memberContext.getNickname())                //Audience :member nickname
                     .setIssuedAt(Date.from(currentTime.atZone(ZoneId.systemDefault()).toInstant()))
                     .setExpiration(Date.from(currentTime
                             .plusDays(jwtConfig.getRefreshTokenExpTime())

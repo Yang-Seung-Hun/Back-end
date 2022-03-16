@@ -33,7 +33,7 @@ public interface BoardService {
 
     void recommendComment(Long commentId, MemberContext user);
 
-    void createReply(ReplyRequestDto replyRequestDto, MemberContext user) throws ExecutionException, InterruptedException, JsonProcessingException;
+    void createReply(Long commentId ,ReplyRequestDto replyRequestDto, MemberContext user) throws ExecutionException, InterruptedException, JsonProcessingException;
 
     List<ReplyResponseDto> showReplies(Long commentId);
 
