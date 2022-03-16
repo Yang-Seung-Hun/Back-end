@@ -2,8 +2,7 @@ package com.hanghae99.boilerplate.security.config;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hanghae99.boilerplate.repository.MemberRepository;
-import com.hanghae99.boilerplate.repository.RefreshTokenRepository;
+import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import com.hanghae99.boilerplate.security.Exception.AjaxAccessDeniedHandler;
 import com.hanghae99.boilerplate.security.Exception.AjaxLoginAuthenticationEntryPoint;
 import com.hanghae99.boilerplate.security.RefreshTokenEndPoint;
@@ -20,13 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -40,7 +37,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity(debug = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    public static final String AUTHENTICATION_HEADER_NAME = "Authentitcation";
+    public static final String AUTHENTICATION_HEADER_NAME = "Authorization";
     public static final String SWAGGER = "/swagger-ui/**";
     public static final String SWAGGER_DOCS = "/swagger-resources/**";
     public static final String AUTHENTICATION_URL = "/api/login";
@@ -51,8 +48,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     AuthenticationManager authenticationManager;
-    @Autowired
-    UserDetailsService userDetailsService;
     @Autowired
     AjaxAuthenticationProvider ajaxAuthenticationProvider;
 
@@ -80,8 +75,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     MemberRepository memberRepository;
-    @Autowired
-    RefreshTokenRepository refreshTokenRepository;
+
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -89,6 +83,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     ObjectMapper objectMapper;
 
+
+    @Autowired
+    JwtConfig jwtConfig;
+
+    @Autowired
+    RefreshTokenRedis redis;
 
     @Bean
     @Override
@@ -100,7 +100,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     //AUTHENTICATION_URL만 AjaxLoginProcessingFilter(로그인 담당(를지난다
     protected AjaxLoginProcessingFilter buildAjaxLoginProcessingFilter() throws Exception {
         AjaxLoginProcessingFilter filter = new AjaxLoginProcessingFilter(AUTHENTICATION_URL,
-                new AjaxAuthenticationSuccessHandler(tokenFactory, memberRepository, refreshTokenRepository, objectMapper), failureHandler);
+                new AjaxAuthenticationSuccessHandler(tokenFactory, memberRepository, objectMapper,redis,jwtConfig), failureHandler);
         filter.setAuthenticationManager(this.authenticationManager);
         return filter;
     }
@@ -120,10 +120,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(ajaxAuthenticationProvider);
         auth.authenticationProvider(jwtAuthenticationProvider);
-        String password = passwordEncoder.encode("1111");
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
-        auth.inMemoryAuthentication().withUser("user").password(password).roles("USER");
-        auth.inMemoryAuthentication().withUser("admin").password(password).roles("ADMIN");
+
     }
 
     @Override

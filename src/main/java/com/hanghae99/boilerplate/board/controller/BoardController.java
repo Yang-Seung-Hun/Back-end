@@ -16,7 +16,6 @@ import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin("http://localhost:3000")
 @RequestMapping("/auth")
 public class BoardController {
     private final BoardService boardService;

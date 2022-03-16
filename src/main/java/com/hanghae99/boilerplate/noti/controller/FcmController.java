@@ -21,7 +21,7 @@ public class FcmController {
     @PostMapping("/api/fcm/register")
     public ResponseEntity registerMessage(@RequestBody RequestFCMDTO requestDTO, @AuthenticationPrincipal MemberContext memberContext) {
         System.out.println(requestDTO.getTargetToken());
-        firebaseCloudMessageService.register(memberContext.getMemberId() , requestDTO.getTargetToken());
+        firebaseCloudMessageService.register(memberContext.getUsername() , requestDTO.getTargetToken());
 
         return ResponseEntity.ok().build();
     }

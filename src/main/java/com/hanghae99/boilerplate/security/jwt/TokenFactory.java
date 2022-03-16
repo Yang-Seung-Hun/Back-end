@@ -25,14 +25,7 @@ public class TokenFactory {
     private JwtConfig jwtConfig;
 
     public AccessToken createAccessToken(MemberContext memberContext) {
-        if (memberContext.getUsername().isBlank()) {
-            throw new IllegalArgumentException("Cannot create JWT Token ,username is empty");
-        }
-
         Claims claims = Jwts.claims().setSubject(memberContext.getUsername());
-
-        claims.put("memberId", memberContext.getMemberId());
-
         claims.put("scopes", memberContext.getAuthorities().stream().map(Authority ->
                 Authority.toString()).collect(Collectors.toList()));
 
@@ -51,16 +44,10 @@ public class TokenFactory {
     }
 
         public JwtToken createRefreshToken(MemberContext memberContext) {
-            if (memberContext.getUsername().isBlank()) {
-                throw new IllegalArgumentException("Cannot create JWT Token without username");
-            }
 
             LocalDateTime currentTime = LocalDateTime.now();
 
             Claims claims = Jwts.claims().setSubject(memberContext.getUsername());
-
-            claims.put("memberId", memberContext.getMemberId());
-
             claims.put("scopes", Arrays.asList(Scopes.REFRESH_TOKEN.authority()));
 
             String token = Jwts.builder()
@@ -68,30 +55,14 @@ public class TokenFactory {
                     .setIssuer(jwtConfig.getTokenIssuer())
                     .setIssuedAt(Date.from(currentTime.atZone(ZoneId.systemDefault()).toInstant()))
                     .setExpiration(Date.from(currentTime
-                            .plusMinutes(jwtConfig.getRefreshTokenExpTime())
+                            .plusDays(jwtConfig.getRefreshTokenExpTime())
                             .atZone(ZoneId.systemDefault()).toInstant()))
                     .signWith(SignatureAlgorithm.HS512, jwtConfig.getTokenSigningKey())
                     .compact();
 
             return new AccessToken(token, claims);
         }
-    public JwtToken createExpiredToken() {
 
 
-        LocalDateTime currentTime = LocalDateTime.now();
-
-        Claims claims = Jwts.claims().setSubject("$$$$");
-
-        String token = Jwts.builder()
-                .setClaims(claims)
-                .setIssuer(jwtConfig.getTokenIssuer())
-                .setIssuedAt(Date.from(currentTime.atZone(ZoneId.systemDefault()).toInstant()))
-                .setExpiration(Date.from(currentTime
-                        .atZone(ZoneId.systemDefault()).toInstant()))
-                .signWith(SignatureAlgorithm.HS512,jwtConfig.getExpireSignKey())
-                .compact();
-
-        return new AccessToken(token, claims);
-    }
 
 }

@@ -1,22 +1,19 @@
 package com.hanghae99.boilerplate.security.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
+
 @Getter
-@Setter
 @AllArgsConstructor
 public class UserDetailsImpl implements UserDetails {
-
-    private Long memberId;
-    public Long getMemberId(){
-        return this.memberId;
-    }
-
 
     private String username;
     @JsonIgnore

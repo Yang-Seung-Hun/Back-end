@@ -1,7 +1,7 @@
 package com.hanghae99.boilerplate.board.domain;
 
 import com.hanghae99.boilerplate.board.dto.ReplyResponseDto;
-import com.hanghae99.boilerplate.model.Member;
+import com.hanghae99.boilerplate.memberManager.model.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

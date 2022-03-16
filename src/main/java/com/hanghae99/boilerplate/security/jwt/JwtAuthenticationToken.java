@@ -2,8 +2,10 @@ package com.hanghae99.boilerplate.security.jwt;
 
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 
+import javax.security.sasl.AuthenticationException;
 import java.util.Collection;
 
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
@@ -23,14 +25,12 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
         super.setAuthenticated(true); //
 
     }
-
     //애매한 부분
     @Override
 
     public  void setAuthenticated(boolean authenticated){
         if (authenticated) {
-            throw new IllegalArgumentException(
-                    "Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead");
+            throw new IllegalArgumentException();
         }
         super.setAuthenticated(false);
     }

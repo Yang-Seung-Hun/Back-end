@@ -1,7 +1,7 @@
 package com.hanghae99.boilerplate.board.dto;
 
 import com.hanghae99.boilerplate.board.domain.Board;
-import com.hanghae99.boilerplate.model.Member;
+import com.hanghae99.boilerplate.memberManager.model.Member;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

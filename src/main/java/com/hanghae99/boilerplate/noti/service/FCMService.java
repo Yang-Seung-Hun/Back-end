@@ -20,11 +20,11 @@ import java.util.concurrent.ExecutionException;
 @RequiredArgsConstructor
 public class FCMService {
 
-    private final Map<Long, String> tokenMap = new HashMap<>();
+    private final Map<String, String> tokenMap = new HashMap<>();
     private final Map<String, String> messageMap = new HashMap<>();
 
-    public void register(final Long userId, final String token) {
-        tokenMap.put(userId, token);
+    public void register(final String email, final String token) {
+        tokenMap.put(email, token);
     }
 
     public String getToken(Long id){

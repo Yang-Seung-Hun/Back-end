@@ -1,13 +1,9 @@
 package com.hanghae99.boilerplate.security.config;
 
 
-import com.hanghae99.boilerplate.model.Role;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Configuration
 @Getter
@@ -22,7 +18,8 @@ public class JwtConfig {
 
     public  String defaultEmail="$$$$";
 
-    public static final String AUTHENTICATION_HEADER_NAME = "Authentitcation";
+    public static final String AUTHENTICATION_HEADER_NAME = "Authorization";
 
+    public static final String TOKEN_TYPE   = "Bearer ";
 
 }
