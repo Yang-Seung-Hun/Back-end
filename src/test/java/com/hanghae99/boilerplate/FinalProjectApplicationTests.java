@@ -1,17 +1,14 @@
-package com.hanghae99.boilerplate;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
-@SpringBootTest
-class FinalProjectApplicationTests {
-
-	@Test
-
-
-
-
-	void contextLoads() {
-	}
-
-}
+//package com.hanghae99.boilerplate;
+//
+//
+//import org.junit.jupiter.api.Test;
+//
+//@SpringBootTest
+//class FinalProjectApplicationTests {
+//
+//
+//	@Test
+//	void contextLoads() {
+//	}
+//
+//}

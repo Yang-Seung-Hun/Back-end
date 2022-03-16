@@ -103,7 +103,7 @@ dependencies {
 //test
 // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
 // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine
-//    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.3'
+testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.3'
 //    testImplementation group: 'org.springfraFmework.security', name: 'spring-security-test', version: '5.6.2'
 //    implementation 'org.testng:testng:7.5'
 
@@ -111,12 +111,7 @@ dependencies {
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
 
-    // QueryDSL
-//    implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
-//    annotationProcessor(
-//            "javax.persistence:javax.persistence-api",
-//            "javax.annotation:javax.annotation-api",
-//            "com.querydsl:querydsl-apt:${queryDslVersion}:jpa")
+
     //querydsl 추가
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
     implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
