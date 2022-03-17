@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -49,7 +50,7 @@ public class KakaoLoginController {
      * @callback
      */
     @GetMapping("/api/kakao/login")
-    public void kakaoLogin(@RequestParam String code, HttpServletResponse response) throws Exception {
+    public void kakaoLogin(@RequestParam String code, HttpServletResponse response) throws IOException {
         log.info("kakao-TOKKEN : {}", code);
         TemporaryUser temporaryUser = kakaoLoginService.getKakaoUserInformation(code);
         MemberContext memberContext = registerMember.registerKakaoUserToMember(temporaryUser);

@@ -1,7 +1,6 @@
 package com.hanghae99.boilerplate.signupLogin.signupLoginController;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
 import com.hanghae99.boilerplate.signupLogin.dto.responseDto.ResponseDto;
 import com.hanghae99.boilerplate.signupLogin.service.SignupLoginService;
@@ -23,18 +22,13 @@ public class SignupLoginController {
 
     @Autowired
     SignupLoginService signupLoginService;
-    @Autowired
-    ObjectMapper objectMapper;
 
 
     @PostMapping("/api/signup")
     public ResponseEntity signup(@Valid @RequestBody SignupReqestDto signupReqest ){
-        try {
-            signupLoginService.signupRequest(signupReqest);
-        }
-        catch (Exception e){
-           return ResponseEntity.badRequest().body(new ResponseDto(HttpStatus.BAD_REQUEST,e.getMessage()));
-        }
+
+        signupLoginService.signupRequest(signupReqest);
+
         return ResponseEntity.ok().body(new ResponseDto(HttpStatus.OK,"signup success"));
 
     }

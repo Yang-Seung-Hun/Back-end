@@ -4,21 +4,18 @@ import com.hanghae99.boilerplate.memberManager.mail.MailVerifyRedis;
 import com.hanghae99.boilerplate.memberManager.mail.paltforms.Google;
 import com.hanghae99.boilerplate.memberManager.model.Member;
 import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
-import org.elasticsearch.monitor.os.OsStats;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.mail.MessagingException;
 import javax.security.sasl.AuthenticationException;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 public class MailServiceImpl implements MailService {
@@ -35,10 +32,16 @@ public class MailServiceImpl implements MailService {
     private final String title = "안녕하세요.Boilerplate입니다 ";
 
     Google google =new Google();
-    
-    @Value(("${EmailExpireTmie}"))
+
+
+    @Value(("mail.ExpireTmie"))
     private String expireTime;
     private SecureRandom random = new SecureRandom();
+
+
+    public String makeText(String key){
+        return "<a>"+  "http://"+  "/api/set/password/"+key+ "</a>";
+    }
 
 
     @Override
@@ -51,40 +54,37 @@ public class MailServiceImpl implements MailService {
     }
 
     @Override
-    public Member verifyKey(String key) {
+    public Optional<Member> verifyKey(String key) {
         String email  =   mailVerifyRedis.getData(key);
         if(email==null)
-            return null;
+            return Optional.empty();
         Optional<Member> member=  memberRepository.findByEmail(email);
         if(member.isEmpty())
-            return null;
-        return member.get();
+            return Optional.empty();
+        return member;
 
     }
 
-    public boolean sendFindPasswordVerifyMail(String email) {
+
+    public void sendFindPasswordVerifyMail(String email) throws MessagingException {
         String key = verifyEmail(email).orElseThrow(()->new UsernameNotFoundException(email +"not exist") );
           mailVerifyRedis.setExpire(key,email, Long.parseLong(expireTime));
-          return google.sendMail(email,title,makeText(key));
+           google.sendMail(email,title,makeText(key));
 
     }
 
 
     @Transactional
     public String  isOkGiveNewPassword(String key) throws AuthenticationException {
-       Member member =  verifyKey(key);
-       if(member==null)
-           throw new AuthenticationException("Bad Access");
+       Member member =  verifyKey(key).orElseThrow(()-> new AuthenticationException("Bad Access"));
+
         random.setSeed(new Date().getTime());
         String  randomNum =String.valueOf(random.nextInt((MAX_SIZE - MIN_SIZE) + 1) + MIN_SIZE);
        member.setPassword(passwordEncoder.encode(randomNum));
        return  randomNum;
     }
 
-    public String makeText(String key){
-        String title = "안녕하세요.Boilerplate입니다 ";
-        return "<a>"+  "http://"+  "/api/set/password/"+key+ "</a>";
-    }
+
 
 
 }
