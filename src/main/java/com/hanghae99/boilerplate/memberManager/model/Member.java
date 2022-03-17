@@ -1,12 +1,14 @@
 package com.hanghae99.boilerplate.memberManager.model;
+
 import com.hanghae99.boilerplate.board.domain.*;
 import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
 import com.hanghae99.boilerplate.signupLogin.kakao.TemporaryUser;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -17,7 +19,7 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
-public class Member {
+public class Member implements Serializable {
     @Id @GeneratedValue
     private Long id ;
 
@@ -51,8 +53,6 @@ public class Member {
         this.roles.add(Role.KAKAO);
 
     }
-
-
 
     //추가
     private LocalDateTime createdAt;

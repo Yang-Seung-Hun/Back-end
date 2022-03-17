@@ -1,6 +1,6 @@
 package com.hanghae99.boilerplate.chat.repository;
 
-import com.hanghae99.boilerplate.chat.model.ChatRoomResDto;
+import com.hanghae99.boilerplate.chat.model.dto.ChatRoomResDto;
 import com.hanghae99.boilerplate.chat.model.QChatRoomResDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 

@@ -1,8 +1,9 @@
 package com.hanghae99.boilerplate.chat.service;
 
-import com.hanghae99.boilerplate.chat.model.ChatRoomResDto;
-import com.hanghae99.boilerplate.chat.model.CloseChatRoomDto;
-import com.hanghae99.boilerplate.chat.model.CreateChatRoomDto;
+import com.hanghae99.boilerplate.chat.model.dto.ChatCloseDto;
+import com.hanghae99.boilerplate.chat.model.dto.ChatRoomResDto;
+import com.hanghae99.boilerplate.chat.model.dto.CreateChatRoomDto;
+import com.hanghae99.boilerplate.security.model.MemberContext;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public interface ChatRoomService {
 
     ChatRoomResDto findByIdFromRedis(Long roomId);
 
-    ChatRoomResDto closeRoom(CloseChatRoomDto closeChatRoomDto);
+    ChatRoomResDto closeRoom(ChatCloseDto chatCloseDto, MemberContext member);
 
     List<ChatRoomResDto> findOnAirChatRooms();
 

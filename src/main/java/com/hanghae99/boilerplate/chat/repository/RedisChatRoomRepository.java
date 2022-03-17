@@ -2,6 +2,8 @@ package com.hanghae99.boilerplate.chat.repository;
 
 
 import com.hanghae99.boilerplate.chat.model.ChatRoom;
+import com.hanghae99.boilerplate.chat.model.dto.ChatRoomResDto;
+import com.hanghae99.boilerplate.memberManager.model.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.HashOperations;
@@ -41,57 +43,33 @@ public class RedisChatRoomRepository {
 
     public Long addAgree(String roomId) {
         ChatRoom chatRoom = opsHashChatRoom.get(CHAT_ROOMS, roomId);
-        Long before = chatRoom.getAgreeCount();
-        log.info("[before] chatRoom.addAgree 실행 전: {}", before);
-
         ChatRoom modRoom = chatRoom.addAgree();
         opsHashChatRoom.put(CHAT_ROOMS, roomId, modRoom);
-
         Long after = modRoom.getAgreeCount();
-        log.info("[after] chatRoom.addAgree 실행 후: {}", after);
-
         return after;
     }
 
     public Long subAgree(String roomId) {
         ChatRoom chatRoom = opsHashChatRoom.get(CHAT_ROOMS, roomId);
-        Long before = chatRoom.getAgreeCount();
-        log.info("[before] chatRoom.subAgree 실행 전: {}", before);
-
         ChatRoom modRoom = chatRoom.subAgree();
         opsHashChatRoom.put(CHAT_ROOMS, roomId, modRoom);
-
         Long after = modRoom.getAgreeCount();
-        log.info("[after] chatRoom.subAgree 실행 후: {}", after);
-
         return after;
     }
 
     public Long addDisagree(String roomId) {
         ChatRoom chatRoom = opsHashChatRoom.get(CHAT_ROOMS, roomId);
-        Long before = chatRoom.getDisagreeCount();
-        log.info("[before] chatRoom.addDisagree 실행 전: {}", before);
-
         ChatRoom modRoom = chatRoom.addDisagree();
         opsHashChatRoom.put(CHAT_ROOMS, roomId, modRoom);
-
         Long after = modRoom.getDisagreeCount();
-        log.info("[after] chatRoom.addDisagree 실행 후: {}", after);
-
         return after;
     }
 
     public Long subDisagree(String roomId) {
         ChatRoom chatRoom = opsHashChatRoom.get(CHAT_ROOMS, roomId);
-        Long before = chatRoom.getDisagreeCount();
-        log.info("[before] chatRoom.subDisagree 실행 전: {}", before);
-
         ChatRoom modRoom = chatRoom.subDisagree();
         opsHashChatRoom.put(CHAT_ROOMS, roomId, modRoom);
-
         Long after = modRoom.getDisagreeCount();
-        log.info("[after] chatRoom.subDisagree 실행 후: {}", after);
-
         return after;
     }
 
@@ -108,4 +86,19 @@ public class RedisChatRoomRepository {
     }
 
 
+    public ChatRoomResDto addParticipant(String roomId, Member member) {
+        ChatRoom chatRoom = opsHashChatRoom.get(CHAT_ROOMS, roomId);
+        ChatRoom mChatRoom = chatRoom.addParticipant(member);
+        opsHashChatRoom.put(CHAT_ROOMS, roomId, mChatRoom);
+        ChatRoomResDto dto = new ChatRoomResDto(mChatRoom);
+        return dto;
+    }
+
+    public ChatRoomResDto subParticipant(String roomId, Member member) {
+        ChatRoom chatRoom = opsHashChatRoom.get(CHAT_ROOMS, roomId);
+        ChatRoom mChatRoom = chatRoom.subParticipant(member);
+        opsHashChatRoom.put(CHAT_ROOMS, roomId, mChatRoom);
+        ChatRoomResDto dto = new ChatRoomResDto(mChatRoom);
+        return dto;
+    }
 }

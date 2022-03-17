@@ -1,15 +1,18 @@
 package com.hanghae99.boilerplate.chat.service;
 
+import com.hanghae99.boilerplate.chat.model.ChatRole;
 import com.hanghae99.boilerplate.chat.model.ChatRoom;
-import com.hanghae99.boilerplate.chat.model.ChatRoomResDto;
-import com.hanghae99.boilerplate.chat.model.CloseChatRoomDto;
-import com.hanghae99.boilerplate.chat.model.CreateChatRoomDto;
+import com.hanghae99.boilerplate.chat.model.dto.*;
 import com.hanghae99.boilerplate.chat.repository.ChatRoomRepository;
 import com.hanghae99.boilerplate.chat.repository.RedisChatRoomRepository;
+import com.hanghae99.boilerplate.memberManager.model.Member;
+import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
+import com.hanghae99.boilerplate.security.model.MemberContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +28,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final RedisChatRoomRepository redisChatRoomRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     @Transactional
@@ -69,25 +73,24 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         return new ChatRoomResDto(roomRedis);
     }
 
-    @Override
     @Transactional
-    public ChatRoomResDto closeRoom(CloseChatRoomDto closeChatRoomDto) {
+    public ChatRoomResDto closeRoom(ChatCloseDto chatCloseDto, @AuthenticationPrincipal MemberContext user) {
 
-        Long roomId = closeChatRoomDto.getRoomId();
+        if (!ChatRole.MODERATOR.equals(chatCloseDto.getRole())) {
+            throw new IllegalArgumentException("방장만이 방을 삭제할 수 있습니다.");
+        }
+
+        Long roomId = chatCloseDto.getRoomId();
         Optional<ChatRoom> optionalChatRoom = getChatRoom(roomId); //예외처리 포함
         ChatRoom room = optionalChatRoom.get();
 
-        Long totalParticipantCount = closeChatRoomDto.getTotalParticipantCount(); //이것도 백에서 할 수 있는 부분일 것 같다.
-
-        // redis 에서 모아둔 찬성-반대수를 집계
         Long agreeCount = redisChatRoomRepository.reportAgreeCount(roomId.toString());
         Long disagreeCount = redisChatRoomRepository.reportDisagreeCount(roomId.toString());
 
         log.info("[찬반 집계] 채팅방 {}이 종료됩니다. 찬성: {}, 반대: {}", roomId, agreeCount, disagreeCount);
 
-
-        // 최종 참여인원, 찬성수, 반대수, 종료시간, 진행중 여부를 업데이트
-        room.closeChatRoom(totalParticipantCount, agreeCount, disagreeCount, LocalDateTime.now(), false);
+        // 이방에 대해 업데이트 : 찬성수, 반대수, 종료시간 + 최대참여자수, 종료여부
+        room.closeChatRoom(agreeCount, disagreeCount, LocalDateTime.now());
 
         // redis 에서 삭제
         redisChatRoomRepository.removeRoom(roomId.toString());
@@ -114,8 +117,29 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         return chatRoomRepository.findByKeyword(keyword);
     }
 
-
     public void deleteAll() {
         chatRoomRepository.deleteAll();
+    }
+
+    public ChatRoomResDto addParticipant(ChatEntryDto entryDto, MemberContext user) {
+        Optional<Member> findMember = memberRepository.findById(user.getMemberId());
+        validateMember(findMember);
+        log.info("입장하려는 사람: {}", findMember.get().getNickname());
+        ChatRoomResDto dto = redisChatRoomRepository.addParticipant(entryDto.getRoomId().toString(), findMember.get());
+        return dto;
+    }
+
+    public ChatRoomResDto leaveParticipant(ChatLeaveDto leaveDto, MemberContext user) {
+        Optional<Member> findMember = memberRepository.findById(user.getMemberId());
+        validateMember(findMember);
+        log.info("퇴장하려는 사람의 nickname: {}, role: {}", findMember.get().getNickname(), leaveDto.getRole());
+        ChatRoomResDto dto = redisChatRoomRepository.subParticipant(leaveDto.getRoomId().toString(), findMember.get());
+        return dto;
+    }
+
+    private void validateMember(Optional<Member> findMember) {
+        if (findMember == null) {
+            throw new IllegalArgumentException("해당 ID의 회원이 존재하지 않습니다.");
+        }
     }
 }

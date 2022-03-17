@@ -1,15 +1,18 @@
 package com.hanghae99.boilerplate.chat.model;
 
+import com.hanghae99.boilerplate.chat.model.dto.CreateChatRoomDto;
+import com.hanghae99.boilerplate.memberManager.model.Member;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
+import static javax.persistence.FetchType.LAZY;
 
 @Getter
 @Entity
@@ -22,27 +25,24 @@ public class ChatRoom extends Timestamped implements Serializable {
     private Long roomId;
     private String roomName;   //방 제목
     private String moderator;  //방장(개설자)
-    //todo participantCount: 수용인원 / 실참여인원 구분해서 네이밍해야 하겠지?
     private Long maxParticipantCount;
     private String content;  //토론 내용 (개요랄까)
     private Boolean isPrivate;  //비공개 여부 true: 비공개, false: 공개
 
-    // todo 논의 : 채팅룸에 - 총 참여인원 어떻게 기록할지. 채팅 종료시점의 인원 or 최대 참여인원? 후자가 맞을 것 같다.
-    private Long totalParticipantCount = 0L;
+    @OneToMany(fetch = LAZY)
+    private Set<Member> participants = new HashSet<>();
 
-    //todo 찬반투표 수 - 채팅 종료시점의 기록만 가져오면 될 것 같다.
     private Long agreeCount = 0L;
     private Long disagreeCount= 0L;
 
     private LocalDateTime closedAt;
     private Boolean onAir = true;
 
-    public void closeChatRoom(Long totalParticipantCount, Long agreeCount, Long disagreeCount, LocalDateTime closedAt, Boolean onAir) {
-        this.totalParticipantCount = totalParticipantCount;
+    public void closeChatRoom(Long agreeCount, Long disagreeCount, LocalDateTime closedAt) {
         this.agreeCount = agreeCount;
         this.disagreeCount = disagreeCount;
         this.closedAt = closedAt;
-        this.onAir = onAir;
+        this.onAir = false;
     }
 
     public ChatRoom(CreateChatRoomDto dto) {
@@ -70,6 +70,16 @@ public class ChatRoom extends Timestamped implements Serializable {
 
     public ChatRoom subDisagree() {
         this.disagreeCount --;
+        return this;
+    }
+
+    public ChatRoom addParticipant(Member member) {
+        this.participants.add(member);
+        return this;
+    }
+
+    public ChatRoom subParticipant(Member member) {
+        this.participants.remove(member);
         return this;
     }
 }
