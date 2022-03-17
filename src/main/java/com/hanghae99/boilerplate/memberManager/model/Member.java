@@ -51,6 +51,9 @@ public class Member {
         this.roles.add(Role.KAKAO);
 
     }
+    public void setPassword(String password){
+        this.password= password;
+    }
 
 
 

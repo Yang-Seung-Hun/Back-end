@@ -163,6 +163,10 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 
+    //mail
+    implementation group: 'com.sun.mail', name: 'javax.mail', version: '1.4.7'
+    implementation group: 'org.springframework', name: 'spring-context-support', version: '5.1.20.RELEASE'
+
 }
 
 tasks.named('test') {

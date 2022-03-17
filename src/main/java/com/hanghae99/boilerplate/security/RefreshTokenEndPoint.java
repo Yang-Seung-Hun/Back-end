@@ -40,7 +40,7 @@ public class RefreshTokenEndPoint {
     public Jws<Claims> getJwtClimas(HttpServletRequest request) {
         try {
             for (Cookie cookie : request.getCookies()) {
-                if (cookie.getName().equals("Authorization") || redis.getData(cookie.getValue()) !=null){
+                if (cookie.getName().equals(JwtConfig.AUTHENTICATION_HEADER_NAME) || redis.getData(cookie.getValue()) !=null){
                     Jws<Claims> jwsClaims = tokenVerifier.validateToken(cookie.getValue(), jwtConfig.getTokenSigningKey());
                     return jwsClaims;
                 }
