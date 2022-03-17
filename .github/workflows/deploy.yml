@@ -1,0 +1,54 @@
+name: Deploy master
+on:
+  push:
+    branches:
+    - main
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+            java-version: '11'
+            distribution: 'temurin'
+
+      - name: Grant Excute permission for gradlew
+        run:  chmod +x ./gradlew
+        shell : bash
+        
+      - name: Build with Gradle
+        run: ./gradlew clean build
+        shell: bash
+        
+      - name: Current time
+        uses: 1466587594/get-current-time@v2
+        id: current-time
+        with:
+          format: YYYY-MM-DDHH-mm-ss
+          utcOffset: "+09:00"
+        
+      - name: Generate package
+        run: |
+          mkdir -p deploy
+          cp build/libs/*.jar deploy/application.jar
+          cp Procfile deploy/Procfile
+          cp -r .ebextensions deploy/.ebextensions
+          cp -r .platform deploy/.platform
+          cd deploy && zip -r deploy.zip .
+        
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v20
+        with:
+          aws_access_key: ${{ secrets.EB_AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.EB_AWS_SECRET_ACCESS_KEY }}
+          application_name: 	eb
+          environment_name: Eb-env-1
+          version_label: github-action-${{steps.current-time.outputs.formattedTime}}
+          region: ap-northeast-2
+          deployment_package: deploy/deploy.zip
