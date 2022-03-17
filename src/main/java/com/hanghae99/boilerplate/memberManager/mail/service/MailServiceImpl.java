@@ -1,7 +1,7 @@
 package com.hanghae99.boilerplate.memberManager.mail.service;
 
 import com.hanghae99.boilerplate.memberManager.mail.MailVerifyRedis;
-import com.hanghae99.boilerplate.memberManager.mail.paltforms.Google;
+import com.hanghae99.boilerplate.memberManager.mail.platforms.Google;
 import com.hanghae99.boilerplate.memberManager.model.Member;
 import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;

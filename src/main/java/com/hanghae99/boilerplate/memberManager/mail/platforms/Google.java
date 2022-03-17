@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.memberManager.mail.paltforms;
+package com.hanghae99.boilerplate.memberManager.mail.platforms;
 
 
 import org.springframework.beans.factory.annotation.Value;

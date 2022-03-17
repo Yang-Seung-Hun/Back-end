@@ -1,7 +1,6 @@
 package com.hanghae99.boilerplate.exceptions;
 
 
-import com.google.api.Http;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
