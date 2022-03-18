@@ -1,8 +1,10 @@
 package com.hanghae99.boilerplate.chat.service;
 
+import com.hanghae99.boilerplate.chat.model.ChatEntry;
 import com.hanghae99.boilerplate.chat.model.ChatRole;
 import com.hanghae99.boilerplate.chat.model.ChatRoom;
 import com.hanghae99.boilerplate.chat.model.dto.*;
+import com.hanghae99.boilerplate.chat.repository.ChatEntryRepository;
 import com.hanghae99.boilerplate.chat.repository.ChatRoomRepository;
 import com.hanghae99.boilerplate.chat.repository.RedisChatRoomRepository;
 import com.hanghae99.boilerplate.memberManager.model.Member;
@@ -19,8 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +32,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final RedisChatRoomRepository redisChatRoomRepository;
     private final MemberRepository memberRepository;
+    private final ChatEntryRepository chatEntryRepository;
 
 //    @Override
     @Transactional
@@ -53,7 +56,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     public List<ChatRoomResDto> findAllFromDb() {
         return chatRoomRepository.findAll().stream()
                 .map(ChatRoomResDto::new)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
 //    @Override
@@ -90,24 +93,30 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
         Long agreeCount = redisChatRoomRepository.reportAgreeCount(roomId.toString());
         Long disagreeCount = redisChatRoomRepository.reportDisagreeCount(roomId.toString());
-        Set<Member> totalMembers = redisChatRoomRepository.reportTotalMaxParticipantsIds(roomId.toString()).stream()
+        List<ChatEntry> totalEntries = redisChatRoomRepository.reportTotalMaxParticipantsIds(roomId.toString()).stream()
                 .map(memberId -> {
                     Optional<Member> member = memberRepository.findById(memberId);
                     if (!member.isPresent()) {
                         log.error("{}의 member가 존재하지 않아 최종 참여 인원으로 update하지 못했습니다.", memberId);
                     }
-                    return member.get();
+                    ChatEntry chatEntry = new ChatEntry(member.get(), room);
+                    chatEntryRepository.save(chatEntry);
+                    return chatEntry;
                 })
-                .collect(Collectors.toSet());
+                .collect(toList());
 
         log.info("[찬반 집계] 채팅방 {}이 종료됩니다. 찬성: {}, 반대: {}", roomId, agreeCount, disagreeCount);
 
         // 이방에 대해 업데이트 : 찬성수, 반대수, 종료시간 + 최대참여자수, 종료여부
-        ChatRoom chatRoom = room.closeChatRoom(agreeCount, disagreeCount, LocalDateTime.now(), totalMembers);
-        chatRoomRepository.save(chatRoom);
+        ChatRoom chatRoom = room.closeChatRoom(agreeCount, disagreeCount, LocalDateTime.now(), totalEntries);
+        ChatRoom finalRoom = chatRoomRepository.save(chatRoom);
+        ChatRoomRedisDto chatRoomRedisDtoById = redisChatRoomRepository.findChatRoomRedisDtoById(roomId.toString());
+        ChatRoomRedisDto chatRoomRedisDto = chatRoomRedisDtoById.updateFinal(finalRoom);
+
         // redis 에서 삭제
         redisChatRoomRepository.removeRoom(roomId.toString());
-        return new ChatRoomRedisDto(chatRoom);
+
+        return chatRoomRedisDto;
     }
 
 

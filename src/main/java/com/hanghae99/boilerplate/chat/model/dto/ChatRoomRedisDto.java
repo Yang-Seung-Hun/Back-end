@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,6 +30,8 @@ public class ChatRoomRedisDto implements Serializable {
     private Long agreeCount = 0L;
     private Long disagreeCount= 0L;
     private Boolean onAir = true;
+    private LocalDateTime createdAt;
+    private LocalDateTime closedAt;
 
     // 생성 : 초기 생성된 chatRoom 정보로부터 dto 도 만들어주기
     public ChatRoomRedisDto(ChatRoom chatRoom) {
@@ -38,7 +41,16 @@ public class ChatRoomRedisDto implements Serializable {
         this.moderatorNickname = chatRoom.getModerator().getNickname();
         this.content = chatRoom.getContent();
         this.isPrivate = chatRoom.getIsPrivate();
+        this.createdAt = chatRoom.getCreatedAt();
     }
+
+    // final report(?)
+    public ChatRoomRedisDto updateFinal(ChatRoom chatRoom) {
+        this.onAir = chatRoom.getOnAir();
+        this.closedAt = chatRoom.getClosedAt();
+        return this;
+    }
+
 
     // 실시간 변동 반영
     public ChatRoomRedisDto addAgree() {

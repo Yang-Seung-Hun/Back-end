@@ -12,8 +12,7 @@ public class ChatEntry {
 
     protected ChatEntry() {}
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO) @Id
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -23,7 +22,7 @@ public class ChatEntry {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
-    @JoinColumn(name = "post_id", foreignKey = @ForeignKey(name = "fkey_post_id"))
+    @JoinColumn(name = "chatroom_id", foreignKey = @ForeignKey(name = "fkey_post_id"))
     private ChatRoom chatRoom;
 
     public ChatEntry(Member member, ChatRoom chatRoom) {

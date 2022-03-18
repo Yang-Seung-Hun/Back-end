@@ -82,8 +82,6 @@ public class RedisChatRoomRepository {
         opsHashChatRoom.delete(CHAT_ROOMS, roomId);
     }
 
-
-
     public Long addAgree(String roomId) {
         ChatRoomRedisDto redisDto = opsHashChatRoom.get(CHAT_ROOMS, roomId);
         ChatRoomRedisDto mRedisDto = redisDto.addAgree();
@@ -126,6 +124,10 @@ public class RedisChatRoomRepository {
 
     public Set<Long> reportTotalMaxParticipantsIds(String roomId) {
         return opsHashChatRoom.get(CHAT_ROOMS, roomId).getTotalMaxParticipantsIds();
+    }
+
+    public ChatRoomRedisDto findChatRoomRedisDtoById(String roomId) {
+        return opsHashChatRoom.get(CHAT_ROOMS, roomId);
     }
 
 

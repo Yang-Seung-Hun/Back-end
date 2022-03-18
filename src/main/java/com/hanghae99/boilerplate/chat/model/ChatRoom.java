@@ -11,7 +11,6 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Entity
@@ -49,12 +48,12 @@ public class ChatRoom extends Timestamped {
 
     }
 
-    public ChatRoom closeChatRoom(Long agreeCount, Long disagreeCount, LocalDateTime closedAt, Set<Member> members) {
+    public ChatRoom closeChatRoom(Long agreeCount, Long disagreeCount, LocalDateTime closedAt, List<ChatEntry> entries) {
         this.agreeCount = agreeCount;
         this.disagreeCount = disagreeCount;
         this.closedAt = closedAt;
         this.onAir = false;
-//        this.totalMaxParticipants = members;
+        this.entries = entries;
         return this;
     }
 
