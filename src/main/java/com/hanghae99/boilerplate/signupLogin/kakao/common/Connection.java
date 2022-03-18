@@ -10,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.rmi.ServerError;
 
 @Component
 @Slf4j
@@ -21,6 +23,7 @@ public class Connection {
     ObjectMapper objectMapper;
 
     public KakaoUserData getaccessToken( String code) throws IOException {
+
         URL url = new URL("https://kauth.kakao.com/oauth/token");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
@@ -44,8 +47,7 @@ public class Connection {
 
         int status = connection.getResponseCode();
         if(status != 200) {
-            log.info("Bad Status getAccessToken  : {}",status);
-            return null;
+            throw new ConnectException("status : "+status);
         }
 
 
@@ -68,8 +70,7 @@ public class Connection {
         connection.setRequestProperty("Authorization","Bearer "+ token);
 
         if (connection.getResponseCode() != 200) {
-            log.info("bad status getUserData : " + connection.getResponseCode());
-            return null;
+            throw new ConnectException("status : "+connection.getResponseCode());
         }
 
         JsonNode jsonNode = readConnectionStringToJson(connection);

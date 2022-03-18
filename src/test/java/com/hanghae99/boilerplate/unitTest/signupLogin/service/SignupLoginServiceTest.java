@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.signupLogin.service;
+package com.hanghae99.boilerplate.unitTest.signupLogin.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.memberManager.model.Member;
@@ -6,6 +6,7 @@ import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import com.hanghae99.boilerplate.security.config.RefreshTokenRedis;
 import com.hanghae99.boilerplate.security.model.login.LoginRequestDto;
 import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
+import com.hanghae99.boilerplate.signupLogin.service.SignupLoginService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,13 +60,12 @@ class SignupLoginServiceTest {
     @DisplayName("존재하는 이메일 + 정상적인 signupReqestDto")
     public void SinupFail() {
         Mockito.when(memberRepository.existsMemberByEmail(any(String.class))).thenReturn(true);
-
         try {
             signupLoginService.signupRequest(signupReqestDto);
-            fail();
         } catch (IllegalArgumentException e) {
-
+            return ;
         }
+        fail();
     }
 
 

@@ -28,6 +28,7 @@ public class SignupLoginService {
     @Autowired
     RefreshTokenRedis redis;
     @Transactional
+
     public void signupRequest(SignupReqestDto signupReqestDto) {
         boolean result = memberRepository.existsMemberByEmail(signupReqestDto.getEmail());
         if (result) {
@@ -40,7 +41,7 @@ public class SignupLoginService {
 
     }
 
-    public void logoutRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void logoutRequest(HttpServletRequest request) throws IOException {
         for (Cookie cookie :request.getCookies()){
            if( cookie.getName().equals("Authorization")){
                redis.removeData(cookie.getValue());

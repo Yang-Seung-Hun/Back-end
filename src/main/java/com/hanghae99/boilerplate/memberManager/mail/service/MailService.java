@@ -4,7 +4,5 @@ import java.util.Optional;
 
 public interface MailService {
 
-     Optional<String> verifyEmail(String email);
 
-    Object verifyKey(String key);
 }

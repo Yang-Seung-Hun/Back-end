@@ -20,12 +20,13 @@ import java.util.Optional;
 @Service
 public class MailServiceImpl implements MailService {
 
-    @Autowired
-    MailVerifyRedis mailVerifyRedis;
+
     @Autowired
     MemberRepository memberRepository;
     @Autowired
     PasswordEncoder passwordEncoder;
+
+
     private static int MIN_SIZE = 10000;
     private static int MAX_SIZE = 1000000000;
 
@@ -44,47 +45,14 @@ public class MailServiceImpl implements MailService {
     }
 
 
-    @Override
-    public Optional<String> verifyEmail(String email) {
-        if (!memberRepository.existsMemberByEmail(email)) //존재xx
-            return Optional.empty();
-        String key = String.valueOf(random.nextLong());
-
-        return Optional.of(key);
-    }
-
-    @Override
-    public Optional<Member> verifyKey(String key) {
-        String email  =   mailVerifyRedis.getData(key);
-        if(email==null)
-            return Optional.empty();
-        Optional<Member> member=  memberRepository.findByEmail(email);
-        if(member.isEmpty())
-            return Optional.empty();
-        return member;
-
-    }
-
-
-    public void sendFindPasswordVerifyMail(String email) throws MessagingException {
-        String key = verifyEmail(email).orElseThrow(()->new UsernameNotFoundException(email +"not exist") );
-          mailVerifyRedis.setExpire(key,email, Long.parseLong(expireTime));
-           google.sendMail(email,title,makeText(key));
-
-    }
-
-
     @Transactional
-    public String  isOkGiveNewPassword(String key) throws AuthenticationException {
-       Member member =  verifyKey(key).orElseThrow(()-> new AuthenticationException("Bad Access"));
+    public void sendFindPasswordVerifyMail(String email) throws MessagingException {
+        Member member = memberRepository.findByEmail(email).orElseThrow(()->new UsernameNotFoundException(email +"not exist") );
+        String  key =String.valueOf(random.nextInt((MAX_SIZE - MIN_SIZE) + 1) + MIN_SIZE);
+       member.setPassword(passwordEncoder.encode(key));
+       google.sendMail(email,title,makeText(key));
 
-        random.setSeed(new Date().getTime());
-        String  randomNum =String.valueOf(random.nextInt((MAX_SIZE - MIN_SIZE) + 1) + MIN_SIZE);
-       member.setPassword(passwordEncoder.encode(randomNum));
-       return  randomNum;
     }
-
-
 
 
 }

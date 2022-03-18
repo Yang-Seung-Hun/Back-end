@@ -31,11 +31,11 @@ public class MailController {
     }
 
 
-    @GetMapping("/api/find/password/{key}")
-    public ResponseDto changePassword( @PathVariable String key) throws JsonProcessingException, AuthenticationException {
-            String password = mailService.isOkGiveNewPassword(key);
-            return new ResponseDto(HttpStatus.OK, "create new password", password);
-
-    }
+//    @GetMapping("/api/find/password/{key}")
+//    public ResponseDto changePassword( @PathVariable String key) throws JsonProcessingException, AuthenticationException {
+//            String password = mailService.isOkGiveNewPassword(key);
+//            return new ResponseDto(HttpStatus.OK, "create new password", password);
+//
+//    }
 
 }

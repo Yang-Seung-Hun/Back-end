@@ -32,7 +32,7 @@ public class RegisterMember {
                      return new MemberContext(member);
             }
             //존재0
-            return new MemberContext(memberRepository.save(findMember.get()));
+            return new MemberContext(findMember.get());
 
 
         }

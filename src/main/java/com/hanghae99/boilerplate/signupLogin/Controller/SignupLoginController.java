@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.signupLogin.signupLoginController;
+package com.hanghae99.boilerplate.signupLogin.Controller;
 
 
 import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
@@ -38,7 +38,7 @@ public class SignupLoginController {
     @PostMapping("/api/logout")
     public void  logout (HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        signupLoginService.logoutRequest(request,response);
+        signupLoginService.logoutRequest(request);
     }
 
 
