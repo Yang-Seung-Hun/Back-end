@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.hanghae99.boilerplate.security.config.SecurityConfig.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,14 +73,11 @@ public class TokenAndTokenFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
 //        request.addHeader(AUTHENTICATION_HEADER_NAME,);
 
-        try {
-            jwtFilter.attemptAuthentication(request, response);
+        assertThrows(AuthenticationServiceException.class,
+                () -> {
+                    jwtFilter.attemptAuthentication(request, response);
+                });
 
-        } catch (AuthenticationServiceException e) {
-            return;
-        } catch (ServletException | IOException e) {
-        }
-        fail();
     }
 
     @Test
@@ -89,15 +87,11 @@ public class TokenAndTokenFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         request.addHeader(AUTHENTICATION_HEADER_NAME, " ");
+        assertThrows(AuthenticationServiceException.class,
+                () -> {
+                    jwtFilter.attemptAuthentication(request, response);
+                });
 
-        try {
-            jwtFilter.attemptAuthentication(request, response);
-
-        } catch (AuthenticationServiceException e) {
-            return;
-        } catch (ServletException | IOException e) {
-        }
-        fail();
     }
 
     @Test
@@ -106,15 +100,12 @@ public class TokenAndTokenFilterTest {
         String token = makeToken();
 
         TokenVerifier tokenVerifier = new TokenVerifier();
-        try {
-            tokenVerifier.validateToken(token, jwtConfig.getTokenSigningKey());
-        } catch (Exception e) {
-            fail();
-        }
+        tokenVerifier.validateToken(token, jwtConfig.getTokenSigningKey());
+
     }
 
     @Test
-    @DisplayName("만료 이외의 잘못된 토큰인지 확인")
+    @DisplayName("만료되었고 서명도 잘못된 경우 서명에러를 먼저 반환하는가? ")
     void expiredToken() {
         String token = "13.3.2";
         try {
@@ -132,33 +123,26 @@ public class TokenAndTokenFilterTest {
     @DisplayName("만료된 토큰을 ExpiredJwtException로 반환하는가")
     void badTokenErrorFirst() {
         String token = makeExpiredToken();
-        try {
+
             TokenVerifier tokenVerifier = new TokenVerifier();
-            tokenVerifier.validateToken(token, jwtConfig.getTokenSigningKey());
-        } catch (UnsupportedJwtException|MalformedJwtException|SignatureException|IllegalArgumentException e ) {
-            fail();
-        } catch (ExpiredJwtException E) {
-            return;
-        }
-        fail();
+          assertThrows(ExpiredJwtException.class,()->{
+              tokenVerifier.validateToken(token, jwtConfig.getTokenSigningKey());
+          }) ;
     }
 
     @Test
-    @DisplayName("잘못된 서명 토큰")
-    void badSign(){
+    @DisplayName("다른사람이 만든 만료된 토큰 expired를 반환해선 안된다")
+    void badSign() {
         String token = makeBadSignToken();
         try {
             TokenVerifier tokenVerifier = new TokenVerifier();
             tokenVerifier.validateToken(token, jwtConfig.getTokenSigningKey());
-        } catch ( SignatureException|UnsupportedJwtException|MalformedJwtException|IllegalArgumentException e ) {
-            return ;
+        } catch (SignatureException | UnsupportedJwtException | MalformedJwtException | IllegalArgumentException e) {
+            return;
         } catch (ExpiredJwtException E) {
         }
         fail();
     }
-
-
-
 
 
     String makeToken() {

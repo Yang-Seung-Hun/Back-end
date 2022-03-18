@@ -27,6 +27,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -74,13 +75,11 @@ public class LoginFilterTest {
     void memberNotExist() {
 
         Mockito.when(userDetailsService.loadUserByUsername(any(String.class))).thenThrow(new UsernameNotFoundException("not exist"));
-        try {
+        assertThrows(BadCredentialsException.class,()->
+        {
             ajaxAuthenticationProvider.authenticate(token);
-        } catch (BadCredentialsException e) {
+        });
 
-            return;
-        }
-        fail();
     }
 
     @Test
@@ -89,13 +88,12 @@ public class LoginFilterTest {
         Mockito.when(userDetailsService.loadUserByUsername(any(String.class))).thenReturn(new UserDetailsImpl(member.getEmail(), member.getPassword(), member.getRoles().stream().map(role ->
                 new SimpleGrantedAuthority(role.name())).collect(Collectors.toList()), member.getNickname(), 10L));
         Mockito.when(passwordEncoder.matches(any(String.class), any(String.class))).thenReturn(false);
-        try {
-            ajaxAuthenticationProvider.authenticate(token);
+       assertThrows(BadCredentialsException.class,()->
+       {
+           ajaxAuthenticationProvider.authenticate(token);
+       });
 
-        }catch (BadCredentialsException e){
-            return;
-        }
-        fail();
+
 
 
     }

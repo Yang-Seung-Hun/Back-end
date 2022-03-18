@@ -45,32 +45,21 @@ class KakaoLoginServiceTest {
     @Test
     @DisplayName("code가 null AuthenticationException")
     void kakaoLoginNullCode() {
-        try {
+        assertThrows(AuthenticationException.class, () -> {
             kakaoLoginService.getKakaoUserInformation(null);
-            fail();
-        } catch (AuthenticationException e) {
-            return ;
-        } catch (IOException e) {
-        }
-        fail();
+        });
+
 
     }
 
     @Test
     @DisplayName("code가 blank")
     void kakaoLoginBlankCode() {
-        try {
+        assertThrows(AuthenticationException.class, () -> {
             kakaoLoginService.getKakaoUserInformation("   ");
-            fail();
-        } catch (AuthenticationException e) {
-            return;
-        } catch (IOException e) {
 
-        }
-        fail();
+        });
+
 
     }
-
-
-
 }

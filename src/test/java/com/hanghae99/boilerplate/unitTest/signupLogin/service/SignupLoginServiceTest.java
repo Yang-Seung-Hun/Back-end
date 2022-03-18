@@ -60,12 +60,11 @@ class SignupLoginServiceTest {
     @DisplayName("존재하는 이메일 + 정상적인 signupReqestDto")
     public void SinupFail() {
         Mockito.when(memberRepository.existsMemberByEmail(any(String.class))).thenReturn(true);
-        try {
+        assertThrows(IllegalArgumentException.class,()->{
             signupLoginService.signupRequest(signupReqestDto);
-        } catch (IllegalArgumentException e) {
-            return ;
-        }
-        fail();
+
+        });
+
     }
 
 

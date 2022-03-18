@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import javax.mail.MessagingException;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -36,11 +37,10 @@ class MailServiceImplTest {
 
     @Mock
     Google google;
-   @Mock
-   PasswordEncoder passwordEncoder;
+    @Mock
+    PasswordEncoder passwordEncoder;
     @InjectMocks
     MailServiceImpl mailService = new MailServiceImpl();
-
 
 
     TemporaryUser temporaryUser = new TemporaryUser("wns674@naver.com", "ghwns", "123");
@@ -52,14 +52,10 @@ class MailServiceImplTest {
     void verifyEmailExist() throws MessagingException {
         Mockito.when(memberRepository.findByEmail(any(String.class))).thenReturn(Optional.ofNullable(member));
         Mockito.when(passwordEncoder.encode(any(String.class))).thenReturn("111");
-        doNothing().when(google).sendMail(any(String.class),any(String.class),any(String.class));
+        doNothing().when(google).sendMail(any(String.class), any(String.class), any(String.class));
 
-        try {
-            mailService.sendFindPasswordVerifyMail(member.getEmail());
+        mailService.sendFindPasswordVerifyMail(member.getEmail());
 
-        }catch (Exception e){
-            fail();
-        }
 
     }
 
@@ -68,15 +64,11 @@ class MailServiceImplTest {
     void verifyEmailNotExist() throws MessagingException {
         Mockito.when(memberRepository.findByEmail(any(String.class))).thenReturn(Optional.empty());
 
-        try{
+
+        assertThrows(UsernameNotFoundException.class, () -> {
             mailService.sendFindPasswordVerifyMail(member.getEmail());
+        });
 
-        }catch (UsernameNotFoundException e){
-            return ;
-        }        fail();
+
     }
-
-
-
-
 }
