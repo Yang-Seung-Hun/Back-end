@@ -29,18 +29,19 @@ public class TokenVerifier {
     public Jws<Claims> validateToken(String jwtToken, String secretKey) {
 
 
-//      String  jwtToken = header.substring(HEADER_PREFIX.length(), header.length());
         Jws<Claims> claims = null;
         try {
             claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
             return claims;
-        } catch (UnsupportedJwtException|MalformedJwtException|SignatureException|IllegalArgumentException e) {
-            throw new JwtException(e.getMessage());
         }  catch (ExpiredJwtException e) {
             throw new ExpiredJwtException(null, null, "Jwt Expired !!");
         }
 
     }
+//
+//    catch (UnsupportedJwtException|MalformedJwtException|SignatureException|IllegalArgumentException e) {
+//        throw new JwtException(e.getMessage());
+//    }
 
 
 
