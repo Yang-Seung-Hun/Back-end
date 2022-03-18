@@ -30,7 +30,7 @@ public class ChatRoomResDto implements Serializable {
     public ChatRoomResDto(ChatRoom room) {
         roomId = room.getRoomId();
         roomName = room.getRoomName();
-        moderator = room.getModerator();
+//        moderator = room.getModerator();
         maxParticipantCount = room.getMaxParticipantCount();
         content = room.getContent();
         isPrivate = room.getIsPrivate();

@@ -23,11 +23,14 @@ public class ChatRoom extends Timestamped implements Serializable {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomId;
-    private String roomName;   //방 제목
-    private String moderator;  //방장(개설자)
+    private String roomName;
+
+    @ManyToOne
+    private Member moderator;
+
     private Long maxParticipantCount;
-    private String content;  //토론 내용 (개요랄까)
-    private Boolean isPrivate;  //비공개 여부 true: 비공개, false: 공개
+    private String content;
+    private Boolean isPrivate;
 
     @OneToMany(fetch = LAZY)
     private Set<Member> participants = new HashSet<>();
@@ -38,6 +41,15 @@ public class ChatRoom extends Timestamped implements Serializable {
     private LocalDateTime closedAt;
     private Boolean onAir = true;
 
+
+    public ChatRoom(CreateChatRoomDto dto, Member member) {
+        this.roomName = dto.getRoomName();
+        this.moderator = member;
+        this.maxParticipantCount = dto.getMaxParticipantCount();
+        this.content = dto.getContent();
+        this.isPrivate = dto.getIsPrivate();
+    }
+
     public void closeChatRoom(Long agreeCount, Long disagreeCount, LocalDateTime closedAt) {
         this.agreeCount = agreeCount;
         this.disagreeCount = disagreeCount;
@@ -45,41 +57,33 @@ public class ChatRoom extends Timestamped implements Serializable {
         this.onAir = false;
     }
 
-    public ChatRoom(CreateChatRoomDto dto) {
-        this.roomName = dto.getRoomName();
-        this.moderator = dto.getModerator();
-        this.maxParticipantCount = dto.getMaxParticipantCount();
-        this.content = dto.getContent();
-        this.isPrivate = dto.getIsPrivate();
-    }
-
-    public ChatRoom addAgree() {
-        this.agreeCount ++;
-        return this;
-    }
-
-    public ChatRoom addDisagree() {
-        this.disagreeCount ++;
-        return this;
-    }
-
-    public ChatRoom subAgree() {
-        this.agreeCount --;
-        return this;
-    }
-
-    public ChatRoom subDisagree() {
-        this.disagreeCount --;
-        return this;
-    }
-
-    public ChatRoom addParticipant(Member member) {
-        this.participants.add(member);
-        return this;
-    }
-
-    public ChatRoom subParticipant(Member member) {
-        this.participants.remove(member);
-        return this;
-    }
+//    public ChatRoom addAgree() {
+//        this.agreeCount ++;
+//        return this;
+//    }
+//
+//    public ChatRoom addDisagree() {
+//        this.disagreeCount ++;
+//        return this;
+//    }
+//
+//    public ChatRoom subAgree() {
+//        this.agreeCount --;
+//        return this;
+//    }
+//
+//    public ChatRoom subDisagree() {
+//        this.disagreeCount --;
+//        return this;
+//    }
+//
+//    public ChatRoom addParticipant(Member member) {
+//        this.participants.add(member);
+//        return this;
+//    }
+//
+//    public ChatRoom subParticipant(Member member) {
+//        this.participants.remove(member);
+//        return this;
+//    }
 }

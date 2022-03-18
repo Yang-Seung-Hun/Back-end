@@ -30,20 +30,24 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final RedisChatRoomRepository redisChatRoomRepository;
     private final MemberRepository memberRepository;
 
-    @Override
+//    @Override
     @Transactional
-    @CacheEvict(cacheNames = "CHATROOM_DTOS", allEntries = true) // , key = "#username")
-    public ChatRoomResDto save(CreateChatRoomDto createChatRoomDto) {
-        ChatRoom room = new ChatRoom(createChatRoomDto);
+    @CacheEvict(cacheNames = "CHATROOM_DTOS", allEntries = true)
+    public ChatRoomRedisDto save(CreateChatRoomDto createChatRoomDto, MemberContext user) {
+
+        Optional<Member> optionalMember = memberRepository.findById(user.getMemberId());
+        validateMember(optionalMember);
+        Member member = optionalMember.get();
+        ChatRoom room = new ChatRoom(createChatRoomDto, member);
         //db
         chatRoomRepository.save(room);
-        ChatRoomResDto chatRoomResDto = new ChatRoomResDto(room);
+//        ChatRoomResDto chatRoomResDto = new ChatRoomResDto(room);
         //redis
-        redisChatRoomRepository.createChatRoom(room.getRoomId().toString(), room);
-        return chatRoomResDto;
+        ChatRoomRedisDto chatRoomRedisDto = redisChatRoomRepository.createChatRoom(room.getRoomId().toString(), room);
+        return chatRoomRedisDto;
     }
 
-    @Override
+//    @Override
     @Transactional(readOnly = true)
     @Cacheable(cacheNames = "CHATROOM_DTOS")
     public List<ChatRoomResDto> findAllFromDb() {
@@ -52,14 +56,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public List<ChatRoomResDto> findAllFromRedis() {
-        return redisChatRoomRepository.findAllRoom().stream()
-                .map(ChatRoomResDto::new)
-                .collect(Collectors.toList());
-    }
-
-    @Override
+//    @Override
     @Transactional(readOnly = true)
     public ChatRoomResDto findByIdFromDb(Long roomId) {
         Optional<ChatRoom> room = getChatRoom(roomId);
@@ -67,11 +64,11 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         return new ChatRoomResDto(findRoom);
     }
 
-    @Override
-    public ChatRoomResDto findByIdFromRedis(Long roomId) {
-        ChatRoom roomRedis = redisChatRoomRepository.findRoomById(roomId.toString());
-        return new ChatRoomResDto(roomRedis);
-    }
+//    @Override
+//    public ChatRoomRedisDto findByIdFromRedis(Long roomId) {
+//        ChatRoomRedisDto chatRoomRedisDto = redisChatRoomRepository.findRoomById(roomId.toString());
+//        return chatRoomRedisDto;
+//    }
 
     @Transactional
     public ChatRoomResDto closeRoom(ChatCloseDto chatCloseDto, @AuthenticationPrincipal MemberContext user) {
@@ -107,12 +104,12 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     // 조건
-    @Override
+//    @Override
     public List<ChatRoomResDto> findOnAirChatRooms() {
         return chatRoomRepository.findOnAirChatRooms();
     }
 
-    @Override
+//    @Override
     public List<ChatRoomResDto> findByKeyword(String keyword) {
         return chatRoomRepository.findByKeyword(keyword);
     }
@@ -121,20 +118,22 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         chatRoomRepository.deleteAll();
     }
 
-    public ChatRoomResDto addParticipant(ChatEntryDto entryDto, MemberContext user) {
+    public ChatRoomRedisDto addParticipant(ChatEntryDto entryDto, MemberContext user) {
         Optional<Member> findMember = memberRepository.findById(user.getMemberId());
         validateMember(findMember);
         log.info("입장하려는 사람: {}", findMember.get().getNickname());
-        ChatRoomResDto dto = redisChatRoomRepository.addParticipant(entryDto.getRoomId().toString(), findMember.get());
-        return dto;
+        Member member = findMember.get();
+
+        ChatRoomRedisDto chatRoomRedisDto = redisChatRoomRepository.addParticipant(entryDto.getRoomId().toString(), member);
+        return chatRoomRedisDto;
     }
 
-    public ChatRoomResDto leaveParticipant(ChatLeaveDto leaveDto, MemberContext user) {
+    public ChatRoomRedisDto leaveParticipant(ChatLeaveDto leaveDto, MemberContext user) {
         Optional<Member> findMember = memberRepository.findById(user.getMemberId());
         validateMember(findMember);
         log.info("퇴장하려는 사람의 nickname: {}, role: {}", findMember.get().getNickname(), leaveDto.getRole());
-        ChatRoomResDto dto = redisChatRoomRepository.subParticipant(leaveDto.getRoomId().toString(), findMember.get());
-        return dto;
+        ChatRoomRedisDto chatRoomRedisDto = redisChatRoomRepository.subParticipant(leaveDto.getRoomId().toString(), findMember.get());
+        return chatRoomRedisDto;
     }
 
     private void validateMember(Optional<Member> findMember) {

@@ -26,24 +26,24 @@ public class ChatRoomController {
 
     // 채팅방 생성
     @PostMapping("/auth/api/chat/room")
-    public ResponseEntity<ChatRoomResDto> createRoom(@RequestBody CreateChatRoomDto createChatRoomDto) {
+    public ResponseEntity<ChatRoomRedisDto> createRoom(@RequestBody CreateChatRoomDto createChatRoomDto, @AuthenticationPrincipal MemberContext user) {
         //todo 방생성시 동일한 이름 중복되지 않게 해야 할 것. (chatRoomService 에서)
-        ChatRoomResDto roomResDto = chatRoomServiceImpl.save(createChatRoomDto);
-        return ResponseEntity.ok().body(roomResDto);
+        ChatRoomRedisDto chatRoomRedisDto = chatRoomServiceImpl.save(createChatRoomDto, user);
+        return ResponseEntity.ok().body(chatRoomRedisDto);
     }
 
     // 채팅방 입장
     @PostMapping("/auth/api/chat/room/join")
-    public ResponseEntity joinRoom(@RequestBody ChatEntryDto entryDto, @AuthenticationPrincipal MemberContext user) {
-        ChatRoomResDto roomResDto = chatRoomServiceImpl.addParticipant(entryDto, user);
-        return ResponseEntity.ok().body(roomResDto.getParticipants().size());
+    public ResponseEntity<ChatRoomRedisDto> joinRoom(@RequestBody ChatEntryDto entryDto, @AuthenticationPrincipal MemberContext user) {
+        ChatRoomRedisDto chatRoomRedisDto = chatRoomServiceImpl.addParticipant(entryDto, user);
+        return ResponseEntity.ok().body(chatRoomRedisDto);
     }
 
     // 채팅방 떠남
     @PostMapping("/auth/api/chat/room/leave")
-    public ResponseEntity leaveRoom(@RequestBody ChatLeaveDto leaveDto, @AuthenticationPrincipal MemberContext user) {
-        ChatRoomResDto roomResDto = chatRoomServiceImpl.leaveParticipant(leaveDto, user);
-        return ResponseEntity.ok().body(roomResDto.getParticipants().size());
+    public ResponseEntity<ChatRoomRedisDto> leaveRoom(@RequestBody ChatLeaveDto leaveDto, @AuthenticationPrincipal MemberContext user) {
+        ChatRoomRedisDto chatRoomRedisDto = chatRoomServiceImpl.leaveParticipant(leaveDto, user);
+        return ResponseEntity.ok().body(chatRoomRedisDto);
     }
 
     // 채팅방 종료

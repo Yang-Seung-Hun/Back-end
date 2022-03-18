@@ -2,7 +2,7 @@ package com.hanghae99.boilerplate.chat.repository;
 
 
 import com.hanghae99.boilerplate.chat.model.ChatRoom;
-import com.hanghae99.boilerplate.chat.model.dto.ChatRoomResDto;
+import com.hanghae99.boilerplate.chat.model.dto.ChatRoomRedisDto;
 import com.hanghae99.boilerplate.memberManager.model.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,64 +12,100 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Repository
 @Slf4j
 public class RedisChatRoomRepository {
     // Redis
-    private static final String CHAT_ROOMS = "ONAIR_CHAT_ROOM";
+    private static final String CHAT_ROOMS = "CHAT_ROOM_REDIS_DTOS";
     private final RedisTemplate<String, Object> redisTemplate;
-    private HashOperations<String, String, ChatRoom> opsHashChatRoom;
+    private HashOperations<String, String, ChatRoomRedisDto> opsHashChatRoom;
+
+    //db의존
+    private final ChatRoomRepository chatRoomRepository;
 
     @PostConstruct
     private void init() {
         opsHashChatRoom = redisTemplate.opsForHash();
     }
 
-    public List<ChatRoom> findAllRoom() {
+    public List<ChatRoomRedisDto> findAllRoom() {
         return opsHashChatRoom.values(CHAT_ROOMS);
     }
 
-    public ChatRoom findRoomById(String id) {
-        return opsHashChatRoom.get(CHAT_ROOMS, id);
+    //채팅방 생성 : 서버간 채팅방 공유를 위해 redis hash 에 저장
+    public ChatRoomRedisDto createChatRoom(String roomId, ChatRoom chatRoom) {
+        // chatRoom -> chatRoomRedisDto
+        ChatRoomRedisDto redisDto = new ChatRoomRedisDto(chatRoom);
+        opsHashChatRoom.put(CHAT_ROOMS, roomId, redisDto);
+        return redisDto;
     }
 
-    //채팅방 생성 : 서버간 채팅방 공유를 위해 redis hash 에 저장
-    public ChatRoom createChatRoom(String roomId, ChatRoom chatRoom) {
-        opsHashChatRoom.put(CHAT_ROOMS, roomId, chatRoom);
-        return chatRoom;
+    //채팅방 입장 :
+    public ChatRoomRedisDto addParticipant(String roomId, Member member) {
+        Optional<ChatRoomRedisDto> opitonalChatRoomRedisDto = Optional.ofNullable(opsHashChatRoom.get(CHAT_ROOMS, roomId));
+        if (opitonalChatRoomRedisDto.isPresent()) {
+            ChatRoomRedisDto chatRoomRedisDto = opitonalChatRoomRedisDto.get();
+            ChatRoomRedisDto mChatRoomRedisDto = chatRoomRedisDto.addParticipant(member);
+            opsHashChatRoom.put(CHAT_ROOMS, roomId, mChatRoomRedisDto);
+            return mChatRoomRedisDto;
+        } else {
+            Optional<ChatRoom> roomFromDb = chatRoomRepository.findById(Long.valueOf(roomId));
+            if (roomFromDb.isPresent()) {
+                if (roomFromDb.get().getOnAir() == true) {
+                    ChatRoomRedisDto chatRoomRedisDto = new ChatRoomRedisDto(roomFromDb.get());
+                    ChatRoomRedisDto mChatRoomRedisDto = chatRoomRedisDto.addParticipant(member);
+                    opsHashChatRoom.put(CHAT_ROOMS, roomId, chatRoomRedisDto);
+                    return mChatRoomRedisDto;
+                } else {
+                    throw new IllegalArgumentException("해당 Id의 chatRoom이 종료되었습니다.");
+                }
+            } else {
+                throw new IllegalArgumentException("해당 Id의 chatRoom이 개설되지 않았습니다.");
+            }
+        }
+
+
+    }
+
+    public ChatRoomRedisDto subParticipant(String roomId, Member member) {
+        ChatRoomRedisDto chatRoomRedisDto = opsHashChatRoom.get(CHAT_ROOMS, roomId);
+        ChatRoomRedisDto mChatRoomRedisDto = chatRoomRedisDto.subParticipant(member);
+        opsHashChatRoom.put(CHAT_ROOMS, roomId, mChatRoomRedisDto);
+        return mChatRoomRedisDto;
     }
 
     public Long addAgree(String roomId) {
-        ChatRoom chatRoom = opsHashChatRoom.get(CHAT_ROOMS, roomId);
-        ChatRoom modRoom = chatRoom.addAgree();
-        opsHashChatRoom.put(CHAT_ROOMS, roomId, modRoom);
-        Long after = modRoom.getAgreeCount();
+        ChatRoomRedisDto redisDto = opsHashChatRoom.get(CHAT_ROOMS, roomId);
+        ChatRoomRedisDto mRedisDto = redisDto.addAgree();
+        opsHashChatRoom.put(CHAT_ROOMS, roomId, mRedisDto);
+        Long after = mRedisDto.getAgreeCount();
         return after;
     }
 
     public Long subAgree(String roomId) {
-        ChatRoom chatRoom = opsHashChatRoom.get(CHAT_ROOMS, roomId);
-        ChatRoom modRoom = chatRoom.subAgree();
-        opsHashChatRoom.put(CHAT_ROOMS, roomId, modRoom);
-        Long after = modRoom.getAgreeCount();
+        ChatRoomRedisDto redisDto = opsHashChatRoom.get(CHAT_ROOMS, roomId);
+        ChatRoomRedisDto mRedisDto = redisDto.subAgree();
+        opsHashChatRoom.put(CHAT_ROOMS, roomId, mRedisDto);
+        Long after = mRedisDto.getAgreeCount();
         return after;
     }
 
     public Long addDisagree(String roomId) {
-        ChatRoom chatRoom = opsHashChatRoom.get(CHAT_ROOMS, roomId);
-        ChatRoom modRoom = chatRoom.addDisagree();
-        opsHashChatRoom.put(CHAT_ROOMS, roomId, modRoom);
-        Long after = modRoom.getDisagreeCount();
+        ChatRoomRedisDto redisDto = opsHashChatRoom.get(CHAT_ROOMS, roomId);
+        ChatRoomRedisDto mRedisDto = redisDto.addDisagree();
+        opsHashChatRoom.put(CHAT_ROOMS, roomId, mRedisDto);
+        Long after = mRedisDto.getDisagreeCount();
         return after;
     }
 
     public Long subDisagree(String roomId) {
-        ChatRoom chatRoom = opsHashChatRoom.get(CHAT_ROOMS, roomId);
-        ChatRoom modRoom = chatRoom.subDisagree();
-        opsHashChatRoom.put(CHAT_ROOMS, roomId, modRoom);
-        Long after = modRoom.getDisagreeCount();
+        ChatRoomRedisDto redisDto = opsHashChatRoom.get(CHAT_ROOMS, roomId);
+        ChatRoomRedisDto mRedisDto = redisDto.subDisagree();
+        opsHashChatRoom.put(CHAT_ROOMS, roomId, mRedisDto);
+        Long after = mRedisDto.getDisagreeCount();
         return after;
     }
 
@@ -86,19 +122,7 @@ public class RedisChatRoomRepository {
     }
 
 
-    public ChatRoomResDto addParticipant(String roomId, Member member) {
-        ChatRoom chatRoom = opsHashChatRoom.get(CHAT_ROOMS, roomId);
-        ChatRoom mChatRoom = chatRoom.addParticipant(member);
-        opsHashChatRoom.put(CHAT_ROOMS, roomId, mChatRoom);
-        ChatRoomResDto dto = new ChatRoomResDto(mChatRoom);
-        return dto;
-    }
 
-    public ChatRoomResDto subParticipant(String roomId, Member member) {
-        ChatRoom chatRoom = opsHashChatRoom.get(CHAT_ROOMS, roomId);
-        ChatRoom mChatRoom = chatRoom.subParticipant(member);
-        opsHashChatRoom.put(CHAT_ROOMS, roomId, mChatRoom);
-        ChatRoomResDto dto = new ChatRoomResDto(mChatRoom);
-        return dto;
-    }
+
+
 }
