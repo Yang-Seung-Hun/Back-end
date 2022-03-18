@@ -5,85 +5,57 @@ import com.hanghae99.boilerplate.memberManager.model.Member;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
-
-import static javax.persistence.FetchType.LAZY;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ChatRoom extends Timestamped implements Serializable {
-
-    private static final long serialVersionUID = 6494678977089006639L;
+public class ChatRoom extends Timestamped {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomId;
     private String roomName;
-
+    private String category;
     @ManyToOne
     private Member moderator;
-
     private Long maxParticipantCount;
     private String content;
     private Boolean isPrivate;
 
-    @OneToMany(fetch = LAZY)
-    private Set<Member> participants = new HashSet<>();
+    @BatchSize(size = 500)
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.REMOVE)
+    private List<ChatEntry> entries = new ArrayList<>();
 
     private Long agreeCount = 0L;
     private Long disagreeCount= 0L;
-
     private LocalDateTime closedAt;
     private Boolean onAir = true;
 
-
     public ChatRoom(CreateChatRoomDto dto, Member member) {
         this.roomName = dto.getRoomName();
-        this.moderator = member;
+        this.category = dto.getCategory();
         this.maxParticipantCount = dto.getMaxParticipantCount();
         this.content = dto.getContent();
         this.isPrivate = dto.getIsPrivate();
+
+
+        this.moderator = member;
+
     }
 
-    public void closeChatRoom(Long agreeCount, Long disagreeCount, LocalDateTime closedAt) {
+    public ChatRoom closeChatRoom(Long agreeCount, Long disagreeCount, LocalDateTime closedAt, Set<Member> members) {
         this.agreeCount = agreeCount;
         this.disagreeCount = disagreeCount;
         this.closedAt = closedAt;
         this.onAir = false;
+//        this.totalMaxParticipants = members;
+        return this;
     }
 
-//    public ChatRoom addAgree() {
-//        this.agreeCount ++;
-//        return this;
-//    }
-//
-//    public ChatRoom addDisagree() {
-//        this.disagreeCount ++;
-//        return this;
-//    }
-//
-//    public ChatRoom subAgree() {
-//        this.agreeCount --;
-//        return this;
-//    }
-//
-//    public ChatRoom subDisagree() {
-//        this.disagreeCount --;
-//        return this;
-//    }
-//
-//    public ChatRoom addParticipant(Member member) {
-//        this.participants.add(member);
-//        return this;
-//    }
-//
-//    public ChatRoom subParticipant(Member member) {
-//        this.participants.remove(member);
-//        return this;
-//    }
 }

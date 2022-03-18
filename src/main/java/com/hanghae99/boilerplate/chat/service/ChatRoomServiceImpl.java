@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,7 +42,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         ChatRoom room = new ChatRoom(createChatRoomDto, member);
         //db
         chatRoomRepository.save(room);
-//        ChatRoomResDto chatRoomResDto = new ChatRoomResDto(room);
         //redis
         ChatRoomRedisDto chatRoomRedisDto = redisChatRoomRepository.createChatRoom(room.getRoomId().toString(), room);
         return chatRoomRedisDto;
@@ -58,58 +58,64 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
 //    @Override
     @Transactional(readOnly = true)
-    public ChatRoomResDto findByIdFromDb(Long roomId) {
-        Optional<ChatRoom> room = getChatRoom(roomId);
-        ChatRoom findRoom = room.get();
-        return new ChatRoomResDto(findRoom);
+    public ChatRoomRedisDto findByIdFromDb(Long roomId) {
+        Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findById(roomId);
+        validateChatRoom(optionalChatRoom);
+        ChatRoom findRoom = optionalChatRoom.get();
+        return new ChatRoomRedisDto(findRoom);
     }
 
-//    @Override
-//    public ChatRoomRedisDto findByIdFromRedis(Long roomId) {
-//        ChatRoomRedisDto chatRoomRedisDto = redisChatRoomRepository.findRoomById(roomId.toString());
-//        return chatRoomRedisDto;
-//    }
+    private void validateChatRoom(Optional<ChatRoom> optionalChatRoom) {
+        if (!optionalChatRoom.isPresent()) {
+            throw new IllegalArgumentException("해당 Id의 방이 없습니다.");
+        }
+    }
 
     @Transactional
-    public ChatRoomResDto closeRoom(ChatCloseDto chatCloseDto, @AuthenticationPrincipal MemberContext user) {
+    public ChatRoomRedisDto closeRoom(ChatCloseDto chatCloseDto, @AuthenticationPrincipal MemberContext user) {
 
         if (!ChatRole.MODERATOR.equals(chatCloseDto.getRole())) {
             throw new IllegalArgumentException("방장만이 방을 삭제할 수 있습니다.");
         }
 
+        // 방 존재하는지 확인
         Long roomId = chatCloseDto.getRoomId();
-        Optional<ChatRoom> optionalChatRoom = getChatRoom(roomId); //예외처리 포함
+        Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findById(roomId);
+        validateChatRoom(optionalChatRoom);
         ChatRoom room = optionalChatRoom.get();
+        // 이미 종료되었는지 확인
+        if (room.getOnAir() == false) {
+            throw new IllegalArgumentException("이미 종료된 방입니다.");
+        }
 
         Long agreeCount = redisChatRoomRepository.reportAgreeCount(roomId.toString());
         Long disagreeCount = redisChatRoomRepository.reportDisagreeCount(roomId.toString());
+        Set<Member> totalMembers = redisChatRoomRepository.reportTotalMaxParticipantsIds(roomId.toString()).stream()
+                .map(memberId -> {
+                    Optional<Member> member = memberRepository.findById(memberId);
+                    if (!member.isPresent()) {
+                        log.error("{}의 member가 존재하지 않아 최종 참여 인원으로 update하지 못했습니다.", memberId);
+                    }
+                    return member.get();
+                })
+                .collect(Collectors.toSet());
 
         log.info("[찬반 집계] 채팅방 {}이 종료됩니다. 찬성: {}, 반대: {}", roomId, agreeCount, disagreeCount);
 
         // 이방에 대해 업데이트 : 찬성수, 반대수, 종료시간 + 최대참여자수, 종료여부
-        room.closeChatRoom(agreeCount, disagreeCount, LocalDateTime.now());
-
+        ChatRoom chatRoom = room.closeChatRoom(agreeCount, disagreeCount, LocalDateTime.now(), totalMembers);
+        chatRoomRepository.save(chatRoom);
         // redis 에서 삭제
         redisChatRoomRepository.removeRoom(roomId.toString());
-        return new ChatRoomResDto(room);
+        return new ChatRoomRedisDto(chatRoom);
     }
 
-    // 예외처리
-    private Optional<ChatRoom> getChatRoom(Long roomId) {
-        Optional<ChatRoom> room = chatRoomRepository.findById(roomId);
-        if (!room.isPresent()) {
-            throw new IllegalArgumentException("해당 아이디의 방이 존재하지 않습니다.");
-        }
-        return room;
-    }
 
     // 조건
-//    @Override
     public List<ChatRoomResDto> findOnAirChatRooms() {
         return chatRoomRepository.findOnAirChatRooms();
     }
 
-//    @Override
     public List<ChatRoomResDto> findByKeyword(String keyword) {
         return chatRoomRepository.findByKeyword(keyword);
     }

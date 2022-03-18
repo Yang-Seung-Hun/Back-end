@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 public class CreateChatRoomDto {
     private String roomName;
+    private String category;
     private String moderator;
     private Long maxParticipantCount;
     private String content;

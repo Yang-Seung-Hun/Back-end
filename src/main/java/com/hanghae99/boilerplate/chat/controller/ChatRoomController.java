@@ -27,7 +27,6 @@ public class ChatRoomController {
     // 채팅방 생성
     @PostMapping("/auth/api/chat/room")
     public ResponseEntity<ChatRoomRedisDto> createRoom(@RequestBody CreateChatRoomDto createChatRoomDto, @AuthenticationPrincipal MemberContext user) {
-        //todo 방생성시 동일한 이름 중복되지 않게 해야 할 것. (chatRoomService 에서)
         ChatRoomRedisDto chatRoomRedisDto = chatRoomServiceImpl.save(createChatRoomDto, user);
         return ResponseEntity.ok().body(chatRoomRedisDto);
     }
@@ -48,19 +47,16 @@ public class ChatRoomController {
 
     // 채팅방 종료
     @PostMapping("/auth/api/chat/room/close")
-    public ResponseEntity closeRoom(@RequestBody ChatCloseDto closeDto, @AuthenticationPrincipal MemberContext user) {
-        ChatRoomResDto chatRoomResDto = chatRoomServiceImpl.closeRoom(closeDto, user);
-        return ResponseEntity.ok().body("종료시간" + chatRoomResDto.getClosedAt());
+    public ResponseEntity<ChatRoomRedisDto> closeRoom(@RequestBody ChatCloseDto closeDto, @AuthenticationPrincipal MemberContext user) {
+        ChatRoomRedisDto chatRoomRedisDto = chatRoomServiceImpl.closeRoom(closeDto, user);
+        return ResponseEntity.ok().body(chatRoomRedisDto);
     }
-
 
     // 모든 채팅방 목록 조회
     @GetMapping("/api/chat/rooms")
     public ResponseEntity<List<ChatRoomResDto>> findAll() {
         List<ChatRoomResDto> allFromDb = chatRoomServiceImpl.findAllFromDb();
-//        List<ChatRoomResDto> allFromRedis = chatRoomServiceImpl.findAllFromRedis();
         return ResponseEntity.ok().body(allFromDb);
-//        return ResponseEntity.ok().body(allFromRedis);
     }
 
     // 진행 중인 채팅방 조회 : 어떤 채팅방이든 종료시 cache evict
@@ -77,16 +73,11 @@ public class ChatRoomController {
         return ResponseEntity.ok().body(chatrooms);
     }
 
-
     // 특정 채팅방 조회
     @GetMapping("/room/{roomId}")
-    public ResponseEntity<ChatRoomResDto> roomInfo(@PathVariable Long roomId) {
-
-        ChatRoomResDto roomResDto = chatRoomServiceImpl.findByIdFromDb(roomId);
-//        ChatRoomResDto roomResDtoFromRedis = chatRoomServiceImpl.findByIdFromRedis(roomId);
-
-        return ResponseEntity.ok().body(roomResDto);
-//        return ResponseEntity.ok().body(mapRedis);
+    public ResponseEntity<ChatRoomRedisDto> roomInfo(@PathVariable Long roomId) {
+        ChatRoomRedisDto roomRedisDto = chatRoomServiceImpl.findByIdFromDb(roomId);
+        return ResponseEntity.ok().body(roomRedisDto);
     }
 
     // 임시 - 전체삭제

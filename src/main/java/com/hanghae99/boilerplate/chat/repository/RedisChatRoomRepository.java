@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Repository
@@ -43,7 +44,7 @@ public class RedisChatRoomRepository {
         return redisDto;
     }
 
-    //채팅방 입장 :
+    //채팅방 입장
     public ChatRoomRedisDto addParticipant(String roomId, Member member) {
         Optional<ChatRoomRedisDto> opitonalChatRoomRedisDto = Optional.ofNullable(opsHashChatRoom.get(CHAT_ROOMS, roomId));
         if (opitonalChatRoomRedisDto.isPresent()) {
@@ -66,16 +67,22 @@ public class RedisChatRoomRepository {
                 throw new IllegalArgumentException("해당 Id의 chatRoom이 개설되지 않았습니다.");
             }
         }
-
-
     }
 
+    //채팅방 퇴장
     public ChatRoomRedisDto subParticipant(String roomId, Member member) {
         ChatRoomRedisDto chatRoomRedisDto = opsHashChatRoom.get(CHAT_ROOMS, roomId);
         ChatRoomRedisDto mChatRoomRedisDto = chatRoomRedisDto.subParticipant(member);
+
         opsHashChatRoom.put(CHAT_ROOMS, roomId, mChatRoomRedisDto);
         return mChatRoomRedisDto;
     }
+
+    public void removeRoom(String roomId) {
+        opsHashChatRoom.delete(CHAT_ROOMS, roomId);
+    }
+
+
 
     public Long addAgree(String roomId) {
         ChatRoomRedisDto redisDto = opsHashChatRoom.get(CHAT_ROOMS, roomId);
@@ -117,9 +124,11 @@ public class RedisChatRoomRepository {
         return opsHashChatRoom.get(CHAT_ROOMS, roomId).getDisagreeCount();
     }
 
-    public void removeRoom(String roomId) {
-        opsHashChatRoom.delete(CHAT_ROOMS, roomId);
+    public Set<Long> reportTotalMaxParticipantsIds(String roomId) {
+        return opsHashChatRoom.get(CHAT_ROOMS, roomId).getTotalMaxParticipantsIds();
     }
+
+
 
 
 

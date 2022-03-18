@@ -34,7 +34,7 @@ public class ChatRoomResDto implements Serializable {
         maxParticipantCount = room.getMaxParticipantCount();
         content = room.getContent();
         isPrivate = room.getIsPrivate();
-        participants = room.getParticipants();
+//        participants = room.getParticipants();
         agreeCount = room.getAgreeCount();
         disagreeCount = room.getDisagreeCount();
         createAt = room.getCreatedAt();
