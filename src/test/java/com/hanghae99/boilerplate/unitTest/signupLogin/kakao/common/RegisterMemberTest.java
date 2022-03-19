@@ -7,6 +7,7 @@ import com.hanghae99.boilerplate.security.model.MemberContext;
 import com.hanghae99.boilerplate.signupLogin.kakao.TemporaryUser;
 import com.hanghae99.boilerplate.signupLogin.kakao.common.RegisterMember;
 import com.hanghae99.boilerplate.signupLogin.kakao.service.KakaoLoginService;
+import com.hanghae99.boilerplate.signupLogin.service.SignupLoginService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.sql.Statement;
 import java.util.Optional;

@@ -6,19 +6,21 @@ import com.hanghae99.boilerplate.memberManager.mail.service.MailServiceImpl;
 import com.hanghae99.boilerplate.memberManager.model.Member;
 import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import com.hanghae99.boilerplate.signupLogin.kakao.TemporaryUser;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.mail.MessagingException;
+import java.util.Arrays;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -41,6 +43,8 @@ class MailServiceImplTest {
     PasswordEncoder passwordEncoder;
     @InjectMocks
     MailServiceImpl mailService = new MailServiceImpl();
+
+
 
 
     TemporaryUser temporaryUser = new TemporaryUser("wns674@naver.com", "ghwns", "123");
