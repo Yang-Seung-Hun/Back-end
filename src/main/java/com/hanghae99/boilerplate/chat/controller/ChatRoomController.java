@@ -33,9 +33,9 @@ public class ChatRoomController {
 
     // 채팅방 입장
     @PostMapping("/auth/api/chat/room/join")
-    public ResponseEntity<ChatRoomRedisDto> joinRoom(@RequestBody ChatEntryDto entryDto, @AuthenticationPrincipal MemberContext user) {
-        ChatRoomRedisDto chatRoomRedisDto = chatRoomServiceImpl.addParticipant(entryDto, user);
-        return ResponseEntity.ok().body(chatRoomRedisDto);
+    public ResponseEntity<ChatRoomEntryResDto> joinRoom(@RequestBody ChatEntryDto entryDto, @AuthenticationPrincipal MemberContext user) {
+        ChatRoomEntryResDto chatRoomEntryResDto = chatRoomServiceImpl.addParticipant(entryDto, user);
+        return ResponseEntity.ok().body(chatRoomEntryResDto);
     }
 
     // 채팅방 떠남

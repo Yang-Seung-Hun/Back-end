@@ -8,4 +8,6 @@ public class ChatLeaveDto {
     private Long roomId;
     private String memberName;
     private ChatRole role;
+    private Boolean agreed;
+    private Boolean disagreed;
 }

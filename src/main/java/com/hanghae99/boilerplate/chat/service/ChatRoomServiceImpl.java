@@ -36,8 +36,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final MemberRepository memberRepository;
     private final ChatEntryRepository chatEntryRepository;
 
-
-
 //    ************************* 채팅방 (생성, 입장, 퇴장, 종료)  **************************
     // 채팅방 생성 ( db 에 생성, ->  redis )
 //    @Override
@@ -57,12 +55,15 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     // 채팅방 입장 ( redis )
-    public ChatRoomRedisDto addParticipant(ChatEntryDto entryDto, MemberContext user) {
+    public ChatRoomEntryResDto addParticipant(ChatEntryDto entryDto, MemberContext user) {
         Optional<Member> findMember = memberRepository.findById(user.getMemberId());
         validateMember(findMember);
         log.info("입장하려는 사람: {}", findMember.get().getNickname());
         Member member = findMember.get();
-        return redisChatRoomRepository.addParticipant(entryDto.getRoomId().toString(), member);
+
+        ChatRoomEntryResDto entryResDto = redisChatRoomRepository.addParticipant(entryDto.getRoomId().toString(), member);
+
+        return entryResDto;
     }
 
     // 채팅방 퇴장 ( redis )
@@ -70,7 +71,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         Optional<Member> findMember = memberRepository.findById(user.getMemberId());
         validateMember(findMember);
         log.info("퇴장하려는 사람의 nickname: {}, role: {}", findMember.get().getNickname(), leaveDto.getRole());
-        return redisChatRoomRepository.subParticipant(leaveDto.getRoomId().toString(), findMember.get());
+
+        return redisChatRoomRepository.subParticipant(leaveDto.getRoomId().toString(), findMember.get(), leaveDto);
     }
 
     // 채팅방 종료 ( redis , -> db update )
