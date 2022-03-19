@@ -53,6 +53,9 @@ public class Member implements Serializable {
         this.roles.add(Role.KAKAO);
 
     }
+    public void setPassword(String password){
+        this.password= password;
+    }
 
     //추가
     private LocalDateTime createdAt;

@@ -70,6 +70,7 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
         try {
             String payload = request.getHeader(SecurityConfig.AUTHENTICATION_HEADER_NAME);
             token = new RawAccessToken(tokenExtractor.extract(payload));
+
             return getAuthenticationManager().authenticate(new JwtAuthenticationToken(token));
         } catch (ExpiredJwtException e) {
             Jws<Claims> jwt = refreshTokenEndPoint.getJwtClimas(request);

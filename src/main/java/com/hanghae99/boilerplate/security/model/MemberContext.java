@@ -34,7 +34,6 @@ public class MemberContext {
     }
 
     public static MemberContext create(String email, List<GrantedAuthority> authorities,String nickname,Long id) {
-
         return new MemberContext(email, authorities,nickname,id);
     }
 }

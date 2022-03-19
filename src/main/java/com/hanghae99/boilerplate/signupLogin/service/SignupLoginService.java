@@ -26,13 +26,11 @@ public class SignupLoginService {
     @Autowired
     PasswordEncoder passwordEncoder;
     @Autowired
-    ObjectMapper objectMapper;
-    @Autowired
     RefreshTokenRedis redis;
     @Transactional
+
     public void signupRequest(SignupReqestDto signupReqestDto) {
         boolean result = memberRepository.existsMemberByEmail(signupReqestDto.getEmail());
-//        boolean result = memberRepository.getEmail(signupReqestDto.getEmail()).isPresent();
         if (result) {
             log.info("{} is already exist",signupReqestDto.getEmail());
             throw new IllegalArgumentException(signupReqestDto.getEmail() + " already" + "Exist!");
@@ -43,14 +41,11 @@ public class SignupLoginService {
 
     }
 
-    public void logoutRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
+    public void logoutRequest(HttpServletRequest request) throws IOException {
         for (Cookie cookie :request.getCookies()){
            if( cookie.getName().equals("Authorization")){
                redis.removeData(cookie.getValue());
            }
-
-
         }
     }
 }
