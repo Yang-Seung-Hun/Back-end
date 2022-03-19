@@ -53,9 +53,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 //    @Override
     @Transactional(readOnly = true)
     @Cacheable(cacheNames = "CHATROOM_DTOS")
-    public List<ChatRoomResDto> findAllFromDb() {
+    public List<ChatRoomRedisDto> findAllFromDb() {
         return chatRoomRepository.findAll().stream()
-                .map(ChatRoomResDto::new)
+                .map(ChatRoomRedisDto::new)
                 .collect(toList());
     }
 
@@ -121,13 +121,19 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
 
     // 조건
-    public List<ChatRoomResDto> findOnAirChatRooms() {
-        return chatRoomRepository.findOnAirChatRooms();
+    public List<ChatRoomRedisDto> findOnAirChatRooms() {
+        //redis 에는 현재 진행중인 친구만 있을테니.
+        return redisChatRoomRepository.findAllRoom();
+//        return chatRoomRepository.findOnAirChatRooms();
     }
 
-    public List<ChatRoomResDto> findByKeyword(String keyword) {
-        return chatRoomRepository.findByKeyword(keyword);
-    }
+//    public List<ChatRoomRedisDto> findByKeyword(String keyword) {
+//        return chatRoomRepository.findByKeyword(keyword);
+//    }
+
+
+    // Todo 카테고리로 검색하기
+
 
     public void deleteAll() {
         chatRoomRepository.deleteAll();
@@ -155,5 +161,10 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         if (findMember == null) {
             throw new IllegalArgumentException("해당 ID의 회원이 존재하지 않습니다.");
         }
+    }
+
+    public List<ChatRoomRedisDto> findOnAirChatRoomsByCategory(String category) {
+        List<ChatRoomRedisDto> chatRoomRedisDtos = redisChatRoomRepository.findByCategory(category);
+        return chatRoomRedisDtos;
     }
 }

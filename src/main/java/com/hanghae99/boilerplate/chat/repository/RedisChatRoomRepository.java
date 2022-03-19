@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -131,9 +132,17 @@ public class RedisChatRoomRepository {
     }
 
 
+    // 진행중이어서 redis 에 살아있는 것들중 카테고리에 따라 보여주기.
+    public List<ChatRoomRedisDto> findByCategory(String category) {
+        List<ChatRoomRedisDto> resultDtos = new ArrayList<>();
 
-
-
-
+        List<ChatRoomRedisDto> all = opsHashChatRoom.values(CHAT_ROOMS);
+        for (ChatRoomRedisDto redisDto : all) {
+            if (redisDto.getCategory().equals(category)) {
+                resultDtos.add(redisDto);
+            }
+        }
+        return resultDtos;
+    }
 
 }

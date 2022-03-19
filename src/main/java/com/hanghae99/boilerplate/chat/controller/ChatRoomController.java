@@ -52,26 +52,37 @@ public class ChatRoomController {
         return ResponseEntity.ok().body(chatRoomRedisDto);
     }
 
+//    ========================
+
     // 모든 채팅방 목록 조회
     @GetMapping("/api/chat/rooms")
-    public ResponseEntity<List<ChatRoomResDto>> findAll() {
-        List<ChatRoomResDto> allFromDb = chatRoomServiceImpl.findAllFromDb();
+    public ResponseEntity<List<ChatRoomRedisDto>> findAll() {
+        List<ChatRoomRedisDto> allFromDb = chatRoomServiceImpl.findAllFromDb();
         return ResponseEntity.ok().body(allFromDb);
     }
 
+//    ================ 라이브 중인 것에 대한 조회
     // 진행 중인 채팅방 조회 : 어떤 채팅방이든 종료시 cache evict
-    @GetMapping("/rooms/onair")
-    public ResponseEntity<List<ChatRoomResDto>> findOnair() {
-        List<ChatRoomResDto> chatrooms =  chatRoomServiceImpl.findOnAirChatRooms();
+    @GetMapping("/api/chat/rooms/onair")
+    public ResponseEntity<List<ChatRoomRedisDto>> findOnair() {
+        List<ChatRoomRedisDto> chatrooms =  chatRoomServiceImpl.findOnAirChatRooms();
         return ResponseEntity.ok().body(chatrooms);
     }
 
-    // 채팅방 name ( + contents) 중에서 키워드 검색
-    @GetMapping("/rooms/{keyword}")
-    public ResponseEntity<List<ChatRoomResDto>> findByKeyword(@PathVariable String keyword) {
-        List<ChatRoomResDto> chatrooms =  chatRoomServiceImpl.findByKeyword(keyword);
-        return ResponseEntity.ok().body(chatrooms);
+    // 카테고리별 조회 (-- 진행 중인 방에 대해서)
+    @GetMapping("/api/chat/rooms/onair/{category}")
+    public ResponseEntity<List<ChatRoomRedisDto>> findOnAirChatRoomsByCategory(@PathVariable String category) {
+        List<ChatRoomRedisDto> chatRooms = chatRoomServiceImpl.findOnAirChatRoomsByCategory(category);
+        return ResponseEntity.ok().body(chatRooms);
+
     }
+
+//    // 채팅방 name ( + contents) 중에서 키워드 검색
+//    @GetMapping("/rooms/{keyword}")
+//    public ResponseEntity<List<ChatRoomResDto>> findByKeyword(@PathVariable String keyword) {
+//        List<ChatRoomResDto> chatrooms =  chatRoomServiceImpl.findByKeyword(keyword);
+//        return ResponseEntity.ok().body(chatrooms);
+//    }
 
     // 특정 채팅방 조회
     @GetMapping("/room/{roomId}")
