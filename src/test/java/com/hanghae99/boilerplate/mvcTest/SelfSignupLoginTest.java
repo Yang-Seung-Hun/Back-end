@@ -104,14 +104,14 @@ public class SelfSignupLoginTest extends Config {
     }
 
     @Test
-    @DisplayName("일치하는 유저가 없는 경우 ")
+    @DisplayName("일치하는 유저가 없는 경우 BadRequest가 발생한다 null exception을 badRequest로 처리함  ")
     void 로그인요청일치하는유저x() throws Exception {
         Mockito.when(userDetails.loadUserByUsername(any(String.class))).thenReturn(null);
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(normalLoginRequestDto)))
+                        .content(objectMapper.writeValueAsString(badLoginRequestDto)))
                 .andDo(print())
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message").exists());
     }
 
