@@ -107,12 +107,11 @@ public class SelfSignupLoginTest extends Config {
     @DisplayName("일치하는 유저가 없는 경우 ")
     void 로그인요청일치하는유저x() throws Exception {
         Mockito.when(userDetails.loadUserByUsername(any(String.class))).thenReturn(null);
-
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(normalLoginRequestDto)))
                 .andDo(print())
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("message").exists());
     }
 
