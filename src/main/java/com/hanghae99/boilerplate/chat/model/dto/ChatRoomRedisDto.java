@@ -28,6 +28,7 @@ public class ChatRoomRedisDto implements Serializable {
     private Boolean isPrivate;
     private Set<Long> participantsIds = new HashSet<>();
     private Set<String> participantsNicknames = new HashSet<>();
+    private Map<String, String> participantsProfileImageUrls = new HashMap<>();
     private Set<Long> totalMaxParticipantsIds = new HashSet<>();
     private Long agreeCount = 0L;
     private Long disagreeCount= 0L;
@@ -39,7 +40,6 @@ public class ChatRoomRedisDto implements Serializable {
 
     private Map<Long, Boolean> agreed = new HashMap<>();
     private Map<Long, Boolean> disagreed = new HashMap<>();
-
 
     // 생성 : 초기 생성된 chatRoom 정보로부터 dto 도 만들어주기
     public ChatRoomRedisDto(ChatRoom chatRoom) {
@@ -85,6 +85,7 @@ public class ChatRoomRedisDto implements Serializable {
     public ChatRoomRedisDto addParticipant(Member member) {
         this.participantsIds.add(member.getId());
         this.participantsNicknames.add(member.getNickname());
+        this.participantsProfileImageUrls.put(member.getNickname(), member.getProfileImageUrl());
 
         this.totalMaxParticipantsIds.add(member.getId()); // 순간최대참여인원 기록이 필요할테니.
         return this;
@@ -93,6 +94,8 @@ public class ChatRoomRedisDto implements Serializable {
     public ChatRoomRedisDto subParticipant(Member member) {
         this.participantsIds.remove(member.getId());
         this.participantsNicknames.remove(member.getNickname());
+        this.participantsProfileImageUrls.remove(member.getNickname(), member.getProfileImageUrl()); // todo 문의 ) 닉네임이 겹치면 안 되네 !
+
         return this;
     }
 

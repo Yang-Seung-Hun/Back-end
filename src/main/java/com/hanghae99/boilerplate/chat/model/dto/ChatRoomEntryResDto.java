@@ -4,7 +4,9 @@ import lombok.Data;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -19,6 +21,7 @@ public class ChatRoomEntryResDto {
     private String content;
     private Boolean isPrivate;
     private Set<String> participantsNicknames = new HashSet<>();
+    private Map<String, String> participantsProfileImageUrls = new HashMap<>();
     private Long agreeCount = 0L;
     private Long disagreeCount= 0L;
     private Boolean onAir = true;
@@ -36,6 +39,7 @@ public class ChatRoomEntryResDto {
         this.content = chatRoomRedisDto.getContent();
         this.isPrivate = chatRoomRedisDto.getIsPrivate();
         this.participantsNicknames = chatRoomRedisDto.getParticipantsNicknames();
+        this.participantsProfileImageUrls = chatRoomRedisDto.getParticipantsProfileImageUrls();
         this.agreeCount = chatRoomRedisDto.getAgreeCount();
         this.disagreeCount = chatRoomRedisDto.getDisagreeCount();
         this.onAir = chatRoomRedisDto.getOnAir();

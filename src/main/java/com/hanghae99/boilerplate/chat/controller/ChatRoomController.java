@@ -52,7 +52,7 @@ public class ChatRoomController {
         return ResponseEntity.ok().body(chatRoomRedisDto);
     }
 
-//    ================ 라이브 중인 것에 대한 조회
+//    ================ 라이브 중인 것에 대한 조회 ==================
     // 진행 중인 채팅방 조회
     @GetMapping("/api/chat/rooms/onair")
     public ResponseEntity<List<ChatRoomRedisDto>> findOnair() {

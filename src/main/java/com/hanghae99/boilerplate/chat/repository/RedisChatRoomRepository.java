@@ -66,8 +66,6 @@ public class RedisChatRoomRepository {
                     ChatRoomRedisDto chatRoomRedisDto = new ChatRoomRedisDto(roomFromDb.get());
                     ChatRoomRedisDto mChatRoomRedisDto = chatRoomRedisDto.addParticipant(member);
 
-
-
                     opsHashChatRoom.put(CHAT_ROOMS, roomId, chatRoomRedisDto);
 
                     ChatRoomEntryResDto entryResDto = new ChatRoomEntryResDto(mChatRoomRedisDto);
