@@ -52,15 +52,6 @@ public class ChatRoomController {
         return ResponseEntity.ok().body(chatRoomRedisDto);
     }
 
-//    ========================
-
-    // 모든 채팅방 목록 조회
-    @GetMapping("/api/chat/rooms")
-    public ResponseEntity<List<ChatRoomRedisDto>> findAll() {
-        List<ChatRoomRedisDto> allFromDb = chatRoomServiceImpl.findAllFromDb();
-        return ResponseEntity.ok().body(allFromDb);
-    }
-
 //    ================ 라이브 중인 것에 대한 조회
     // 진행 중인 채팅방 조회 : 어떤 채팅방이든 종료시 cache evict
     @GetMapping("/api/chat/rooms/onair")
@@ -75,6 +66,15 @@ public class ChatRoomController {
         List<ChatRoomRedisDto> chatRooms = chatRoomServiceImpl.findOnAirChatRoomsByCategory(category);
         return ResponseEntity.ok().body(chatRooms);
 
+    }
+
+//    ======================== 와이어프레임상 필수가 아닌 것 같은 api.
+
+    // 모든 채팅방 목록 조회
+    @GetMapping("/api/chat/rooms")
+    public ResponseEntity<List<ChatRoomRedisDto>> findAll() {
+        List<ChatRoomRedisDto> allFromDb = chatRoomServiceImpl.findAllFromDb();
+        return ResponseEntity.ok().body(allFromDb);
     }
 
 //    // 채팅방 name ( + contents) 중에서 키워드 검색
@@ -92,7 +92,7 @@ public class ChatRoomController {
     }
 
     // 임시 - 전체삭제
-    @DeleteMapping("/rooms/del/all")
+    @DeleteMapping("/api/chat/rooms/del/all")
     public String deleteAll() {
         chatRoomServiceImpl.deleteAll();
         return "모두 삭제완료!";

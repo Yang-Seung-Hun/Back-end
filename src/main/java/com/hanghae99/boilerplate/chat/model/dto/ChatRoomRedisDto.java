@@ -33,32 +33,13 @@ public class ChatRoomRedisDto implements Serializable {
     private LocalDateTime createdAt;
     private LocalDateTime closedAt;
 
-//    @QueryProjection
-//    public ChatRoomRedisDto(Long roomId, String roomName, String category, Long moderatorId, String moderatorNickname, Long maxParticipantCount, String content, Boolean isPrivate, Set<Long> participantsIds, Set<String> participantsNicknames, Set<Long> totalMaxParticipantsIds, Long agreeCount, Long disagreeCount, Boolean onAir, LocalDateTime createdAt, LocalDateTime closedAt) {
-//        this.roomId = roomId;
-//        this.roomName = roomName;
-//        this.category = category;
-//        this.moderatorId = moderatorId;
-//        this.moderatorNickname = moderatorNickname;
-//        this.maxParticipantCount = maxParticipantCount;
-//        this.content = content;
-//        this.isPrivate = isPrivate;
-//        this.participantsIds = participantsIds;
-//        this.participantsNicknames = participantsNicknames;
-//        this.totalMaxParticipantsIds = totalMaxParticipantsIds;
-//        this.agreeCount = agreeCount;
-//        this.disagreeCount = disagreeCount;
-//        this.onAir = onAir;
-//        this.createdAt = createdAt;
-//        this.closedAt = closedAt;
-//    }
-
     // 생성 : 초기 생성된 chatRoom 정보로부터 dto 도 만들어주기
     public ChatRoomRedisDto(ChatRoom chatRoom) {
         this.roomId = chatRoom.getRoomId();
         this.category = chatRoom.getCategory();
         this.moderatorId = chatRoom.getModerator().getId();
         this.moderatorNickname = chatRoom.getModerator().getNickname();
+        this.maxParticipantCount = chatRoom.getMaxParticipantCount();
         this.content = chatRoom.getContent();
         this.isPrivate = chatRoom.getIsPrivate();
         this.createdAt = chatRoom.getCreatedAt();

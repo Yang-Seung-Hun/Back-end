@@ -28,7 +28,8 @@ public class ChatRoom extends Timestamped {
     private Boolean isPrivate;
 
     @BatchSize(size = 500)
-    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.REMOVE)
+//    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.REMOVE)
+    @OneToMany
     private List<ChatEntry> entries = new ArrayList<>();
 
     private Long agreeCount = 0L;
@@ -42,8 +43,6 @@ public class ChatRoom extends Timestamped {
         this.maxParticipantCount = dto.getMaxParticipantCount();
         this.content = dto.getContent();
         this.isPrivate = dto.getIsPrivate();
-
-
         this.moderator = member;
 
     }

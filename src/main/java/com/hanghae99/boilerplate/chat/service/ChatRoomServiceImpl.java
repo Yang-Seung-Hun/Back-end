@@ -7,6 +7,7 @@ import com.hanghae99.boilerplate.chat.model.dto.*;
 import com.hanghae99.boilerplate.chat.repository.ChatEntryRepository;
 import com.hanghae99.boilerplate.chat.repository.ChatRoomRepository;
 import com.hanghae99.boilerplate.chat.repository.RedisChatRoomRepository;
+import com.hanghae99.boilerplate.chat.util.DateTimeComparator;
 import com.hanghae99.boilerplate.memberManager.model.Member;
 import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import com.hanghae99.boilerplate.security.model.MemberContext;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -123,17 +125,17 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     // 조건
     public List<ChatRoomRedisDto> findOnAirChatRooms() {
         //redis 에는 현재 진행중인 친구만 있을테니.
-        return redisChatRoomRepository.findAllRoom();
-//        return chatRoomRepository.findOnAirChatRooms();
+        List<ChatRoomRedisDto> allRoomsOnAir = redisChatRoomRepository.findAllRoom();
+        //개설 최신 순 정렬을 위한 comparator 적용
+        DateTimeComparator comparator = new DateTimeComparator();
+        Collections.sort(allRoomsOnAir, comparator);
+
+        return allRoomsOnAir;
     }
 
 //    public List<ChatRoomRedisDto> findByKeyword(String keyword) {
 //        return chatRoomRepository.findByKeyword(keyword);
 //    }
-
-
-    // Todo 카테고리로 검색하기
-
 
     public void deleteAll() {
         chatRoomRepository.deleteAll();
@@ -144,17 +146,14 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         validateMember(findMember);
         log.info("입장하려는 사람: {}", findMember.get().getNickname());
         Member member = findMember.get();
-
-        ChatRoomRedisDto chatRoomRedisDto = redisChatRoomRepository.addParticipant(entryDto.getRoomId().toString(), member);
-        return chatRoomRedisDto;
+        return redisChatRoomRepository.addParticipant(entryDto.getRoomId().toString(), member);
     }
 
     public ChatRoomRedisDto leaveParticipant(ChatLeaveDto leaveDto, MemberContext user) {
         Optional<Member> findMember = memberRepository.findById(user.getMemberId());
         validateMember(findMember);
         log.info("퇴장하려는 사람의 nickname: {}, role: {}", findMember.get().getNickname(), leaveDto.getRole());
-        ChatRoomRedisDto chatRoomRedisDto = redisChatRoomRepository.subParticipant(leaveDto.getRoomId().toString(), findMember.get());
-        return chatRoomRedisDto;
+        return redisChatRoomRepository.subParticipant(leaveDto.getRoomId().toString(), findMember.get());
     }
 
     private void validateMember(Optional<Member> findMember) {
@@ -165,6 +164,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     public List<ChatRoomRedisDto> findOnAirChatRoomsByCategory(String category) {
         List<ChatRoomRedisDto> chatRoomRedisDtos = redisChatRoomRepository.findByCategory(category);
+        DateTimeComparator comparator = new DateTimeComparator();
+        Collections.sort(chatRoomRedisDtos, comparator);
         return chatRoomRedisDtos;
     }
 }
