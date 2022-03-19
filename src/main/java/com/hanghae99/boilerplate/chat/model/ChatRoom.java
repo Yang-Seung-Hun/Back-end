@@ -34,7 +34,7 @@ public class ChatRoom extends Timestamped {
 
     private Long agreeCount = 0L;
     private Long disagreeCount= 0L;
-    private LocalDateTime closedAt;
+    private LocalDateTime closedAt; 
     private Boolean onAir = true;
 
     public ChatRoom(CreateChatRoomDto dto, Member member) {

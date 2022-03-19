@@ -33,9 +33,6 @@ public class RedisChatRoomRepository {
         opsHashChatRoom = redisTemplate.opsForHash();
     }
 
-    public List<ChatRoomRedisDto> findAllRoom() {
-        return opsHashChatRoom.values(CHAT_ROOMS);
-    }
 
     //채팅방 생성 : 서버간 채팅방 공유를 위해 redis hash 에 저장
     public ChatRoomRedisDto createChatRoom(String roomId, ChatRoom chatRoom) {
@@ -74,14 +71,16 @@ public class RedisChatRoomRepository {
     public ChatRoomRedisDto subParticipant(String roomId, Member member) {
         ChatRoomRedisDto chatRoomRedisDto = opsHashChatRoom.get(CHAT_ROOMS, roomId);
         ChatRoomRedisDto mChatRoomRedisDto = chatRoomRedisDto.subParticipant(member);
-
         opsHashChatRoom.put(CHAT_ROOMS, roomId, mChatRoomRedisDto);
         return mChatRoomRedisDto;
     }
 
+    //채팅방 제거
     public void removeRoom(String roomId) {
         opsHashChatRoom.delete(CHAT_ROOMS, roomId);
     }
+
+    // ***************************** 실시간 찬반투표 *******************************
 
     public Long addAgree(String roomId) {
         ChatRoomRedisDto redisDto = opsHashChatRoom.get(CHAT_ROOMS, roomId);
@@ -115,6 +114,8 @@ public class RedisChatRoomRepository {
         return after;
     }
 
+    // ***************************** 채팅방 종료시 최종 기록 업데이트 *******************************
+
     public Long reportAgreeCount(String roomId) {
         return opsHashChatRoom.get(CHAT_ROOMS, roomId).getAgreeCount();
     }
@@ -127,18 +128,38 @@ public class RedisChatRoomRepository {
         return opsHashChatRoom.get(CHAT_ROOMS, roomId).getTotalMaxParticipantsIds();
     }
 
+    ///// (+ 보조)
     public ChatRoomRedisDto findChatRoomRedisDtoById(String roomId) {
         return opsHashChatRoom.get(CHAT_ROOMS, roomId);
     }
 
+// ***************************** 조회 (라이브) *******************************
 
-    // 진행중이어서 redis 에 살아있는 것들중 카테고리에 따라 보여주기.
+    // 전체 조회
+    public List<ChatRoomRedisDto> findAllRoom() {
+        return opsHashChatRoom.values(CHAT_ROOMS);
+    }
+
+    // 카테고리로 조회
     public List<ChatRoomRedisDto> findByCategory(String category) {
         List<ChatRoomRedisDto> resultDtos = new ArrayList<>();
 
         List<ChatRoomRedisDto> all = opsHashChatRoom.values(CHAT_ROOMS);
         for (ChatRoomRedisDto redisDto : all) {
             if (redisDto.getCategory().equals(category)) {
+                resultDtos.add(redisDto);
+            }
+        }
+        return resultDtos;
+    }
+
+    // 키워드 조회
+    public List<ChatRoomRedisDto> findByKeyword(String keyword) {
+        List<ChatRoomRedisDto> resultDtos = new ArrayList<>();
+
+        List<ChatRoomRedisDto> all = opsHashChatRoom.values(CHAT_ROOMS);
+        for (ChatRoomRedisDto redisDto : all) {
+            if ((redisDto.getRoomName() != null) && (redisDto.getRoomName().contains(keyword))) {
                 resultDtos.add(redisDto);
             }
         }

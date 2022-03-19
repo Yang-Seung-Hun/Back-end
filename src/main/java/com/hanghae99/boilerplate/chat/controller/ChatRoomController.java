@@ -27,7 +27,7 @@ public class ChatRoomController {
     // 채팅방 생성
     @PostMapping("/auth/api/chat/room")
     public ResponseEntity<ChatRoomRedisDto> createRoom(@RequestBody CreateChatRoomDto createChatRoomDto, @AuthenticationPrincipal MemberContext user) {
-        ChatRoomRedisDto chatRoomRedisDto = chatRoomServiceImpl.save(createChatRoomDto, user);
+        ChatRoomRedisDto chatRoomRedisDto = chatRoomServiceImpl.createChatRoom(createChatRoomDto, user);
         return ResponseEntity.ok().body(chatRoomRedisDto);
     }
 
@@ -53,19 +53,25 @@ public class ChatRoomController {
     }
 
 //    ================ 라이브 중인 것에 대한 조회
-    // 진행 중인 채팅방 조회 : 어떤 채팅방이든 종료시 cache evict
+    // 진행 중인 채팅방 조회
     @GetMapping("/api/chat/rooms/onair")
     public ResponseEntity<List<ChatRoomRedisDto>> findOnair() {
         List<ChatRoomRedisDto> chatrooms =  chatRoomServiceImpl.findOnAirChatRooms();
         return ResponseEntity.ok().body(chatrooms);
     }
 
-    // 카테고리별 조회 (-- 진행 중인 방에 대해서)
-    @GetMapping("/api/chat/rooms/onair/{category}")
+    // 카테고리별 조회
+    @GetMapping("/api/chat/rooms/onair/category/{category}")
     public ResponseEntity<List<ChatRoomRedisDto>> findOnAirChatRoomsByCategory(@PathVariable String category) {
         List<ChatRoomRedisDto> chatRooms = chatRoomServiceImpl.findOnAirChatRoomsByCategory(category);
         return ResponseEntity.ok().body(chatRooms);
+    }
 
+    // 키워드 조회
+    @GetMapping("/api/chat/rooms/onair/keyword/{keyword}")
+    public ResponseEntity<List<ChatRoomRedisDto>> findOnAirChatRoomsByKeyword(@PathVariable String keyword) {
+        List<ChatRoomRedisDto> chatRooms = chatRoomServiceImpl.findOnAirChatRoomsByKeyword(keyword);
+        return ResponseEntity.ok().body(chatRooms);
     }
 
 //    ======================== 와이어프레임상 필수가 아닌 것 같은 api.

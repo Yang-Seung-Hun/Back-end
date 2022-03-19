@@ -36,6 +36,7 @@ public class ChatRoomRedisDto implements Serializable {
     // 생성 : 초기 생성된 chatRoom 정보로부터 dto 도 만들어주기
     public ChatRoomRedisDto(ChatRoom chatRoom) {
         this.roomId = chatRoom.getRoomId();
+        this.roomName = chatRoom.getRoomName();
         this.category = chatRoom.getCategory();
         this.moderatorId = chatRoom.getModerator().getId();
         this.moderatorNickname = chatRoom.getModerator().getNickname();
