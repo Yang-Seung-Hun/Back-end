@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.stream.Collectors;
@@ -104,15 +105,14 @@ public class SelfSignupLoginTest extends Config {
     }
 
     @Test
-    @DisplayName("일치하는 유저가 없는 경우 BadRequest가 발생한다 null exception을 badRequest로 처리함  ")
+    @DisplayName("일치하는 유저가 없는 경우 UsernameNotFoundException발생하고 401로 처리함 ")
     void 로그인요청일치하는유저x() throws Exception {
-        Mockito.when(userDetails.loadUserByUsername(any(String.class))).thenReturn(null);
+        Mockito.when(userDetails.loadUserByUsername(any(String.class))).thenThrow(UsernameNotFoundException.class);
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(badLoginRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").exists());
+                .andExpect(status().isUnauthorized());
     }
 
 }
