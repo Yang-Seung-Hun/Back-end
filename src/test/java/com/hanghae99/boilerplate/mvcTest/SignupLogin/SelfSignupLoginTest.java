@@ -16,9 +16,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -44,9 +44,9 @@ public class SelfSignupLoginTest extends Config {
     }
 
 
-
     @Autowired
     MockMvc mockMvc;
+
     @Test
     @DisplayName("회원가입 요청 signRequest가 정상")
     void 회원가입요청200() throws Exception {
@@ -54,7 +54,7 @@ public class SelfSignupLoginTest extends Config {
 
         mockMvc.perform(post("/api/signup")
                         .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(normalSignupReqestDto)))
+                        .content(objectMapper.writeValueAsString(normalSignupReqestDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("message").exists());
     }
@@ -75,26 +75,26 @@ public class SelfSignupLoginTest extends Config {
     @DisplayName("로그인 요청 normalLoginRequestDto로 ")
     void 로그인요청200() throws Exception {
 
-        Mockito.when(passwordEncoder.matches(any(String.class),any(String.class))).thenReturn(true);
-        Mockito.when(userDetails.loadUserByUsername(any(String.class))).thenReturn(  new UserDetailsImpl(member.getEmail(),member.getPassword(),member.getRoles().stream().map(role ->
-                new SimpleGrantedAuthority(role.name())).collect(Collectors.toList()),member.getNickname(),123L));
+        Mockito.when(passwordEncoder.matches(any(String.class), any(String.class))).thenReturn(true);
+        Mockito.when(userDetails.loadUserByUsername(any(String.class))).thenReturn(new UserDetailsImpl(member.getEmail(), member.getPassword(), member.getRoles().stream().map(role ->
+                new SimpleGrantedAuthority(role.name())).collect(Collectors.toList()), member.getNickname(), 123L));
 
 
-                mockMvc.perform(post("/api/login")
+        mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(normalLoginRequestDto)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("nickname").exists())
-                        .andExpect(jsonPath("email").exists());
+                .andExpect(jsonPath("email").exists());
     }
 
     @Test
     @DisplayName("로그인 요청 패스워드 불일치 ")
     void 로그인요청401() throws Exception {
-        Mockito.when(passwordEncoder.matches(any(String.class),any(String.class))).thenReturn(false);
-        Mockito.when(userDetails.loadUserByUsername(any(String.class))).thenReturn(  new UserDetailsImpl(member.getEmail(),member.getPassword(),member.getRoles().stream().map(role ->
-                new SimpleGrantedAuthority(role.name())).collect(Collectors.toList()),member.getNickname(),123L));
+        Mockito.when(passwordEncoder.matches(any(String.class), any(String.class))).thenReturn(false);
+        Mockito.when(userDetails.loadUserByUsername(any(String.class))).thenReturn(new UserDetailsImpl(member.getEmail(), member.getPassword(), member.getRoles().stream().map(role ->
+                new SimpleGrantedAuthority(role.name())).collect(Collectors.toList()), member.getNickname(), 123L));
 
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -116,4 +116,29 @@ public class SelfSignupLoginTest extends Config {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    @DisplayName("이메일이 중복된경우 true를 반환")
+    void 이메일이중복된경우true() throws Exception {
+        Mockito.when(signupLoginService.DuplicatesEmail(any())).thenReturn(true);
+        String email = "{ \"email\" : \"email@namver.com\"  }";
+        mockMvc.perform(get("/api/user/check/email")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(email))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("message").value("true"));
+
+    }
+
+    @Test
+    @DisplayName("이메일 중복 x true를 반환")
+    void 이메일중복x() throws Exception {
+        Mockito.when(signupLoginService.DuplicatesEmail(any())).thenReturn(false);
+        String email = "{ \"email\" : \"email@namver.com\"  }";
+        mockMvc.perform(get("/api/user/check/email")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(email)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("message").value("false"));
+    }
 }
