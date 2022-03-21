@@ -37,13 +37,13 @@ public class SignupLoginController {
 
     }
 
-    @GetMapping("/api/signup/email") //true : 중복
+    @GetMapping("/api/user/check/Email") //true : 중복
     public void checkDuplicatesEmail(HttpServletResponse response, @Valid @RequestBody OnlyEmailDto email) throws IOException {
         boolean result = signupLoginService.DuplicatesEmail(email.getEmail());
         objectMapper.writeValue(response.getWriter(), ResponseDto.of(HttpStatus.OK, String.valueOf(result)));
     }
 
-    @GetMapping("/api/signup/nickname")
+    @GetMapping("/api/user/check/Nickname")
     public void checkDuplicatesNickname(HttpServletResponse response, @Valid @RequestBody OnlyNicknameDto nicknameDto) throws IOException {
         boolean result = signupLoginService.DuplicatePassword(nicknameDto.getNickname());
         objectMapper.writeValue(response.getWriter(), ResponseDto.of(HttpStatus.OK, String.valueOf(result)));

@@ -18,7 +18,7 @@ public class MailController {
     MailServiceImpl mailService;
 
 
-    @PostMapping("/api/find/password")
+    @PostMapping("/api/user/mypw")
     public ResponseDto findPassword(@Valid @RequestBody OnlyEmailDto email) throws MessagingException {
 
         mailService.sendPasswordEmail(email.getEmail());
