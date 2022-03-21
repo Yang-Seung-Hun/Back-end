@@ -38,21 +38,25 @@ public class ChatController {
                 log.info("AGREE: {}", chatMessage.getSender());
                 Long afterAgree = redisChatRoomRepository.addAgree(roomId);
                 chatMessage.setAgreeCount(afterAgree);
+                chatMessage.setDisagreeCount(redisChatRoomRepository.reportDisagreeCount(roomId));
                 break;
             case CANCEL_AGREE:
                 log.info("CANCEL_AGREE: {}", chatMessage.getSender());
                 Long afterCancelAgree = redisChatRoomRepository.subAgree(roomId);
                 chatMessage.setAgreeCount(afterCancelAgree);
+                chatMessage.setDisagreeCount(redisChatRoomRepository.reportDisagreeCount(roomId));
                 break;
             case DISAGREE:
                 log.info("DISAGREE: {}", chatMessage.getSender());
                 Long afterDisagree = redisChatRoomRepository.addDisagree(roomId);
                 chatMessage.setDisagreeCount(afterDisagree);
+                chatMessage.setAgreeCount(redisChatRoomRepository.reportAgreeCount(roomId));
                 break;
             case CANCEL_DISAGREE:
                 log.info("CANCEL_DISAGREE: {}", chatMessage.getSender());
                 Long afterCancelDisagree = redisChatRoomRepository.subDisagree(roomId);
                 chatMessage.setDisagreeCount(afterCancelDisagree);
+                chatMessage.setAgreeCount(redisChatRoomRepository.reportAgreeCount(roomId));
                 break;
             case LEAVE:
                 log.info("LEAVE: {}", chatMessage.getSender());

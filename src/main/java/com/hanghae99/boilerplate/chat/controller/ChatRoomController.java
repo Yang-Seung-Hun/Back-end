@@ -83,13 +83,6 @@ public class ChatRoomController {
         return ResponseEntity.ok().body(allFromDb);
     }
 
-//    // 채팅방 name ( + contents) 중에서 키워드 검색
-//    @GetMapping("/rooms/{keyword}")
-//    public ResponseEntity<List<ChatRoomResDto>> findByKeyword(@PathVariable String keyword) {
-//        List<ChatRoomResDto> chatrooms =  chatRoomServiceImpl.findByKeyword(keyword);
-//        return ResponseEntity.ok().body(chatrooms);
-//    }
-
     // 특정 채팅방 조회
     @GetMapping("/room/{roomId}")
     public ResponseEntity<ChatRoomRedisDto> roomInfo(@PathVariable Long roomId) {

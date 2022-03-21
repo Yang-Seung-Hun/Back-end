@@ -29,26 +29,6 @@ public class RedisConfig {
         return new ChannelTopic("chatroom");
     }
 
-//    @Bean
-//    public RedisConnectionFactory redisConnectionFactory(RedisProperties redisProperties) {
-//        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
-//        redisStandaloneConfiguration.setHostName(host);
-//        redisStandaloneConfiguration.setPort(port);
-//        redisStandaloneConfiguration.setPassword(RedisPassword.of(password));
-//        return new LettuceConnectionFactory(redisStandaloneConfiguration);
-//    }
-
-
-    /**
-     * redis pub/sub 메시지를 처리하는 listener 설정
-     */
-//    @Bean
-//    public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory) {
-//        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-//        container.setConnectionFactory(connectionFactory);
-//        return container;
-//    }
-
     @Bean
     public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory,
                                                               MessageListenerAdapter listenerAdapter,
