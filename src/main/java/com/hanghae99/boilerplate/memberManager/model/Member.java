@@ -67,8 +67,6 @@ public class Member implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE })
     private List<Comment> comments;
 
-//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE })
-//    private List<Reply> replies;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE })
     private List<Vote> votes;
@@ -81,6 +79,9 @@ public class Member implements Serializable {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE })
     private List<MyBoard> myBoards;
+
+
+
 
 
 }
