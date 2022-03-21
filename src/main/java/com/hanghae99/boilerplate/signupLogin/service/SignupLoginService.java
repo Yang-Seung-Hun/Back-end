@@ -1,6 +1,6 @@
 package com.hanghae99.boilerplate.signupLogin.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.hanghae99.boilerplate.security.config.JwtConfig;
 import com.hanghae99.boilerplate.security.config.RefreshTokenRedis;
 import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -57,5 +56,11 @@ public class SignupLoginService {
     }
 
 
+    public boolean DuplicatesEmail(String  email) {
+        return  memberRepository.existsMemberByEmail(email);
+    }
 
+    public boolean DuplicatePassword(String nickname) {
+        return memberRepository.existsMemberByNickname(nickname);
+    }
 }

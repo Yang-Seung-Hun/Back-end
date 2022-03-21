@@ -24,6 +24,8 @@ public interface MemberRepository extends JpaRepository<Member, Long>  ,MemberCu
 
     boolean existsMemberByEmail(String email);
 
+    boolean existsMemberByNickname(String nickname);
+
 
 
 }

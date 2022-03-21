@@ -42,7 +42,8 @@ public class MailServiceImpl implements MailService {
 
 
     @Transactional
-    public void sendFindPasswordVerifyMail(String email) throws MessagingException {
+    @Override
+    public void sendPasswordEmail(String email) throws MessagingException {
         Member member = memberRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(email + "not exist"));
         String key = String.valueOf(random.nextInt((MAX_SIZE - MIN_SIZE) + 1) + MIN_SIZE);
         member.setPassword(passwordEncoder.encode(key));

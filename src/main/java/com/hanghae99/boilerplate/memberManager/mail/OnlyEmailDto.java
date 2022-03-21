@@ -6,7 +6,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 @Getter
-public class FindPasswordDto {
+public class OnlyEmailDto {
 
     @NotBlank(message = "email not blank")
     @Email(message ="check email")

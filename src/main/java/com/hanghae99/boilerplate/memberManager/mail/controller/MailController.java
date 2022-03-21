@@ -1,7 +1,7 @@
 package com.hanghae99.boilerplate.memberManager.mail.controller;
 
 
-import com.hanghae99.boilerplate.memberManager.mail.FindPasswordDto;
+import com.hanghae99.boilerplate.memberManager.mail.OnlyEmailDto;
 import com.hanghae99.boilerplate.memberManager.mail.service.MailServiceImpl;
 import com.hanghae99.boilerplate.memberManager.model.ResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +19,9 @@ public class MailController {
 
 
     @PostMapping("/api/find/password")
-    public ResponseDto findPassword(@Valid @RequestBody FindPasswordDto email) throws MessagingException {
+    public ResponseDto findPassword(@Valid @RequestBody OnlyEmailDto email) throws MessagingException {
 
-        mailService.sendFindPasswordVerifyMail(email.getEmail());
+        mailService.sendPasswordEmail(email.getEmail());
         return new ResponseDto(HttpStatus.OK, null, null);
 
 

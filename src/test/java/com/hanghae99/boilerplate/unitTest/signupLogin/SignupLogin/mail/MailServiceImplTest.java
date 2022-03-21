@@ -58,7 +58,7 @@ class MailServiceImplTest {
         Mockito.when(passwordEncoder.encode(any(String.class))).thenReturn("111");
         doNothing().when(google).sendMail(any(String.class), any(String.class), any(String.class));
 
-        mailService.sendFindPasswordVerifyMail(member.getEmail());
+        mailService.sendPasswordEmail(member.getEmail());
 
 
     }
@@ -70,7 +70,7 @@ class MailServiceImplTest {
 
 
         assertThrows(UsernameNotFoundException.class, () -> {
-            mailService.sendFindPasswordVerifyMail(member.getEmail());
+            mailService.sendPasswordEmail(member.getEmail());
         });
 
 
