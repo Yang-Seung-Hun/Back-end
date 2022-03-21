@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.unitTest.signupLogin.member.mail;
+package com.hanghae99.boilerplate.unitTest.signupLogin.SignupLogin.mail;
 
 import com.hanghae99.boilerplate.memberManager.mail.MailVerifyRedis;
 import com.hanghae99.boilerplate.memberManager.mail.platforms.Google;

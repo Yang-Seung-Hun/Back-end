@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.mvcTest;
+package com.hanghae99.boilerplate.mvcTest.SignupLogin;
 
 
 import com.carrotsearch.hppc.ObjectByteMap;

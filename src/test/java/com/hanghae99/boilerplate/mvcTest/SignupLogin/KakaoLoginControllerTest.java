@@ -1,22 +1,15 @@
-package com.hanghae99.boilerplate.mvcTest;
+package com.hanghae99.boilerplate.mvcTest.SignupLogin;
 
-import com.hanghae99.boilerplate.board.service.BoardService;
 import com.hanghae99.boilerplate.memberManager.model.Member;
 import com.hanghae99.boilerplate.security.config.JwtConfig;
-import com.hanghae99.boilerplate.security.jwt.TokenFactory;
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import com.hanghae99.boilerplate.signupLogin.kakao.TemporaryUser;
 import com.hanghae99.boilerplate.signupLogin.kakao.common.KakaoUserData;
-import com.hanghae99.boilerplate.signupLogin.kakao.controller.KakaoLoginController;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 

@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.mvcTest;
+package com.hanghae99.boilerplate.mvcTest.SignupLogin;
 
 import com.hanghae99.boilerplate.memberManager.model.Member;
 import com.hanghae99.boilerplate.security.model.login.LoginRequestDto;
@@ -40,7 +40,7 @@ public class SelfSignupLoginTest extends Config {
         normalLoginRequestDto = new LoginRequestDto(normalSignupReqestDto.getEmail(), normalSignupReqestDto.getPassword());
         member = new Member(normalSignupReqestDto);
         badSignupReqestDto = new SignupReqestDto("wns674@naver.com", "최호준", null, "이미지1번");
-        badLoginRequestDto = new LoginRequestDto(null, normalSignupReqestDto.getPassword());
+        badLoginRequestDto = new LoginRequestDto("강낭콩", normalSignupReqestDto.getPassword());
     }
 
 
@@ -106,6 +106,7 @@ public class SelfSignupLoginTest extends Config {
 
     @Test
     @DisplayName("일치하는 유저가 없는 경우 UsernameNotFoundException발생하고 401로 처리함 ")
+        //테스트 환경에서는 entryPoint까지 에러가 도달하지 않는다 그래서 message 는 null이 된다
     void 로그인요청일치하는유저x() throws Exception {
         Mockito.when(userDetails.loadUserByUsername(any(String.class))).thenThrow(UsernameNotFoundException.class);
         mockMvc.perform(post("/api/login")
