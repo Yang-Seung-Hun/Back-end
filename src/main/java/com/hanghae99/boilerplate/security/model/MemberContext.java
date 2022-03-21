@@ -1,6 +1,5 @@
 package com.hanghae99.boilerplate.security.model;
 
-import com.google.api.client.util.Lists;
 import com.hanghae99.boilerplate.memberManager.model.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,10 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Getter

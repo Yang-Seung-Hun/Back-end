@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.unitTest.signupLogin.kakao.common;
+package com.hanghae99.boilerplate.unitTest.signupLogin.SignupLogin.kakao.common;
 
 import com.hanghae99.boilerplate.memberManager.model.Member;
 import com.hanghae99.boilerplate.memberManager.repository.MemberCustomRepository;

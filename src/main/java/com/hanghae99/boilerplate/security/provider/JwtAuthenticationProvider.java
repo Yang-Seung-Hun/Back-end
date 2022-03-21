@@ -21,8 +21,7 @@ import java.util.stream.Collectors;
 @Component
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
-    @Autowired
-    private JwtConfig jwtConfig;
+
     @Autowired
     private TokenVerifier tokenVerifier;
 
@@ -33,7 +32,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         Jws<Claims> jwsClaims;
         try {
 
-            jwsClaims = tokenVerifier.validateToken( rawAccessToken.getToken(), jwtConfig.getTokenSigningKey());
+            jwsClaims = tokenVerifier.validateToken( rawAccessToken.getToken(),JwtConfig.tokenSigningKey);
 
             String sub = jwsClaims.getBody().getSubject();
             List<String> scopes = jwsClaims.getBody().get("scopes", List.class);

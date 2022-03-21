@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.unitTest.signupLogin.loginTest;
+package com.hanghae99.boilerplate.unitTest.signupLogin.SignupLogin.loginTest;
 
 
 import com.hanghae99.boilerplate.memberManager.model.Member;

@@ -15,7 +15,6 @@ import com.hanghae99.boilerplate.security.jwt.TokenFactory;
 import com.hanghae99.boilerplate.security.jwt.extractor.TokenExtractor;
 import com.hanghae99.boilerplate.security.provider.AjaxAuthenticationProvider;
 import com.hanghae99.boilerplate.security.provider.JwtAuthenticationProvider;
-import com.hanghae99.boilerplate.security.service.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,13 +24,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 
 import java.util.Arrays;
 import java.util.List;
@@ -87,9 +84,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     @Autowired
-    JwtConfig jwtConfig;
-
-    @Autowired
     RefreshTokenRedis redis;
 
 
@@ -105,7 +99,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     //AUTHENTICATION_URL만 AjaxLoginProcessingFilter(로그인 담당(를지난다
     protected AjaxLoginProcessingFilter buildAjaxLoginProcessingFilter() throws Exception {
         AjaxLoginProcessingFilter filter = new AjaxLoginProcessingFilter(AUTHENTICATION_URL,
-                new AjaxAuthenticationSuccessHandler(tokenFactory, memberRepository, objectMapper,redis,jwtConfig), failureHandler);
+                new AjaxAuthenticationSuccessHandler(tokenFactory, objectMapper,redis), failureHandler);
         filter.setAuthenticationManager(this.authenticationManager);
         return filter;
     }

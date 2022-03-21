@@ -1,6 +1,7 @@
 package com.hanghae99.boilerplate.signupLogin.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.hanghae99.boilerplate.security.config.JwtConfig;
 import com.hanghae99.boilerplate.security.config.RefreshTokenRedis;
 import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
 import com.hanghae99.boilerplate.memberManager.model.Member;
@@ -13,8 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 
 @Slf4j
 @Service
@@ -42,10 +43,24 @@ public class SignupLoginService {
     }
 
     public void logoutRequest(HttpServletRequest request) throws IOException {
-        for (Cookie cookie :request.getCookies()){
-           if( cookie.getName().equals("Authorization")){
-               redis.removeData(cookie.getValue());
-           }
+        Arrays.stream(request.getCookies()).anyMatch(cookie -> removeCookieIfSame(cookie));
+
+    }
+
+    public boolean removeCookieIfSame(Cookie cookie){
+        if(cookie.getName().equals(JwtConfig.AUTHENTICATION_HEADER_NAME)) {
+            redis.removeData(cookie.getName());
+            return true;
         }
+        return false;
+    }
+
+
+    public boolean DuplicatesEmail(String  email) {
+        return  memberRepository.existsMemberByEmail(email);
+    }
+
+    public boolean DuplicatePassword(String nickname) {
+        return memberRepository.existsMemberByNickname(nickname);
     }
 }

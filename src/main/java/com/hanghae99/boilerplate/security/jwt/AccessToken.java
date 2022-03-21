@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hanghae99.boilerplate.security.jwt.from.JwtToken;
 import io.jsonwebtoken.Claims;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @AllArgsConstructor

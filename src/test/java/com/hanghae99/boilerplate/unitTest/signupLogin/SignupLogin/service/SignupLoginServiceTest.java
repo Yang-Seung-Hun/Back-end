@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.unitTest.signupLogin.service;
+package com.hanghae99.boilerplate.unitTest.signupLogin.SignupLogin.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.memberManager.model.Member;

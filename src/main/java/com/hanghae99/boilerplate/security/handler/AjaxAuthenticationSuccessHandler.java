@@ -1,12 +1,12 @@
 package com.hanghae99.boilerplate.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import com.hanghae99.boilerplate.security.config.JwtConfig;
 import com.hanghae99.boilerplate.security.config.RefreshTokenRedis;
 import com.hanghae99.boilerplate.security.jwt.TokenFactory;
 import com.hanghae99.boilerplate.security.jwt.from.JwtToken;
 import com.hanghae99.boilerplate.security.model.MemberContext;
+import com.hanghae99.boilerplate.signupLogin.kakao.common.WebUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,37 +15,29 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Component
 public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-
-    private MemberRepository memberRepository;
 
 
     private TokenFactory tokenFactory;
 
     private ObjectMapper objectMapper;
 
-    private JwtConfig jwtConfig;
+
 
 
     private RefreshTokenRedis redis;
 
-    public AjaxAuthenticationSuccessHandler(TokenFactory tokenFactory, MemberRepository memberRepository, ObjectMapper objectMapper, RefreshTokenRedis redis,
-                                            JwtConfig jwtConfig) {
-        this.memberRepository = memberRepository;
+    public AjaxAuthenticationSuccessHandler(TokenFactory tokenFactory , ObjectMapper objectMapper, RefreshTokenRedis redis) {
         this.tokenFactory = tokenFactory;
-            this.objectMapper = objectMapper;
+        this.objectMapper = objectMapper;
         this.redis = redis;
-        this.jwtConfig = jwtConfig;
+
     }
 
 
@@ -62,30 +54,18 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
         JwtToken refreshToken = tokenFactory.createRefreshToken(memberContext);
 
 
-        Map<String, String> tokenMap = new HashMap<String, String>();
-
-
-        Cookie cookie = new Cookie(JwtConfig.AUTHENTICATION_HEADER_NAME, refreshToken.getToken());
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(60 * 60 * 24);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+        response.addCookie(WebUtil.makeCookie(JwtConfig.AUTHENTICATION_HEADER_NAME, refreshToken.getToken()));
 
         response.setHeader(JwtConfig.AUTHENTICATION_HEADER_NAME, accessToken.getToken());
 
 
-        tokenMap.put("nickname", memberContext.getNickname());
-        tokenMap.put("email", memberContext.getUsername());
-
-        objectMapper.writeValue(response.getWriter(), tokenMap);
-
-        log.info("{} login success", memberContext.getUsername());
+        objectMapper.writeValue(response.getWriter(), WebUtil.UserDataToMap(memberContext));
 
         //redis에 refresh token 을 key로  저장
         redis.removeData(refreshToken.getToken());
-        redis.setExpire(refreshToken.getToken(), memberContext.getUsername(), jwtConfig.getRefreshTokenExpTime());
+        redis.setExpire(refreshToken.getToken(), memberContext.getUsername(), JwtConfig.refreshTokenExpTime);
 
-        log.info("{} Authentication success",memberContext.getUsername());
+
     }
 
 }

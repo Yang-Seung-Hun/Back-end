@@ -1,22 +1,16 @@
 package com.hanghae99.boilerplate.security.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hanghae99.boilerplate.security.Exception.ExceptionResponse;
 import com.hanghae99.boilerplate.security.RefreshTokenEndPoint;
 import com.hanghae99.boilerplate.security.config.SecurityConfig;
 import com.hanghae99.boilerplate.security.jwt.JwtAuthenticationToken;
 import com.hanghae99.boilerplate.security.jwt.RawAccessToken;
-import com.hanghae99.boilerplate.security.jwt.TokenFactory;
 import com.hanghae99.boilerplate.security.jwt.extractor.TokenExtractor;
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwt;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
@@ -25,18 +19,12 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import javax.security.auth.message.AuthException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
-
-import static java.util.Arrays.asList;
 
 
 //jwt로 인가를 검증해주는 필터

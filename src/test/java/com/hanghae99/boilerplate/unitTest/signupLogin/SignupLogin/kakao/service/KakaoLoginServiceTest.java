@@ -1,4 +1,4 @@
-package com.hanghae99.boilerplate.unitTest.signupLogin.kakao.service;
+package com.hanghae99.boilerplate.unitTest.signupLogin.SignupLogin.kakao.service;
 
 import com.hanghae99.boilerplate.signupLogin.kakao.TemporaryUser;
 import com.hanghae99.boilerplate.signupLogin.kakao.common.Connection;

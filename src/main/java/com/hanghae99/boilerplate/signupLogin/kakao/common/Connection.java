@@ -31,15 +31,12 @@ public class Connection {
         connection.setDoOutput(true);
 
         BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
-        //문자열 처리 속도 향상
+
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append("grant_type=authorization_code");
         stringBuilder.append("&client_id=91ee90dad2384a8f06ab7106b2f92daf");
-
-//        stringBuilder.append("&redirect_uri=http://18.117.124.131/api/kakao/login");
         stringBuilder.append("&redirect_uri=http://localhost:3000/api/kakao/login");
-
         stringBuilder.append("&code=" + code);
 
         bufferedWriter.write(stringBuilder.toString());
@@ -75,9 +72,6 @@ public class Connection {
 
         JsonNode jsonNode = readConnectionStringToJson(connection);
 
-
-//        String connectedAt= jsonNode.get("connected_at").textValue();
-//        LocalDateTime register = StringToDate(connectedAt);
         String nickname = jsonNode.get("properties").get("nickname").textValue();
         String profileImageUrl = jsonNode.get("properties").get("profile_image").textValue();
         String email = jsonNode.get("kakao_account").get("email").textValue();
