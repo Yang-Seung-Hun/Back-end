@@ -2,7 +2,6 @@ package com.hanghae99.boilerplate.memberManager.mail;
 
 import lombok.Getter;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 

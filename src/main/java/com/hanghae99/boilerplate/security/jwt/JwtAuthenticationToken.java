@@ -2,10 +2,8 @@ package com.hanghae99.boilerplate.security.jwt;
 
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 
-import javax.security.sasl.AuthenticationException;
 import java.util.Collection;
 
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {

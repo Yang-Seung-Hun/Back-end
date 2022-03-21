@@ -7,11 +7,9 @@ import com.hanghae99.boilerplate.security.model.MemberContext;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Array;
-import java.nio.charset.StandardCharsets;
+
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
@@ -21,8 +19,6 @@ import java.util.stream.Collectors;
 @Component
 public class TokenFactory {
 
-    @Autowired
-    private JwtConfig jwtConfig;
 
     public AccessToken createAccessToken(MemberContext memberContext) {
         Claims claims = Jwts.claims().setSubject(memberContext.getUsername());
@@ -37,9 +33,9 @@ public class TokenFactory {
                 .setAudience(memberContext.getNickname())                //Audience :member nickname
                 .setIssuedAt(Date.from(cur.atZone(ZoneId.systemDefault()).toInstant()))
                 .setExpiration(Date.from(cur
-                        .plusMinutes(jwtConfig.getTokenExpirationTime())
+                        .plusMinutes(JwtConfig.tokenExpirationTime)
                         .atZone(ZoneId.systemDefault()).toInstant()))
-                .signWith(SignatureAlgorithm.HS512, jwtConfig.getTokenSigningKey())
+                .signWith(SignatureAlgorithm.HS512, JwtConfig.tokenSigningKey)
                 .compact();
         return new AccessToken(token, claims);
     }
@@ -57,9 +53,9 @@ public class TokenFactory {
                     .setAudience(memberContext.getNickname())                //Audience :member nickname
                     .setIssuedAt(Date.from(currentTime.atZone(ZoneId.systemDefault()).toInstant()))
                     .setExpiration(Date.from(currentTime
-                            .plusDays(jwtConfig.getRefreshTokenExpTime())
+                            .plusDays(JwtConfig.refreshTokenExpTime)
                             .atZone(ZoneId.systemDefault()).toInstant()))
-                    .signWith(SignatureAlgorithm.HS512, jwtConfig.getTokenSigningKey())
+                    .signWith(SignatureAlgorithm.HS512, JwtConfig.tokenSigningKey)
                     .compact();
 
             return new AccessToken(token, claims);

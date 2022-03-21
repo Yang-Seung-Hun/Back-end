@@ -10,7 +10,6 @@ import com.hanghae99.boilerplate.security.jwt.extractor.TokenVerifier;
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,50 +27,49 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RefreshTokenEndPoint {
 
-    @Autowired
-    JwtConfig jwtConfig;
+
     @Autowired
     TokenVerifier tokenVerifier;
     @Autowired
     TokenFactory tokenFactory;
     @Autowired
     RefreshTokenRedis redis;
+//        Arrays.stream(request.getCookies()).anyMatch(cookie -> removeCookieIfSame(cookie));
 
     public Jws<Claims> getJwtClimas(HttpServletRequest request) {
         try {
-            for (Cookie cookie : request.getCookies()) {
-                if (cookie.getName().equals(JwtConfig.AUTHENTICATION_HEADER_NAME) || redis.getData(cookie.getValue()) !=null){
-                    Jws<Claims> jwsClaims = tokenVerifier.validateToken(cookie.getValue(), jwtConfig.getTokenSigningKey());
-                    return jwsClaims;
-                }
-            }
+            Optional<Cookie> cookie = Arrays.stream(request.getCookies()).filter(c -> isOkGiveClaims(c)).findFirst();
+            if (cookie.isPresent())
+                return tokenVerifier.validateToken(cookie.get().getValue(), JwtConfig.tokenSigningKey);
+
         } catch (Exception e) {
-            log.debug(e.getMessage());
-            return null;
+
         }
         return null;
-
     }
 
     //유효한 jws가 들어온다
     public Optional<MemberContext> getMemberContext(Jws<Claims> jws) {
-            String email = jws.getBody().getSubject();
-            List<String> scopes = jws.getBody().get("scopes", List.class);
-            List<GrantedAuthority> authorityList = scopes.stream()
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
-            String nickname = jws.getBody().getIssuer(); //닉네임
-            Long memberId = Long.valueOf(jws.getBody().getAudience()); //멤버 아이디
-            MemberContext memberContext = MemberContext.create(email, authorityList,nickname,memberId);
-            return Optional.of(memberContext);
+        String email = jws.getBody().getSubject();
+        List<String> scopes = jws.getBody().get("scopes", List.class);
+
+        List<GrantedAuthority> authorityList = scopes.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+
+        MemberContext memberContext = MemberContext.create(email, authorityList, jws.getBody().getIssuer(), Long.valueOf(jws.getBody().getAudience()));
+        return Optional.of(memberContext);
+
     }
 
 
     public RawAccessToken setNewAccessToken(MemberContext memberContext, HttpServletResponse response) throws IOException {
         AccessToken accessToken = tokenFactory.createAccessToken(memberContext);
-        response.setHeader(JwtConfig.AUTHENTICATION_HEADER_NAME,accessToken.getToken());
+        response.setHeader(JwtConfig.AUTHENTICATION_HEADER_NAME, accessToken.getToken());
         return new RawAccessToken(accessToken.getToken());
     }
 
-
+    private boolean isOkGiveClaims(Cookie cookie) {
+        return (cookie.getName().equals(JwtConfig.AUTHENTICATION_HEADER_NAME) || redis.getData(cookie.getValue()) != null);
+    }
 }

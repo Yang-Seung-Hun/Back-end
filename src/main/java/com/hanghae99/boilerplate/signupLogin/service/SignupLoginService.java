@@ -44,10 +44,18 @@ public class SignupLoginService {
     }
 
     public void logoutRequest(HttpServletRequest request) throws IOException {
-        for (Cookie cookie :request.getCookies()){
-           if( cookie.getName().equals("Authorization")){
-               redis.removeData(cookie.getValue());
-           }
-        }
+        Arrays.stream(request.getCookies()).anyMatch(cookie -> removeCookieIfSame(cookie));
+
     }
+
+    public boolean removeCookieIfSame(Cookie cookie){
+        if(cookie.getName().equals(JwtConfig.AUTHENTICATION_HEADER_NAME)) {
+            redis.removeData(cookie.getName());
+            return true;
+        }
+        return false;
+    }
+
+
+
 }
