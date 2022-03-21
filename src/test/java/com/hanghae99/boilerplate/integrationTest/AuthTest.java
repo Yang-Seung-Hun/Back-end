@@ -54,6 +54,7 @@ public class AuthTest extends Config {
     @AfterEach
     void removeMember() {
         memberRepository.delete(member);
+        redis.removeData(refresh_token);
     }
 
     @Test
