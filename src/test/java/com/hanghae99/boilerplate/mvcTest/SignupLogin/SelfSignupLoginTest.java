@@ -100,8 +100,6 @@ public class SelfSignupLoginTest extends Config {
                 .andExpect(jsonPath("nickname").exists())
                 .andExpect(jsonPath("email").exists())
                 .andReturn().getResponse();
-
-
         redis.removeData(response.getCookie(JwtConfig.AUTHENTICATION_HEADER_NAME).getValue());
 
     }
