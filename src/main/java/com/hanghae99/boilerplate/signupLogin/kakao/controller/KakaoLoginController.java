@@ -44,8 +44,8 @@ public class KakaoLoginController {
         TemporaryUser temporaryUser = kakaoLoginService.getKakaoUserInformation(code);
         MemberContext memberContext = registerMember.registerKakaoUserToMember(temporaryUser);
 
-        JwtToken accessToken = tokenFactory.createAccessToken(memberContext);
-        JwtToken refreshToken = tokenFactory.createRefreshToken(memberContext);
+        JwtToken accessToken = tokenFactory.createToken(memberContext,JwtConfig.tokenExpirationTime);
+        JwtToken refreshToken = tokenFactory.createToken(memberContext,JwtConfig.refreshTokenExpTime);
 
         redis.setExpire(refreshToken.getToken(), memberContext.getUsername(),JwtConfig.refreshTokenExpTime);
 

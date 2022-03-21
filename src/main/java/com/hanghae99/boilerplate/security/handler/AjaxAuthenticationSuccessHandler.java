@@ -50,8 +50,8 @@ public class AjaxAuthenticationSuccessHandler implements AuthenticationSuccessHa
 
         MemberContext memberContext = (MemberContext) authentication.getPrincipal();
 
-        JwtToken accessToken = tokenFactory.createAccessToken(memberContext);
-        JwtToken refreshToken = tokenFactory.createRefreshToken(memberContext);
+        JwtToken accessToken = tokenFactory.createToken(memberContext,JwtConfig.tokenExpirationTime);
+        JwtToken refreshToken = tokenFactory.createToken(memberContext,JwtConfig.refreshTokenExpTime);
 
 
         response.addCookie(WebUtil.makeCookie(JwtConfig.AUTHENTICATION_HEADER_NAME, refreshToken.getToken()));

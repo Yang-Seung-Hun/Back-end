@@ -57,14 +57,14 @@ public class RefreshTokenEndPoint {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
-        MemberContext memberContext = MemberContext.create(email, authorityList, jws.getBody().getIssuer(), Long.valueOf(jws.getBody().getAudience()));
+        MemberContext memberContext = MemberContext.create(email, authorityList, jws.getBody().getAudience(),Long.valueOf(jws.getBody().getIssuer()));
         return Optional.of(memberContext);
 
     }
 
 
     public RawAccessToken setNewAccessToken(MemberContext memberContext, HttpServletResponse response) throws IOException {
-        AccessToken accessToken = tokenFactory.createAccessToken(memberContext);
+        AccessToken accessToken = tokenFactory.createToken(memberContext,JwtConfig.tokenExpirationTime);
         response.setHeader(JwtConfig.AUTHENTICATION_HEADER_NAME, accessToken.getToken());
         return new RawAccessToken(accessToken.getToken());
     }

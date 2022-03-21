@@ -71,7 +71,6 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
                                             Authentication auth) throws ServletException, IOException {
-        //Called when a user has been successfully authenticated.
         ajaxAuthenticationSuccessHandler.onAuthenticationSuccess(request, response, auth);
     }
 

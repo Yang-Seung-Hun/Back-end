@@ -5,6 +5,7 @@ import com.carrotsearch.hppc.ObjectByteMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.security.config.RefreshTokenRedis;
 import com.hanghae99.boilerplate.security.jwt.TokenFactory;
+import com.hanghae99.boilerplate.security.jwt.extractor.TokenVerifier;
 import com.hanghae99.boilerplate.security.service.UserDetailsImpl;
 import com.hanghae99.boilerplate.security.service.UserDetailsServiceImpl;
 import com.hanghae99.boilerplate.signupLogin.kakao.common.Connection;
@@ -47,7 +48,7 @@ public abstract class Config {
     @Autowired
     ObjectMapper objectMapper;
     @Autowired
-    TokenFactory tokenFactory;
+    TokenVerifier tokenVerifier;
 
 
 

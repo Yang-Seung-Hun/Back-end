@@ -29,7 +29,6 @@ public class SignupLoginService {
     @Autowired
     RefreshTokenRedis redis;
     @Transactional
-
     public void signupRequest(SignupReqestDto signupReqestDto) {
         boolean result = memberRepository.existsMemberByEmail(signupReqestDto.getEmail());
         if (result) {
@@ -39,7 +38,6 @@ public class SignupLoginService {
         signupReqestDto.setPassword(passwordEncoder.encode(signupReqestDto.getPassword()));
         memberRepository.save(new Member(signupReqestDto));
         log.info("{} ,nickname {} signup" ,signupReqestDto.getEmail(),signupReqestDto.getNickname());
-
     }
 
     public void logoutRequest(HttpServletRequest request) throws IOException {
@@ -49,7 +47,7 @@ public class SignupLoginService {
 
     public boolean removeCookieIfSame(Cookie cookie){
         if(cookie.getName().equals(JwtConfig.AUTHENTICATION_HEADER_NAME)) {
-            redis.removeData(cookie.getName());
+            redis.removeData(cookie.getValue());
             return true;
         }
         return false;
