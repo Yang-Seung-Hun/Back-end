@@ -37,8 +37,7 @@ public class SignupTest extends Config {
         mockMvc.perform(post("/api/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(normalSignupReqestDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("message").exists());
+                .andExpect(status().isOk());
         Assertions.assertEquals(memberRepository.findByEmail(normalSignupReqestDto.getEmail()).get().getNickname(), normalSignupReqestDto.getNickname());        memberRepository.deleteAll();
 
     }
@@ -51,7 +50,6 @@ public class SignupTest extends Config {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(normalSignupReqestDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("message").exists())
                 .andExpect(header().exists(JwtConfig.AUTHENTICATION_HEADER_NAME))
                 .andExpect(cookie().exists(JwtConfig.AUTHENTICATION_HEADER_NAME));
     }

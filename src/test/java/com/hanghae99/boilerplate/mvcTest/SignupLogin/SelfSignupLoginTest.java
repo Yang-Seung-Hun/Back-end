@@ -60,7 +60,6 @@ public class SelfSignupLoginTest extends Config {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(normalSignupReqestDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("message").exists())
                 .andExpect(header().exists(JwtConfig.AUTHENTICATION_HEADER_NAME))
                 .andExpect(cookie().exists(JwtConfig.AUTHENTICATION_HEADER_NAME))
                 .andReturn().getResponse();
