@@ -1,18 +1,24 @@
 package com.hanghae99.boilerplate.mvcTest.SignupLogin;
 
 import com.hanghae99.boilerplate.memberManager.model.Member;
+import com.hanghae99.boilerplate.security.config.JwtConfig;
+import com.hanghae99.boilerplate.security.model.MemberContext;
 import com.hanghae99.boilerplate.security.model.login.LoginRequestDto;
 import com.hanghae99.boilerplate.security.service.UserDetailsImpl;
 import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
+import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.stream.Collectors;
 
@@ -21,8 +27,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 public class SelfSignupLoginTest extends Config {
 
@@ -33,7 +38,6 @@ public class SelfSignupLoginTest extends Config {
     static SignupReqestDto badSignupReqestDto;
     static LoginRequestDto badLoginRequestDto;
     static Member member;
-
     @BeforeAll
     static void makeMember() {
         normalSignupReqestDto = new SignupReqestDto("wns674@naver.com", "최호준", "1234", "이미지1번");
@@ -47,17 +51,26 @@ public class SelfSignupLoginTest extends Config {
     @Autowired
     MockMvc mockMvc;
 
+
     @Test
     @DisplayName("회원가입 요청 signRequest가 정상")
     void 회원가입요청200() throws Exception {
-        doNothing().when(signupLoginService).signupRequest(normalSignupReqestDto);
-
-        mockMvc.perform(post("/api/signup")
+        Mockito.when(signupLoginService.signupRequest(any())).thenReturn(new MemberContext(member));
+        MockHttpServletResponse result= mockMvc.perform(post("/api/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(normalSignupReqestDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("message").exists());
+                .andExpect(jsonPath("message").exists())
+                .andExpect(header().exists(JwtConfig.AUTHENTICATION_HEADER_NAME))
+                .andExpect(cookie().exists(JwtConfig.AUTHENTICATION_HEADER_NAME))
+                .andReturn().getResponse();
+        redis.removeData(result.getCookie(JwtConfig.AUTHENTICATION_HEADER_NAME).getValue());
+
+
+
+
     }
+
 
     @Test
     @DisplayName("회원가입 요청signRequst가 비정상")
@@ -80,13 +93,18 @@ public class SelfSignupLoginTest extends Config {
                 new SimpleGrantedAuthority(role.name())).collect(Collectors.toList()), member.getNickname(), 123L));
 
 
-        mockMvc.perform(post("/api/login")
+        MockHttpServletResponse response= mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(normalLoginRequestDto)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("nickname").exists())
-                .andExpect(jsonPath("email").exists());
+                .andExpect(jsonPath("email").exists())
+                .andReturn().getResponse();
+
+
+        redis.removeData(response.getCookie(JwtConfig.AUTHENTICATION_HEADER_NAME).getValue());
+
     }
 
     @Test
@@ -141,4 +159,6 @@ public class SelfSignupLoginTest extends Config {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("message").value("false"));
     }
+
+
 }

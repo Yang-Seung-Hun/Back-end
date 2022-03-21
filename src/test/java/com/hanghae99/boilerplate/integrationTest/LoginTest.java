@@ -51,6 +51,7 @@ public class LoginTest extends Config {
         Assertions.assertDoesNotThrow(() -> tokenVerifier.validateToken(response.getHeader(JwtConfig.AUTHENTICATION_HEADER_NAME), JwtConfig.tokenSigningKey));
         Assertions.assertDoesNotThrow(() -> tokenVerifier.validateToken(response.getCookie(JwtConfig.AUTHENTICATION_HEADER_NAME).getValue(), JwtConfig.tokenSigningKey));
 
+        redis.removeData(response.getCookie(JwtConfig.AUTHENTICATION_HEADER_NAME).getValue());
     }
 
     @Test

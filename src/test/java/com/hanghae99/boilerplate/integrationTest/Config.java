@@ -3,6 +3,7 @@ package com.hanghae99.boilerplate.integrationTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
+import com.hanghae99.boilerplate.security.config.RefreshTokenRedis;
 import com.hanghae99.boilerplate.security.jwt.TokenFactory;
 import com.hanghae99.boilerplate.security.jwt.extractor.TokenVerifier;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,5 +34,8 @@ public abstract class Config {
     TokenVerifier tokenVerifier;
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    RefreshTokenRedis redis;
 
 }

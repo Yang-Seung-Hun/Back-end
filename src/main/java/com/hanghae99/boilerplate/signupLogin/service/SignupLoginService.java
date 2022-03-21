@@ -3,6 +3,7 @@ package com.hanghae99.boilerplate.signupLogin.service;
 
 import com.hanghae99.boilerplate.security.config.JwtConfig;
 import com.hanghae99.boilerplate.security.config.RefreshTokenRedis;
+import com.hanghae99.boilerplate.security.model.MemberContext;
 import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
 import com.hanghae99.boilerplate.memberManager.model.Member;
 import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
@@ -29,15 +30,16 @@ public class SignupLoginService {
     @Autowired
     RefreshTokenRedis redis;
     @Transactional
-    public void signupRequest(SignupReqestDto signupReqestDto) {
+    public MemberContext signupRequest(SignupReqestDto signupReqestDto) {
         boolean result = memberRepository.existsMemberByEmail(signupReqestDto.getEmail());
         if (result) {
             log.info("{} is already exist",signupReqestDto.getEmail());
             throw new IllegalArgumentException(signupReqestDto.getEmail() + " already" + "Exist!");
         }
         signupReqestDto.setPassword(passwordEncoder.encode(signupReqestDto.getPassword()));
-        memberRepository.save(new Member(signupReqestDto));
+       Member member= memberRepository.save(new Member(signupReqestDto));
         log.info("{} ,nickname {} signup" ,signupReqestDto.getEmail(),signupReqestDto.getNickname());
+        return new MemberContext(member);
     }
 
     public void logoutRequest(HttpServletRequest request) throws IOException {

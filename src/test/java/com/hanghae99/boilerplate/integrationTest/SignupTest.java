@@ -3,12 +3,14 @@ package com.hanghae99.boilerplate.integrationTest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hanghae99.boilerplate.memberManager.model.Member;
 import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
+import com.hanghae99.boilerplate.security.config.JwtConfig;
 import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -41,6 +43,18 @@ public class SignupTest extends Config {
 
     }
 
+    @Test
+    @DisplayName("회원가입시 토큰이 온다")
+    void 회원가입요청시토큰() throws Exception {
+
+        mockMvc.perform(post("/api/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(normalSignupReqestDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("message").exists())
+                .andExpect(header().exists(JwtConfig.AUTHENTICATION_HEADER_NAME))
+                .andExpect(cookie().exists(JwtConfig.AUTHENTICATION_HEADER_NAME));
+    }
     @Test
     void signRequesetDto가잘못된경우회원가입() throws Exception {
         mockMvc.perform(post("/api/signup")
