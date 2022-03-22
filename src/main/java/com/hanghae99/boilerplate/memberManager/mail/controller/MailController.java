@@ -25,7 +25,7 @@ public class MailController {
     @GetMapping("/")
     public  void healthCheck(HttpServletResponse response) throws IOException {
         response.setStatus(HttpStatus.OK.value());
-        objectMapper.writeValue(response.getWriter(),ResponseDto.of(HttpStatus.OK,"success???",null));
+        objectMapper.writeValue(response.getWriter(),ResponseDto.of(HttpStatus.OK,"EB TEST",null));
     }
 
     @PostMapping("/api/user/mypw")
