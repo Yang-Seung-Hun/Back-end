@@ -1,5 +1,6 @@
 package com.hanghae99.boilerplate.board.domain;
 
+import com.hanghae99.boilerplate.model.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,6 +14,9 @@ public interface BoardRepository extends JpaRepository<Board, Long>, BoardCustom
     List<Board> findAllByCategory(String categoryName);
 
     List<Board> findByTitleContains(String name);
+
+    List<Board> findAllByMember(Member user);
+
 
 //    @Query("select DISTINCT b from Board b join fetch b.comments")
 //    Board findByIdJoinFetch(Long boardId);
