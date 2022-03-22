@@ -1,5 +1,6 @@
 package com.hanghae99.boilerplate.board.domain;
 
+import com.hanghae99.boilerplate.memberManager.model.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
