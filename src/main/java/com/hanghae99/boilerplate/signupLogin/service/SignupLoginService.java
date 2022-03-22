@@ -29,6 +29,7 @@ public class SignupLoginService {
     PasswordEncoder passwordEncoder;
     @Autowired
     RefreshTokenRedis redis;
+
     @Transactional
     public MemberContext signupRequest(SignupReqestDto signupReqestDto) {
         boolean result = memberRepository.existsMemberByEmail(signupReqestDto.getEmail());
