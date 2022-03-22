@@ -41,4 +41,8 @@ public interface BoardService {
     void setMyBoard(Long boardId, MemberContext user);
 
     List<BoardResponseDto> searchBoard(String content, Pageable pageable);
+
+    List<BoardResponseDto> getMyComment(MemberContext user);
+
+    List<BoardResponseDto> getMyWrittenBoard(MemberContext user);
 }

@@ -13,6 +13,7 @@ public interface BoardRepository extends JpaRepository<Board, Long>, BoardCustom
     List<Board> findAllByCategory(String categoryName);
 
     List<Board> findByTitleContains(String name);
+    List<Board> findAllByMember(Member user);
 
 //    @Query("select DISTINCT b from Board b join fetch b.comments")
 //    Board findByIdJoinFetch(Long boardId);
