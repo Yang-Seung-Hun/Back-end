@@ -38,7 +38,6 @@ public class SetAuthorization {
         response.addCookie(WebUtil.makeCookie(JwtConfig.AUTHENTICATION_HEADER_NAME, refreshToken.getToken()));
         response.setHeader(JwtConfig.AUTHENTICATION_HEADER_NAME, accessToken.getToken());
 
-
         objectMapper.writeValue(response.getWriter(), WebUtil.UserDataToMap(memberContext));
     }
 
