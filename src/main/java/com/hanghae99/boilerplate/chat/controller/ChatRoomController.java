@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -55,7 +56,12 @@ public class ChatRoomController {
 //    ================ 라이브 중인 것에 대한 조회 ==================
     // 진행 중인 채팅방 조회
     @GetMapping("/api/chat/rooms/onair")
-    public ResponseEntity<List<ChatRoomRedisDto>> findOnair() {
+    public ResponseEntity<List<ChatRoomRedisDto>> findOnair() throws UnsupportedEncodingException {
+//
+//        // making a sample for decoding test
+//        String encoded = URLEncoder.encode("개설", "UTF-8");
+//        log.info("개설 -> encoded : {}", encoded);
+
         List<ChatRoomRedisDto> chatrooms =  chatRoomServiceImpl.findOnAirChatRooms();
         return ResponseEntity.ok().body(chatrooms);
     }
@@ -69,7 +75,11 @@ public class ChatRoomController {
 
     // 키워드 조회
     @GetMapping("/api/chat/rooms/onair/keyword/{keyword}")
-    public ResponseEntity<List<ChatRoomRedisDto>> findOnAirChatRoomsByKeyword(@PathVariable String keyword) {
+    public ResponseEntity<List<ChatRoomRedisDto>> findOnAirChatRoomsByKeyword(@PathVariable String keyword) throws UnsupportedEncodingException {
+        // spring boot 가 알아서 url decoding 해주나봐..!
+//        String decodedKeyword = URLDecoder.decode(keyword, "UTF-8");
+//        log.info("👀 keyword 조회에서 encodedKeyword: {}", keyword); // -> encoding 된 걸로 검색해도 "개설"이라고 로그가 뜸!
+//        log.info("👍 keyword 조회에서 decodedKeyword: {}", decodedKeyword);
         List<ChatRoomRedisDto> chatRooms = chatRoomServiceImpl.findOnAirChatRoomsByKeyword(keyword);
         return ResponseEntity.ok().body(chatRooms);
     }
