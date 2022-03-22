@@ -12,8 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
-import org.springframework.data.redis.serializer.GenericToStringSerializer;
-import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @RequiredArgsConstructor
@@ -31,7 +30,6 @@ public class RedisSentinelConfig {
     @Value("${spring.redis.sentinel.password}")
     public String password;
 
-    // https://mycup.tistory.com/284
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
 
@@ -49,9 +47,7 @@ public class RedisSentinelConfig {
     public RedisTemplate<String, Object> redisTemplate() {
         final RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashKeySerializer(new GenericToStringSerializer<>(Object.class));
-        redisTemplate.setHashValueSerializer(new JdkSerializationRedisSerializer());
-        redisTemplate.setValueSerializer(new JdkSerializationRedisSerializer()); //standalone 과의 template diff 는 여기
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class)); //standalone 과의 template diff 는 여기
         redisTemplate.setConnectionFactory(redisConnectionFactory());
         return redisTemplate;
     }
