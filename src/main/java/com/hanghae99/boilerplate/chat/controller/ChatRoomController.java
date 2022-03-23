@@ -1,8 +1,6 @@
 package com.hanghae99.boilerplate.chat.controller;
 
 import com.hanghae99.boilerplate.chat.model.dto.*;
-import com.hanghae99.boilerplate.chat.repository.ChatRoomRepository;
-import com.hanghae99.boilerplate.chat.repository.RedisChatRoomRepository;
 import com.hanghae99.boilerplate.chat.service.ChatRoomServiceImpl;
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +19,6 @@ import java.util.List;
 @Slf4j
 public class ChatRoomController {
 
-    private final ChatRoomRepository chatRoomRepository;
-    private final RedisChatRoomRepository redisChatRoomRepository;
     private final ChatRoomServiceImpl chatRoomServiceImpl;
 
     // 채팅방 생성
@@ -86,25 +82,25 @@ public class ChatRoomController {
 
 //    ======================== 와이어프레임상 필수가 아닌 것 같은 api.
 
-    // 모든 채팅방 목록 조회
-    @GetMapping("/api/chat/rooms")
-    public ResponseEntity<List<ChatRoomRedisDto>> findAll() {
-        List<ChatRoomRedisDto> allFromDb = chatRoomServiceImpl.findAllFromDb();
-        return ResponseEntity.ok().body(allFromDb);
-    }
-
-    // 특정 채팅방 조회
-    @GetMapping("/room/{roomId}")
-    public ResponseEntity<ChatRoomRedisDto> roomInfo(@PathVariable Long roomId) {
-        ChatRoomRedisDto roomRedisDto = chatRoomServiceImpl.findByIdFromDb(roomId);
-        return ResponseEntity.ok().body(roomRedisDto);
-    }
-
-    // 임시 - 전체삭제
-    @DeleteMapping("/api/chat/rooms/del/all")
-    public String deleteAll() {
-        chatRoomServiceImpl.deleteAll();
-        return "모두 삭제완료!";
-    }
+//    // 모든 채팅방 목록 조회
+//    @GetMapping("/api/chat/rooms")
+//    public ResponseEntity<List<ChatRoomRedisDto>> findAll() {
+//        List<ChatRoomRedisDto> allFromDb = chatRoomServiceImpl.findAllFromDb();
+//        return ResponseEntity.ok().body(allFromDb);
+//    }
+//
+//    // 특정 채팅방 조회
+//    @GetMapping("/room/{roomId}")
+//    public ResponseEntity<ChatRoomRedisDto> roomInfo(@PathVariable Long roomId) {
+//        ChatRoomRedisDto roomRedisDto = chatRoomServiceImpl.findByIdFromDb(roomId);
+//        return ResponseEntity.ok().body(roomRedisDto);
+//    }
+//
+//    // 임시 - 전체삭제
+//    @DeleteMapping("/api/chat/rooms/del/all")
+//    public String deleteAll() {
+//        chatRoomServiceImpl.deleteAll();
+//        return "모두 삭제완료!";
+//    }
 
 }

@@ -21,8 +21,8 @@ public class StompHandler implements ChannelInterceptor {
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         if (StompCommand.CONNECT == accessor.getCommand()) {
+            // 만약 매 발행(pub)에 대해 헤더에 대한 토큰 확인을 통한 인가를 원하다면 여기에 추가할 것
             log.info("StompHandler: message.getPayload: {}", message.getPayload());
-
         }
         return message;
     }
