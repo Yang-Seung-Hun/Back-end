@@ -218,7 +218,7 @@ public class BoardServiceImpl implements BoardService {
 
         Reply reply = Reply.builder()
                 .comment(comment.get())
-                .memberId(member.get().getId())
+                .member(member.get())
                 .createdAt(LocalDateTime.now())
                 .content(replyRequestDto.getContent())
                 .build();
@@ -312,6 +312,32 @@ public class BoardServiceImpl implements BoardService {
                 .collect(Collectors.toList());
 
         //return null;
+    }
+
+    @Override
+    public void recommendReply(Long replyId, MemberContext user){
+        Optional<Member> member = memberRepository.findById(user.getMemberId());
+
+        Optional<Reply> reply = replyRepository.findById(replyId);
+        Optional<RecommendReply> recommendReply = recommendReplyRepository.findByReplyAndMember(reply.get(), member.get());
+
+        if (recommendReply.isEmpty()){
+            RecommendReply recommendReply1 =  RecommendReply.builder()
+                    .member(member.get())
+                    .reply(reply.get())
+                    .build();
+            reply.get().addRecommendCount();
+            System.out.println("추천수 더하기");
+            System.out.println(reply.get().getRecommendCount());
+            recommendReplyRepository.save(recommendReply1);
+        }else{
+            reply.get().subtractRecommendCount();
+            System.out.println("추천수 빼기");
+            System.out.println(reply.get().getRecommendCount());
+            recommendReplyRepository.deleteById(recommendReply.get().getId());
+
+        }
+
     }
 
 }

@@ -52,6 +52,8 @@ public class Comment {
                 .commentId(this.id)
                 .content(this.content)
                 .memeberId(this.member.getId())
+                .nickname(this.member.getNickname())
+                .profileImageUrl(this.member.getProfileImageUrl())
                 .createdAt(this.createdAt)
                 .recommendCount(this.recommendCount)
                 .replyResponseDtoList(this.replies.stream().map(Reply::toDto).collect(Collectors.toList()))

@@ -45,4 +45,7 @@ public interface BoardService {
     List<BoardResponseDto> getMyComment(MemberContext user);
 
     List<BoardResponseDto> getMyWrittenBoard(MemberContext user);
+
+    void recommendReply(Long replyId, MemberContext user);
+
 }

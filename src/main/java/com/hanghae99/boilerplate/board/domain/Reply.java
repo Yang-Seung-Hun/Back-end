@@ -21,10 +21,10 @@ public class Reply {
     @Id
     private Long id;
 
-//    @ManyToOne
-//    @JoinColumn(name ="member_id")
-//    private Member member;
-    private Long memberId;
+    @ManyToOne
+    @JoinColumn(name ="member_id")
+    private Member member;
+//    private Long memberId;
 
     @ManyToOne
     @JoinColumn(name ="comment_id")
@@ -39,9 +39,24 @@ public class Reply {
                 .replyId(this.id)
                 .commentId(this.comment.getId())
                 .content(this.content)
-                .memberId(this.memberId)
+                .memberId(this.member.getId())
+                .nickname(this.member.getNickname())
+                .profileImageUrl(this.member.getProfileImageUrl())
+                .recommendCount(this.recommendCount)
                 .createdAt(this.createdAt)
                 .build();
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "reply", cascade = CascadeType.PERSIST)
+    private List<RecommendReply> recommendReplies;
+
+    public void addRecommendCount() {
+        this.recommendCount++;
+
+    }
+
+    public void subtractRecommendCount() {
+        this.recommendCount--;
     }
 
 

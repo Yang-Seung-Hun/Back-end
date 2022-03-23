@@ -130,5 +130,15 @@ public class BoardController {
         return boardService.searchBoard(search, p);
     }
 
+    //대댓글 추천
+    @GetMapping("/api/comment/{commentId}/reply/recommend/{replyId}")
+    public BaseResponse recommendReplay(@PathVariable Long commentId, @PathVariable Long replyId, @AuthenticationPrincipal MemberContext user){
+
+        boardService.recommendReply(replyId, user);
+
+        return new BaseResponse("ok");
+    }
+
+
 
 }
