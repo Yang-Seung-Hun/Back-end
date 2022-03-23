@@ -54,5 +54,5 @@ jobs:
           environment_name: Ebhojun-env
           version_label: github-action-${{steps.current-time.outputs.formattedTime}}
           region: ap-northeast-2
-          wait_for_environment_recovery: 60
+          wait_for_environment_recovery: 120 
           deployment_package: deploy/deploy.zip
