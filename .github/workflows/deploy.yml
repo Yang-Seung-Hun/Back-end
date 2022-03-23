@@ -52,6 +52,6 @@ jobs:
           aws_secret_key: ${{ secrets.EB_AWS_SECRET_ACCESS_KEY }}
           application_name: eb-hojun
           environment_name: Ebhojun-env
-          version_label: ${{github.SHA}}
+          version_label: boilerplate-0.0.1
           region: ap-northeast-2
           deployment_package: deploy/deploy.zip
