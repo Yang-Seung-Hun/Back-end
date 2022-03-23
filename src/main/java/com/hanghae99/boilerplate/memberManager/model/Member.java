@@ -20,7 +20,8 @@ import java.util.Set;
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Member implements Serializable {
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long id ;
 
     private String email;
