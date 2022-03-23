@@ -6,6 +6,7 @@ import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
 import com.hanghae99.boilerplate.signupLogin.kakao.common.SetAuthorization;
 import com.hanghae99.boilerplate.signupLogin.service.SignupLoginService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,6 +32,8 @@ public class Controller {
         //response.getWriter() 를 여기서 수행하게 되면         setAuthorization.runIfloginSuccess(response,memberContext)에서 스트림이 안먹히나봄 ??
 //        objectMapper.writeValue(response.getWriter(), ResponseDto.of(HttpStatus.OK, "signup success"));
         setAuthorization.runIfloginSuccess(response,memberContext);
+
     }
+
 
 }
