@@ -39,7 +39,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     // 채팅방 생성 ( db 에 생성, ->  redis )
     @Override
     @Transactional
-//    @CacheEvict(cacheNames = "CHATROOM_DTOS", allEntries = true)
     public ChatRoomRedisDto createChatRoom(CreateChatRoomDto createChatRoomDto, MemberContext user) {
         Optional<Member> optionalMember = memberRepository.findById(user.getMemberId());
         validateMember(optionalMember);
@@ -59,9 +58,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         validateMember(findMember);
         log.info("입장하려는 사람: {}", findMember.get().getNickname());
         Member member = findMember.get();
-
         ChatRoomEntryResDto entryResDto = redisChatRoomRepository.addParticipant(entryDto.getRoomId().toString(), member);
-
         return entryResDto;
     }
 
@@ -127,10 +124,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     // 라이브 채팅방 조회 : 전체  ( redis )
     @Override
     public List<ChatRoomRedisDto> findOnAirChatRooms() {
-        //redis 에는 현재 진행중인 친구만 있을테니.
         List<ChatRoomRedisDto> allRoomsOnAir = redisChatRoomRepository.findAllRoom();
-        //개설 최신 순 정렬을 위한 comparator 적용
-        DateTimeComparator comparator = new DateTimeComparator();
         Collections.sort(allRoomsOnAir, comparator);
         return allRoomsOnAir;
     }
@@ -139,7 +133,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Override
     public List<ChatRoomRedisDto> findOnAirChatRoomsByCategory(String category) {
         List<ChatRoomRedisDto> chatRoomRedisDtos = redisChatRoomRepository.findByCategory(category);
-//        DateTimeComparator comparator = new DateTimeComparator();
         Collections.sort(chatRoomRedisDtos, comparator);
         return chatRoomRedisDtos;
     }
@@ -148,7 +141,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Override
     public List<ChatRoomRedisDto> findOnAirChatRoomsByKeyword(String keyword) {
         List<ChatRoomRedisDto> chatRoomRedisDtos = redisChatRoomRepository.findByKeyword(keyword);
-//        DateTimeComparator comparator = new DateTimeComparator(); // 반복이라 extract method 하거나 autowired 해서 한번만 생성되게 하거나?
         Collections.sort(chatRoomRedisDtos, comparator);
         return chatRoomRedisDtos;
     }

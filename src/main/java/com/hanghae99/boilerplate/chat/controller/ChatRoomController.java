@@ -14,7 +14,6 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-//@RequestMapping("/auth/api/chat")
 @CrossOrigin(originPatterns = "*")
 @Slf4j
 public class ChatRoomController {
