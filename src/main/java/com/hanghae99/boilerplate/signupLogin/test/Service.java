@@ -22,10 +22,6 @@ public class Service {
 
     @Transactional
     public MemberContext signupRequest(SignupReqestDto signupReqestDto) {
-        boolean result = memberRepository.existsMemberByEmail(signupReqestDto.getEmail());
-        if (result) {
-            throw new IllegalArgumentException(signupReqestDto.getEmail() + " already" + "Exist!");
-        }
         signupReqestDto.setPassword(passwordEncoder.encode(signupReqestDto.getPassword()));
         Member member= memberRepository.save(new Member(signupReqestDto));
         return new MemberContext(member);
