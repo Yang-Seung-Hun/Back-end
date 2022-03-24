@@ -28,8 +28,7 @@ public class ChatRoom extends Timestamped {
     private Boolean isPrivate;
 
     @BatchSize(size = 500)
-//    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.REMOVE)
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "chatRoom", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<ChatEntry> entries = new ArrayList<>();
 
     private Long agreeCount = 0L;

@@ -12,7 +12,7 @@ public class ChatEntry {
 
     protected ChatEntry() {}
 
-    @GeneratedValue(strategy = GenerationType.AUTO) @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) @Id
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -21,7 +21,6 @@ public class ChatEntry {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
-    @JoinColumn(name = "chatroom_id")
     private ChatRoom chatRoom;
 
     public ChatEntry(Member member, ChatRoom chatRoom) {
