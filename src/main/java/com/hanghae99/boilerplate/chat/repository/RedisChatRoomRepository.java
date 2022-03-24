@@ -6,7 +6,6 @@ import com.hanghae99.boilerplate.chat.model.dto.ChatLeaveDto;
 import com.hanghae99.boilerplate.chat.model.dto.ChatRoomEntryResDto;
 import com.hanghae99.boilerplate.chat.model.dto.ChatRoomRedisDto;
 import com.hanghae99.boilerplate.memberManager.model.Member;
-import com.hanghae99.boilerplate.trace.TraceStatus;
 import com.hanghae99.boilerplate.trace.logtrace.LogTrace;
 import com.hanghae99.boilerplate.trace.template.AbstractTemplate;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Repository
@@ -38,21 +40,16 @@ public class RedisChatRoomRepository {
 
     //채팅방 생성 : 서버간 채팅방 공유를 위해 redis hash 에 저장
     public ChatRoomRedisDto createChatRoom( String roomId, ChatRoom chatRoom) {
-        // chatRoom -> chatRoomRedisDto
-
-        TraceStatus status = null;
-
-        try {
-            status = trace.begin("RedisChatRoomRepository.createChatRoom()");
-            ChatRoomRedisDto redisDto = new ChatRoomRedisDto(chatRoom);
-            opsHashChatRoom.put(CHAT_ROOMS, roomId, redisDto);
-            trace.end(status);
-            return redisDto;
-
-        } catch (Exception e) {
-            trace.exception(status, e);
-            throw e;
-        }
+        // template method pattern 적용 (익명 내부 클래스)
+        AbstractTemplate<ChatRoomRedisDto> template = new AbstractTemplate<>(trace) {
+            @Override
+            protected ChatRoomRedisDto call() {
+                ChatRoomRedisDto redisDto = new ChatRoomRedisDto(chatRoom);
+                opsHashChatRoom.put(CHAT_ROOMS, roomId, redisDto);
+                return redisDto;
+            }
+        };
+        return template.execute("RedisChatRoomRepository.createChatRoom()");
     }
 
     //채팅방 입장

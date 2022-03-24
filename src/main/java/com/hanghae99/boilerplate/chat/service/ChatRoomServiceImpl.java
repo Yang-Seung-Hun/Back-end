@@ -11,7 +11,6 @@ import com.hanghae99.boilerplate.chat.util.DateTimeComparator;
 import com.hanghae99.boilerplate.memberManager.model.Member;
 import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import com.hanghae99.boilerplate.security.model.MemberContext;
-import com.hanghae99.boilerplate.trace.TraceStatus;
 import com.hanghae99.boilerplate.trace.logtrace.LogTrace;
 import com.hanghae99.boilerplate.trace.template.AbstractTemplate;
 import lombok.RequiredArgsConstructor;
@@ -44,28 +43,25 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Override
     @Transactional
     public ChatRoomCreateResDto createChatRoom(CreateChatRoomDto createChatRoomDto, MemberContext user) {
-        TraceStatus status = null;
-        try {
-            status = trace.begin("ChatRoomServiceImpl.createChatRoom()");
-
-            Optional<Member> optionalMember = memberRepository.findById(user.getMemberId());
-            validateMember(optionalMember);
-            Member member = optionalMember.get();
-            ChatRoom room = new ChatRoom(createChatRoomDto, member);
-            //db
-            chatRoomRepository.save(room);
-            //redis
-            ChatRoomRedisDto chatRoomRedisDto = redisChatRoomRepository.createChatRoom(room.getRoomId().toString(), room);
-            ChatRoomCreateResDto chatRoomCreateResDto = new ChatRoomCreateResDto(chatRoomRedisDto);
-            chatRoomCreateResDto.setMemberName(createChatRoomDto.getModerator());
-            chatRoomCreateResDto.setRole(ChatRole.MODERATOR);
-
-            trace.end(status);
-            return chatRoomCreateResDto;
-        } catch (Exception e) {
-            trace.exception(status, e);
-            throw e;
-        }
+        // template method pattern 적용 (익명 내부 클래스)
+        AbstractTemplate<ChatRoomCreateResDto> template = new AbstractTemplate<>(trace) {
+            @Override
+            protected ChatRoomCreateResDto call() {
+                Optional<Member> optionalMember = memberRepository.findById(user.getMemberId());
+                validateMember(optionalMember);
+                Member member = optionalMember.get();
+                ChatRoom room = new ChatRoom(createChatRoomDto, member);
+                //db
+                chatRoomRepository.save(room);
+                //redis
+                ChatRoomRedisDto chatRoomRedisDto = redisChatRoomRepository.createChatRoom(room.getRoomId().toString(), room);
+                ChatRoomCreateResDto chatRoomCreateResDto = new ChatRoomCreateResDto(chatRoomRedisDto);
+                chatRoomCreateResDto.setMemberName(createChatRoomDto.getModerator());
+                chatRoomCreateResDto.setRole(ChatRole.MODERATOR);
+                return chatRoomCreateResDto;
+            }
+        };
+        return template.execute("ChatRoomServiceImpl.createChatRoom()");
     }
 
     // 채팅방 입장 ( redis )

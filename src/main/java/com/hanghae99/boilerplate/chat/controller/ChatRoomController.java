@@ -3,7 +3,6 @@ package com.hanghae99.boilerplate.chat.controller;
 import com.hanghae99.boilerplate.chat.model.dto.*;
 import com.hanghae99.boilerplate.chat.service.ChatRoomService;
 import com.hanghae99.boilerplate.security.model.MemberContext;
-import com.hanghae99.boilerplate.trace.TraceStatus;
 import com.hanghae99.boilerplate.trace.logtrace.LogTrace;
 import com.hanghae99.boilerplate.trace.template.AbstractTemplate;
 import lombok.RequiredArgsConstructor;
@@ -26,16 +25,14 @@ public class ChatRoomController {
     // 채팅방 생성
     @PostMapping("/auth/api/chat/room")
     public ResponseEntity<ChatRoomCreateResDto> createRoom(@RequestBody CreateChatRoomDto createChatRoomDto, @AuthenticationPrincipal MemberContext user) {
-        TraceStatus status = null;
-        try {
-            status = trace.begin("ChatRoomController.createRoom()");
-            ChatRoomCreateResDto chatRoomCreateResDto = chatRoomService.createChatRoom(createChatRoomDto, user);
-            trace.end(status);
-            return ResponseEntity.ok().body(chatRoomCreateResDto);
-        } catch (Exception e) {
-            trace.exception(status, e);
-            throw e;
-        }
+        // template method pattern 적용 (익명 내부 클래스)
+        AbstractTemplate<ResponseEntity<ChatRoomCreateResDto>> template = new AbstractTemplate<>(trace) {
+            @Override
+            protected ResponseEntity<ChatRoomCreateResDto> call() {
+                return ResponseEntity.ok().body(chatRoomService.createChatRoom(createChatRoomDto, user));
+            }
+        };
+        return template.execute("ChatRoomController.createRoom()");
     }
 
     // 채팅방 입장
