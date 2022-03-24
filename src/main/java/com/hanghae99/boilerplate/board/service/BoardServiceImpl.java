@@ -289,4 +289,29 @@ public class BoardServiceImpl implements BoardService {
                 .collect(Collectors.toList());
     }
 
+
+    @Override
+    public List<BoardResponseDto> getMyWrittenBoard(MemberContext user) {
+        Optional<Member> member = memberRepository.findById(user.getMemberId());
+
+        return boardRepository.findAllByMember(member.get()).stream()
+                .map(Board::toCreatedDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BoardResponseDto> getMyComment(MemberContext user) {
+        Optional<Member> member = memberRepository.findById(user.getMemberId());
+
+        return commentRepository.findAllByMember(member.get())
+                .stream()
+                .map(comment ->
+                        boardRepository.findById(comment.getBoard().getId())
+                                .get().toCreatedDto()
+                )
+                .collect(Collectors.toList());
+
+        //return null;
+    }
+
 }

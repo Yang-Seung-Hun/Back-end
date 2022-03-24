@@ -20,6 +20,17 @@ import java.util.concurrent.ExecutionException;
 public class BoardController {
     private final BoardService boardService;
 
+    @GetMapping("/api/board/myboard")
+    public List<BoardResponseDto> getMyBoard(@AuthenticationPrincipal MemberContext user){
+        return boardService.getMyWrittenBoard(user);
+    }
+
+    @GetMapping("/api/board/mycomments")
+    public List<BoardResponseDto> getMyComment(@AuthenticationPrincipal MemberContext user){
+        return boardService.getMyComment(user);
+    }
+
+
     @PostMapping("/api/board")
     public void createBoard(@RequestBody BoardRequestDto boardRequestDto, @AuthenticationPrincipal MemberContext user){
         boardService.createBoard(boardRequestDto, user);

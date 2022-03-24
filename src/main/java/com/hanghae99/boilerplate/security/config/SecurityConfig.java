@@ -106,7 +106,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     //REFRESH_TOKEN_URL,와 AUTHENTICATION_URL는 스킵하고 API_ROOT_URL는 모두 인가처리해라
     protected JwtTokenAuthenticationProcessingFilter buildJwtTokenAuthenticationProcessingFilter() throws Exception {
-        List<String> pathsToSkip = Arrays.asList(REFRESH_TOKEN_URL, SIGNUP_URL, AUTHENTICATION_URL, SWAGGER, SWAGGER_DOCS);
+        List<String> pathsToSkip = Arrays.asList(REFRESH_TOKEN_URL,"/", SIGNUP_URL, AUTHENTICATION_URL, SWAGGER, SWAGGER_DOCS);
         SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, AUTH_ROOT_URL);
         JwtTokenAuthenticationProcessingFilter filter = new JwtTokenAuthenticationProcessingFilter(failureHandler, tokenExtractor, matcher
                 , refreshTokenEndPoint);
@@ -141,7 +141,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .deleteCookies(AUTHENTICATION_HEADER_NAME);
         http.
                 authorizeRequests()
-                .antMatchers(SIGNUP_URL, SWAGGER, SWAGGER_DOCS).permitAll()// Token refresh end-point
+                .antMatchers(SIGNUP_URL, SWAGGER, SWAGGER_DOCS,"/").permitAll()// Token refresh end-point
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(buildAjaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
