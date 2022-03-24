@@ -11,8 +11,7 @@ import com.hanghae99.boilerplate.chat.util.DateTimeComparator;
 import com.hanghae99.boilerplate.memberManager.model.Member;
 import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import com.hanghae99.boilerplate.security.model.MemberContext;
-import com.hanghae99.boilerplate.trace.logtrace.LogTrace;
-import com.hanghae99.boilerplate.trace.template.AbstractTemplate;
+import com.hanghae99.boilerplate.trace.callback.TraceTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,32 +35,27 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final MemberRepository memberRepository;
     private final ChatEntryRepository chatEntryRepository;
     private final DateTimeComparator comparator;
-    private final LogTrace trace;
+    private final TraceTemplate traceTemplate;
 
-//    ************************* 채팅방 (생성, 입장, 퇴장, 종료)  **************************
+    //    ************************* 채팅방 (생성, 입장, 퇴장, 종료)  **************************
     // 채팅방 생성 ( db 에 생성, ->  redis )
     @Override
     @Transactional
     public ChatRoomCreateResDto createChatRoom(CreateChatRoomDto createChatRoomDto, MemberContext user) {
-        // template method pattern 적용 (익명 내부 클래스)
-        AbstractTemplate<ChatRoomCreateResDto> template = new AbstractTemplate<>(trace) {
-            @Override
-            protected ChatRoomCreateResDto call() {
-                Optional<Member> optionalMember = memberRepository.findById(user.getMemberId());
-                validateMember(optionalMember);
-                Member member = optionalMember.get();
-                ChatRoom room = new ChatRoom(createChatRoomDto, member);
-                //db
-                chatRoomRepository.save(room);
-                //redis
-                ChatRoomRedisDto chatRoomRedisDto = redisChatRoomRepository.createChatRoom(room.getRoomId().toString(), room);
-                ChatRoomCreateResDto chatRoomCreateResDto = new ChatRoomCreateResDto(chatRoomRedisDto);
-                chatRoomCreateResDto.setMemberName(createChatRoomDto.getModerator());
-                chatRoomCreateResDto.setRole(ChatRole.MODERATOR);
-                return chatRoomCreateResDto;
-            }
-        };
-        return template.execute("ChatRoomServiceImpl.createChatRoom()");
+        return traceTemplate.execute("ChatRoomServiceImpl.createChatRoom()", () -> {
+            Optional<Member> optionalMember = memberRepository.findById(user.getMemberId());
+            validateMember(optionalMember);
+            Member member = optionalMember.get();
+            ChatRoom room = new ChatRoom(createChatRoomDto, member);
+            //db
+            chatRoomRepository.save(room);
+            //redis
+            ChatRoomRedisDto chatRoomRedisDto = redisChatRoomRepository.createChatRoom(room.getRoomId().toString(), room);
+            ChatRoomCreateResDto chatRoomCreateResDto = new ChatRoomCreateResDto(chatRoomRedisDto);
+            chatRoomCreateResDto.setMemberName(createChatRoomDto.getModerator());
+            chatRoomCreateResDto.setRole(ChatRole.MODERATOR);
+            return chatRoomCreateResDto;
+        });
     }
 
     // 채팅방 입장 ( redis )
@@ -69,7 +63,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     public ChatRoomEntryResDto addParticipant(ChatEntryDto entryDto, MemberContext user) {
         Optional<Member> findMember = memberRepository.findById(user.getMemberId());
         validateMember(findMember);
-        log.info("입장하려는 사람: {}", findMember.get().getNickname());
         Member member = findMember.get();
         ChatRoomEntryResDto entryResDto = redisChatRoomRepository.addParticipant(entryDto.getRoomId().toString(), member);
         entryResDto.setMemberName(entryDto.getMemberName());
@@ -139,32 +132,31 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     // 라이브 채팅방 조회 : 전체  ( redis )
     @Override
     public List<ChatRoomRedisDto> findOnAirChatRooms() {
-        // template method pattern 적용
-        AbstractTemplate<List<ChatRoomRedisDto>> template = new AbstractTemplate<>(trace) {
-            @Override
-            protected List<ChatRoomRedisDto> call() {
-                List<ChatRoomRedisDto> allRoomsOnAir = redisChatRoomRepository.findAllRoom();
-                Collections.sort(allRoomsOnAir, comparator);
-                return allRoomsOnAir;
-            }
-        };
-        return template.execute("ChatRoomServiceImpl.findOnAirChatRooms()");
+        return traceTemplate.execute("ChatRoomServiceImpl.findOnAirChatRooms()", () -> {
+            List<ChatRoomRedisDto> allRoomsOnAir = redisChatRoomRepository.findAllRoom();
+            Collections.sort(allRoomsOnAir, comparator);
+            return allRoomsOnAir;
+        });
     }
 
     // 라이브 채팅방 조회 : 카테고리  ( redis )
     @Override
     public List<ChatRoomRedisDto> findOnAirChatRoomsByCategory(String category) {
-        List<ChatRoomRedisDto> chatRoomRedisDtos = redisChatRoomRepository.findByCategory(category);
-        Collections.sort(chatRoomRedisDtos, comparator);
-        return chatRoomRedisDtos;
+        return traceTemplate.execute("ChatRoomServiceImpl.findOnAirChatRoomsByCategory()", () -> {
+            List<ChatRoomRedisDto> chatRoomRedisDtos = redisChatRoomRepository.findByCategory(category);
+            Collections.sort(chatRoomRedisDtos, comparator);
+            return chatRoomRedisDtos;
+        });
     }
 
     // 라이브 채팅방 조회 : 키워드  ( redis )
     @Override
     public List<ChatRoomRedisDto> findOnAirChatRoomsByKeyword(String keyword) {
-        List<ChatRoomRedisDto> chatRoomRedisDtos = redisChatRoomRepository.findByKeyword(keyword);
-        Collections.sort(chatRoomRedisDtos, comparator);
-        return chatRoomRedisDtos;
+        return traceTemplate.execute("ChatRoomServiceImpl.findOnAirChatRoomsByKeyword()", () -> {
+            List<ChatRoomRedisDto> chatRoomRedisDtos = redisChatRoomRepository.findByKeyword(keyword);
+            Collections.sort(chatRoomRedisDtos, comparator);
+            return chatRoomRedisDtos;
+        });
     }
 
 

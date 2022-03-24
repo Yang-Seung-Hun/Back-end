@@ -1,13 +1,11 @@
 package com.hanghae99.boilerplate.chat.repository;
 
-
 import com.hanghae99.boilerplate.chat.model.ChatRoom;
 import com.hanghae99.boilerplate.chat.model.dto.ChatLeaveDto;
 import com.hanghae99.boilerplate.chat.model.dto.ChatRoomEntryResDto;
 import com.hanghae99.boilerplate.chat.model.dto.ChatRoomRedisDto;
 import com.hanghae99.boilerplate.memberManager.model.Member;
-import com.hanghae99.boilerplate.trace.logtrace.LogTrace;
-import com.hanghae99.boilerplate.trace.template.AbstractTemplate;
+import com.hanghae99.boilerplate.trace.callback.TraceTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.HashOperations;
@@ -15,10 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Repository
@@ -28,7 +23,7 @@ public class RedisChatRoomRepository {
     private static final String CHAT_ROOMS = "CHAT_ROOM_REDIS_DTOS";
     private final RedisTemplate<String, Object> redisTemplate;
     private HashOperations<String, String, ChatRoomRedisDto> opsHashChatRoom;
-    private final LogTrace trace;
+    private final TraceTemplate traceTemplate;
 
     //db의존
     private final ChatRoomRepository chatRoomRepository;
@@ -40,16 +35,11 @@ public class RedisChatRoomRepository {
 
     //채팅방 생성 : 서버간 채팅방 공유를 위해 redis hash 에 저장
     public ChatRoomRedisDto createChatRoom( String roomId, ChatRoom chatRoom) {
-        // template method pattern 적용 (익명 내부 클래스)
-        AbstractTemplate<ChatRoomRedisDto> template = new AbstractTemplate<>(trace) {
-            @Override
-            protected ChatRoomRedisDto call() {
-                ChatRoomRedisDto redisDto = new ChatRoomRedisDto(chatRoom);
-                opsHashChatRoom.put(CHAT_ROOMS, roomId, redisDto);
-                return redisDto;
-            }
-        };
-        return template.execute("RedisChatRoomRepository.createChatRoom()");
+        return traceTemplate.execute("RedisChatRoomRepository.createChatRoom()", () -> {
+            ChatRoomRedisDto redisDto = new ChatRoomRedisDto(chatRoom);
+            opsHashChatRoom.put(CHAT_ROOMS, roomId, redisDto);
+            return redisDto;
+        });
     }
 
     //채팅방 입장
@@ -59,14 +49,7 @@ public class RedisChatRoomRepository {
             ChatRoomRedisDto chatRoomRedisDto = opitonalChatRoomRedisDto.get();
             ChatRoomRedisDto mChatRoomRedisDto = chatRoomRedisDto.addParticipant(member);
             opsHashChatRoom.put(CHAT_ROOMS, roomId, mChatRoomRedisDto);
-
-            ChatRoomEntryResDto entryResDto = new ChatRoomEntryResDto(mChatRoomRedisDto);
-            Boolean memberAgreed = (mChatRoomRedisDto.getAgreed().get(member.getId()) != null) ? mChatRoomRedisDto.getAgreed().get(member.getId()) : false;
-            Boolean memberDisagreed = (mChatRoomRedisDto.getDisagreed().get(member.getId()) != null) ? mChatRoomRedisDto.getDisagreed().get(member.getId()) : false;
-
-            entryResDto.setMemberAgreed(memberAgreed);
-            entryResDto.setMemberDisagreed(memberDisagreed);
-
+            ChatRoomEntryResDto entryResDto = getChatRoomEntryResDto(mChatRoomRedisDto, member);
             return entryResDto;
         } else {
             Optional<ChatRoom> roomFromDb = chatRoomRepository.findById(Long.valueOf(roomId));
@@ -74,18 +57,9 @@ public class RedisChatRoomRepository {
                 if (roomFromDb.get().getOnAir() == true) {
                     ChatRoomRedisDto chatRoomRedisDto = new ChatRoomRedisDto(roomFromDb.get());
                     ChatRoomRedisDto mChatRoomRedisDto = chatRoomRedisDto.addParticipant(member);
-
                     opsHashChatRoom.put(CHAT_ROOMS, roomId, chatRoomRedisDto);
-
-                    ChatRoomEntryResDto entryResDto = new ChatRoomEntryResDto(mChatRoomRedisDto);
-                    Boolean memberAgreed = (mChatRoomRedisDto.getAgreed().get(member.getId()) != null) ? mChatRoomRedisDto.getAgreed().get(member.getId()) : false;
-                    Boolean memberDisagreed = (mChatRoomRedisDto.getDisagreed().get(member.getId()) != null) ? mChatRoomRedisDto.getDisagreed().get(member.getId()) : false;
-
-                    entryResDto.setMemberAgreed(memberAgreed);
-                    entryResDto.setMemberDisagreed(memberDisagreed);
-
+                    ChatRoomEntryResDto entryResDto = getChatRoomEntryResDto(mChatRoomRedisDto, member);
                     return entryResDto;
-
                 } else {
                     throw new IllegalArgumentException("해당 Id의 chatRoom이 종료되었습니다.");
                 }
@@ -95,8 +69,17 @@ public class RedisChatRoomRepository {
         }
     }
 
+    private ChatRoomEntryResDto getChatRoomEntryResDto(ChatRoomRedisDto mChatRoomRedisDto, Member member) {
+        ChatRoomEntryResDto entryResDto = new ChatRoomEntryResDto(mChatRoomRedisDto);
+        Boolean memberAgreed = (mChatRoomRedisDto.getAgreed().get(member.getId()) != null) ? mChatRoomRedisDto.getAgreed().get(member.getId()) : false;
+        Boolean memberDisagreed = (mChatRoomRedisDto.getDisagreed().get(member.getId()) != null) ? mChatRoomRedisDto.getDisagreed().get(member.getId()) : false;
+
+        entryResDto.setMemberAgreed(memberAgreed);
+        entryResDto.setMemberDisagreed(memberDisagreed);
+        return entryResDto;
+    }
+
     //채팅방 퇴장
-    //현참여인원
     public ChatRoomRedisDto subParticipant(String roomId, Member member, ChatLeaveDto leaveDto) {
         ChatRoomRedisDto chatRoomRedisDto = opsHashChatRoom.get(CHAT_ROOMS, roomId);
         ChatRoomRedisDto mChatRoomRedisDto = chatRoomRedisDto.subParticipant(member);
@@ -167,41 +150,39 @@ public class RedisChatRoomRepository {
 
     // 전체 조회
     public List<ChatRoomRedisDto> findAllRoom() {
-        // template method pattern 적용
-        AbstractTemplate<List<ChatRoomRedisDto>> template = new AbstractTemplate<>(trace) {
-            @Override
-            protected List<ChatRoomRedisDto> call() {
-                List<ChatRoomRedisDto> redisDtos = opsHashChatRoom.values(CHAT_ROOMS);
-                return redisDtos;
-            }
-        };
-        return template.execute("RedisChatRoomRepository.findOnair()");
+        return traceTemplate.execute("RedisChatRoomRepository.findAllRoom()", () -> {
+            List<ChatRoomRedisDto> redisDtos = opsHashChatRoom.values(CHAT_ROOMS);
+            return redisDtos;
+        });
     }
 
-    // 카테고리로 조회
+    // 카테고리로 조회 (만약 카테고리를 key 로 둔다면? 그럼 더 빠를 것 같은데..)
     public List<ChatRoomRedisDto> findByCategory(String category) {
-        List<ChatRoomRedisDto> resultDtos = new ArrayList<>();
-
-        List<ChatRoomRedisDto> all = opsHashChatRoom.values(CHAT_ROOMS);
-        for (ChatRoomRedisDto redisDto : all) {
-            if (redisDto.getCategory().equals(category)) {
-                resultDtos.add(redisDto);
+        return traceTemplate.execute("RedisChatRoomRepository.findByCategory()", () -> {
+            List<ChatRoomRedisDto> resultDtos = new ArrayList<>();
+            List<ChatRoomRedisDto> all = opsHashChatRoom.values(CHAT_ROOMS);
+            for (ChatRoomRedisDto redisDto : all) {
+                if (redisDto.getCategory() != null && redisDto.getCategory().equals(category)) {
+                    resultDtos.add(redisDto);
+                }
             }
-        }
-        return resultDtos;
+            return resultDtos;
+        });
     }
 
     // 키워드 조회
     public List<ChatRoomRedisDto> findByKeyword(String keyword) {
-        List<ChatRoomRedisDto> resultDtos = new ArrayList<>();
+        return traceTemplate.execute("RedisChatRoomRepository.findByKeyword()", () -> {
+            List<ChatRoomRedisDto> resultDtos = new ArrayList<>();
 
-        List<ChatRoomRedisDto> all = opsHashChatRoom.values(CHAT_ROOMS);
-        for (ChatRoomRedisDto redisDto : all) {
-            if ((redisDto.getRoomName() != null) && (redisDto.getRoomName().contains(keyword))) {
-                resultDtos.add(redisDto);
+            List<ChatRoomRedisDto> all = opsHashChatRoom.values(CHAT_ROOMS);
+            for (ChatRoomRedisDto redisDto : all) {
+                if ((redisDto.getRoomName() != null) && (redisDto.getRoomName().contains(keyword))) {
+                    resultDtos.add(redisDto);
+                }
             }
-        }
-        return resultDtos;
+            return resultDtos;
+        });
     }
 
 }
