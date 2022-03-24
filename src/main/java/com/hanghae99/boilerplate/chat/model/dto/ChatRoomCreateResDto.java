@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Data
 @Getter
-public class ChatRoomEntryResDto {
+public class ChatRoomCreateResDto  {
     private Long roomId;
     private String roomName;
     private String category;
@@ -21,6 +21,7 @@ public class ChatRoomEntryResDto {
     private Long maxParticipantCount;
     private String content;
     private Boolean isPrivate;
+    private Set<Long> participantsIds = new HashSet<>();
     private Set<String> participantsNicknames = new HashSet<>();
     private Map<String, String> participantsProfileImageUrls = new HashMap<>();
     private Long agreeCount = 0L;
@@ -29,10 +30,11 @@ public class ChatRoomEntryResDto {
     private LocalDateTime createdAt;
     private Boolean memberAgreed;
     private Boolean memberDisagreed;
+    // 따로 set 해주어야 함
     private String memberName;
     private ChatRole role;
 
-    public ChatRoomEntryResDto(ChatRoomRedisDto chatRoomRedisDto) {
+    public ChatRoomCreateResDto(ChatRoomRedisDto chatRoomRedisDto) {
         this.roomId = chatRoomRedisDto.getRoomId();
         this.roomName = chatRoomRedisDto.getRoomName();
         this.category = chatRoomRedisDto.getCategory();
@@ -41,6 +43,7 @@ public class ChatRoomEntryResDto {
         this.maxParticipantCount = chatRoomRedisDto.getMaxParticipantCount();
         this.content = chatRoomRedisDto.getContent();
         this.isPrivate = chatRoomRedisDto.getIsPrivate();
+        this.participantsIds = chatRoomRedisDto.getParticipantsIds();
         this.participantsNicknames = chatRoomRedisDto.getParticipantsNicknames();
         this.participantsProfileImageUrls = chatRoomRedisDto.getParticipantsProfileImageUrls();
         this.agreeCount = chatRoomRedisDto.getAgreeCount();
@@ -49,5 +52,3 @@ public class ChatRoomEntryResDto {
         this.createdAt = chatRoomRedisDto.getCreatedAt();
     }
 }
-
-

@@ -6,6 +6,9 @@ import com.hanghae99.boilerplate.chat.model.dto.ChatLeaveDto;
 import com.hanghae99.boilerplate.chat.model.dto.ChatRoomEntryResDto;
 import com.hanghae99.boilerplate.chat.model.dto.ChatRoomRedisDto;
 import com.hanghae99.boilerplate.memberManager.model.Member;
+import com.hanghae99.boilerplate.trace.TraceStatus;
+import com.hanghae99.boilerplate.trace.logtrace.LogTrace;
+import com.hanghae99.boilerplate.trace.template.AbstractTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.HashOperations;
@@ -13,10 +16,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Repository
@@ -26,6 +26,7 @@ public class RedisChatRoomRepository {
     private static final String CHAT_ROOMS = "CHAT_ROOM_REDIS_DTOS";
     private final RedisTemplate<String, Object> redisTemplate;
     private HashOperations<String, String, ChatRoomRedisDto> opsHashChatRoom;
+    private final LogTrace trace;
 
     //db의존
     private final ChatRoomRepository chatRoomRepository;
@@ -36,11 +37,22 @@ public class RedisChatRoomRepository {
     }
 
     //채팅방 생성 : 서버간 채팅방 공유를 위해 redis hash 에 저장
-    public ChatRoomRedisDto createChatRoom(String roomId, ChatRoom chatRoom) {
+    public ChatRoomRedisDto createChatRoom( String roomId, ChatRoom chatRoom) {
         // chatRoom -> chatRoomRedisDto
-        ChatRoomRedisDto redisDto = new ChatRoomRedisDto(chatRoom);
-        opsHashChatRoom.put(CHAT_ROOMS, roomId, redisDto);
-        return redisDto;
+
+        TraceStatus status = null;
+
+        try {
+            status = trace.begin("RedisChatRoomRepository.createChatRoom()");
+            ChatRoomRedisDto redisDto = new ChatRoomRedisDto(chatRoom);
+            opsHashChatRoom.put(CHAT_ROOMS, roomId, redisDto);
+            trace.end(status);
+            return redisDto;
+
+        } catch (Exception e) {
+            trace.exception(status, e);
+            throw e;
+        }
     }
 
     //채팅방 입장
@@ -158,7 +170,15 @@ public class RedisChatRoomRepository {
 
     // 전체 조회
     public List<ChatRoomRedisDto> findAllRoom() {
-        return opsHashChatRoom.values(CHAT_ROOMS);
+        // template method pattern 적용
+        AbstractTemplate<List<ChatRoomRedisDto>> template = new AbstractTemplate<>(trace) {
+            @Override
+            protected List<ChatRoomRedisDto> call() {
+                List<ChatRoomRedisDto> redisDtos = opsHashChatRoom.values(CHAT_ROOMS);
+                return redisDtos;
+            }
+        };
+        return template.execute("RedisChatRoomRepository.findOnair()");
     }
 
     // 카테고리로 조회

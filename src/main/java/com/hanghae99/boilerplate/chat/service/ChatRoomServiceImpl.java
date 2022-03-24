@@ -11,6 +11,9 @@ import com.hanghae99.boilerplate.chat.util.DateTimeComparator;
 import com.hanghae99.boilerplate.memberManager.model.Member;
 import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import com.hanghae99.boilerplate.security.model.MemberContext;
+import com.hanghae99.boilerplate.trace.TraceStatus;
+import com.hanghae99.boilerplate.trace.logtrace.LogTrace;
+import com.hanghae99.boilerplate.trace.template.AbstractTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -34,21 +37,35 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final MemberRepository memberRepository;
     private final ChatEntryRepository chatEntryRepository;
     private final DateTimeComparator comparator;
+    private final LogTrace trace;
 
 //    ************************* 채팅방 (생성, 입장, 퇴장, 종료)  **************************
     // 채팅방 생성 ( db 에 생성, ->  redis )
     @Override
     @Transactional
-    public ChatRoomRedisDto createChatRoom(CreateChatRoomDto createChatRoomDto, MemberContext user) {
-        Optional<Member> optionalMember = memberRepository.findById(user.getMemberId());
-        validateMember(optionalMember);
-        Member member = optionalMember.get();
-        ChatRoom room = new ChatRoom(createChatRoomDto, member);
-        //db
-        chatRoomRepository.save(room);
-        //redis
-        ChatRoomRedisDto chatRoomRedisDto = redisChatRoomRepository.createChatRoom(room.getRoomId().toString(), room);
-        return chatRoomRedisDto;
+    public ChatRoomCreateResDto createChatRoom(CreateChatRoomDto createChatRoomDto, MemberContext user) {
+        TraceStatus status = null;
+        try {
+            status = trace.begin("ChatRoomServiceImpl.createChatRoom()");
+
+            Optional<Member> optionalMember = memberRepository.findById(user.getMemberId());
+            validateMember(optionalMember);
+            Member member = optionalMember.get();
+            ChatRoom room = new ChatRoom(createChatRoomDto, member);
+            //db
+            chatRoomRepository.save(room);
+            //redis
+            ChatRoomRedisDto chatRoomRedisDto = redisChatRoomRepository.createChatRoom(room.getRoomId().toString(), room);
+            ChatRoomCreateResDto chatRoomCreateResDto = new ChatRoomCreateResDto(chatRoomRedisDto);
+            chatRoomCreateResDto.setMemberName(createChatRoomDto.getModerator());
+            chatRoomCreateResDto.setRole(ChatRole.MODERATOR);
+
+            trace.end(status);
+            return chatRoomCreateResDto;
+        } catch (Exception e) {
+            trace.exception(status, e);
+            throw e;
+        }
     }
 
     // 채팅방 입장 ( redis )
@@ -59,6 +76,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         log.info("입장하려는 사람: {}", findMember.get().getNickname());
         Member member = findMember.get();
         ChatRoomEntryResDto entryResDto = redisChatRoomRepository.addParticipant(entryDto.getRoomId().toString(), member);
+        entryResDto.setMemberName(entryDto.getMemberName());
+        entryResDto.setRole(entryDto.getRole());
         return entryResDto;
     }
 
@@ -124,9 +143,16 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     // 라이브 채팅방 조회 : 전체  ( redis )
     @Override
     public List<ChatRoomRedisDto> findOnAirChatRooms() {
-        List<ChatRoomRedisDto> allRoomsOnAir = redisChatRoomRepository.findAllRoom();
-        Collections.sort(allRoomsOnAir, comparator);
-        return allRoomsOnAir;
+        // template method pattern 적용
+        AbstractTemplate<List<ChatRoomRedisDto>> template = new AbstractTemplate<>(trace) {
+            @Override
+            protected List<ChatRoomRedisDto> call() {
+                List<ChatRoomRedisDto> allRoomsOnAir = redisChatRoomRepository.findAllRoom();
+                Collections.sort(allRoomsOnAir, comparator);
+                return allRoomsOnAir;
+            }
+        };
+        return template.execute("ChatRoomServiceImpl.findOnAirChatRooms()");
     }
 
     // 라이브 채팅방 조회 : 카테고리  ( redis )

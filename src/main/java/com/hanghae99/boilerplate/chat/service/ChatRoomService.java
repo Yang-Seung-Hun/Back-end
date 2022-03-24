@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ChatRoomService {
 
-    ChatRoomRedisDto createChatRoom(CreateChatRoomDto createChatRoomDto, MemberContext user);
+    ChatRoomCreateResDto createChatRoom(CreateChatRoomDto createChatRoomDto, MemberContext user);
 
     ChatRoomEntryResDto addParticipant(ChatEntryDto entryDto, MemberContext user);
 
