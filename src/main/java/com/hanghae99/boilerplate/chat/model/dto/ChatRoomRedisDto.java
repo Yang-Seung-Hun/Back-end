@@ -35,9 +35,6 @@ public class ChatRoomRedisDto implements Serializable {
     private Boolean onAir = true;
     private LocalDateTime createdAt;
     private LocalDateTime closedAt;
-
-    //todo 보낼 때는 =>  ex agree: true, disagree: false
-
     private Map<Long, Boolean> agreed = new HashMap<>();
     private Map<Long, Boolean> disagreed = new HashMap<>();
 

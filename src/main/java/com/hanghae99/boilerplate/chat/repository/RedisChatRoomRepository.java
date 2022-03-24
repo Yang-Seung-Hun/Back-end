@@ -98,7 +98,7 @@ public class RedisChatRoomRepository {
 
     //채팅방 제거
     public void removeRoom(String roomId) {
-        opsHashChatRoom.delete(CHAT_ROOMS, roomId);
+        Long delete = opsHashChatRoom.delete(CHAT_ROOMS, roomId);
     }
 
     // ***************************** 실시간 찬반투표 *******************************

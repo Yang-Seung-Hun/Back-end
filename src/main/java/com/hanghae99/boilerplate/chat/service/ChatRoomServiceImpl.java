@@ -13,8 +13,6 @@ import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,14 +33,13 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final RedisChatRoomRepository redisChatRoomRepository;
     private final MemberRepository memberRepository;
     private final ChatEntryRepository chatEntryRepository;
+    private final DateTimeComparator comparator;
 
 //    ************************* 채팅방 (생성, 입장, 퇴장, 종료)  **************************
     // 채팅방 생성 ( db 에 생성, ->  redis )
-//    @Override
+    @Override
     @Transactional
-    @CacheEvict(cacheNames = "CHATROOM_DTOS", allEntries = true)
     public ChatRoomRedisDto createChatRoom(CreateChatRoomDto createChatRoomDto, MemberContext user) {
-
         Optional<Member> optionalMember = memberRepository.findById(user.getMemberId());
         validateMember(optionalMember);
         Member member = optionalMember.get();
@@ -55,18 +52,18 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     // 채팅방 입장 ( redis )
+    @Override
     public ChatRoomEntryResDto addParticipant(ChatEntryDto entryDto, MemberContext user) {
         Optional<Member> findMember = memberRepository.findById(user.getMemberId());
         validateMember(findMember);
         log.info("입장하려는 사람: {}", findMember.get().getNickname());
         Member member = findMember.get();
-
         ChatRoomEntryResDto entryResDto = redisChatRoomRepository.addParticipant(entryDto.getRoomId().toString(), member);
-
         return entryResDto;
     }
 
     // 채팅방 퇴장 ( redis )
+    @Override
     public ChatRoomRedisDto leaveParticipant(ChatLeaveDto leaveDto, MemberContext user) {
         Optional<Member> findMember = memberRepository.findById(user.getMemberId());
         validateMember(findMember);
@@ -76,6 +73,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     // 채팅방 종료 ( redis , -> db update )
+    @Override
     @Transactional
     public ChatRoomRedisDto closeRoom(ChatCloseDto chatCloseDto, @AuthenticationPrincipal MemberContext user) {
 
@@ -124,39 +122,27 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 //    ************************* 라이브 채팅방 조회 (from redis) **************************
 
     // 라이브 채팅방 조회 : 전체  ( redis )
+    @Override
     public List<ChatRoomRedisDto> findOnAirChatRooms() {
-        //redis 에는 현재 진행중인 친구만 있을테니.
         List<ChatRoomRedisDto> allRoomsOnAir = redisChatRoomRepository.findAllRoom();
-        //개설 최신 순 정렬을 위한 comparator 적용
-        DateTimeComparator comparator = new DateTimeComparator();
         Collections.sort(allRoomsOnAir, comparator);
         return allRoomsOnAir;
     }
 
     // 라이브 채팅방 조회 : 카테고리  ( redis )
+    @Override
     public List<ChatRoomRedisDto> findOnAirChatRoomsByCategory(String category) {
         List<ChatRoomRedisDto> chatRoomRedisDtos = redisChatRoomRepository.findByCategory(category);
-        DateTimeComparator comparator = new DateTimeComparator();
         Collections.sort(chatRoomRedisDtos, comparator);
         return chatRoomRedisDtos;
     }
 
     // 라이브 채팅방 조회 : 키워드  ( redis )
+    @Override
     public List<ChatRoomRedisDto> findOnAirChatRoomsByKeyword(String keyword) {
         List<ChatRoomRedisDto> chatRoomRedisDtos = redisChatRoomRepository.findByKeyword(keyword);
-        DateTimeComparator comparator = new DateTimeComparator(); // 반복이라 extract method 하거나 autowired 해서 한번만 생성되게 하거나?
         Collections.sort(chatRoomRedisDtos, comparator);
         return chatRoomRedisDtos;
-    }
-
-//    ************************* 종료된 채팅방 조회 (from db) **************************
-    // 키워드 조회
-//    public List<ChatRoomRedisDto> findByKeyword(String keyword) {
-//        return chatRoomRepository.findByKeyword(keyword);
-//    }
-
-    public void deleteAll() {
-        chatRoomRepository.deleteAll();
     }
 
 
@@ -166,26 +152,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         if (findMember == null) {
             throw new IllegalArgumentException("해당 ID의 회원이 존재하지 않습니다.");
         }
-    }
-
-//    ************************* 필요한가 고민 중 **************************
-
-    //    @Override
-    @Transactional(readOnly = true)
-    @Cacheable(cacheNames = "CHATROOM_DTOS")
-    public List<ChatRoomRedisDto> findAllFromDb() {
-        return chatRoomRepository.findAll().stream()
-                .map(ChatRoomRedisDto::new)
-                .collect(toList());
-    }
-
-    //    @Override
-    @Transactional(readOnly = true)
-    public ChatRoomRedisDto findByIdFromDb(Long roomId) {
-        Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findById(roomId);
-        validateChatRoom(optionalChatRoom);
-        ChatRoom findRoom = optionalChatRoom.get();
-        return new ChatRoomRedisDto(findRoom);
     }
 
     private void validateChatRoom(Optional<ChatRoom> optionalChatRoom) {

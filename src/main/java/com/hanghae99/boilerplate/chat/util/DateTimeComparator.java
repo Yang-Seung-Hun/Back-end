@@ -1,10 +1,12 @@
 package com.hanghae99.boilerplate.chat.util;
 
 import com.hanghae99.boilerplate.chat.model.dto.ChatRoomRedisDto;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
 
+@Component
 public class DateTimeComparator implements Comparator<ChatRoomRedisDto> {
     @Override
     public int compare(ChatRoomRedisDto o1, ChatRoomRedisDto o2) {

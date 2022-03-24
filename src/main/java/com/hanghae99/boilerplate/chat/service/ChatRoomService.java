@@ -1,21 +1,25 @@
 package com.hanghae99.boilerplate.chat.service;
 
+import com.hanghae99.boilerplate.chat.model.dto.*;
+import com.hanghae99.boilerplate.security.model.MemberContext;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
+import java.util.List;
+
 public interface ChatRoomService {
 
-//    ChatRoomResDto save(CreateChatRoomDto createChatRoomDto);
-//
-//    List<ChatRoomResDto> findAllFromDb();
-//
-//    List<ChatRoomResDto> findAllFromRedis();
-//
-//    ChatRoomResDto findByIdFromDb(Long roomId);
-//
-//    ChatRoomRedisDto findByIdFromRedis(Long roomId);
-//
-//    ChatRoomResDto closeRoom(ChatCloseDto chatCloseDto, MemberContext member);
-//
-//    List<ChatRoomResDto> findOnAirChatRooms();
-//
-//    List<ChatRoomResDto> findByKeyword(String keyword);
+    ChatRoomRedisDto createChatRoom(CreateChatRoomDto createChatRoomDto, MemberContext user);
+
+    ChatRoomEntryResDto addParticipant(ChatEntryDto entryDto, MemberContext user);
+
+    ChatRoomRedisDto leaveParticipant(ChatLeaveDto leaveDto, MemberContext user);
+
+    ChatRoomRedisDto closeRoom(ChatCloseDto chatCloseDto, @AuthenticationPrincipal MemberContext user);
+
+    List<ChatRoomRedisDto> findOnAirChatRooms();
+
+    List<ChatRoomRedisDto> findOnAirChatRoomsByCategory(String category);
+
+    List<ChatRoomRedisDto> findOnAirChatRoomsByKeyword(String keyword);
 
     }
