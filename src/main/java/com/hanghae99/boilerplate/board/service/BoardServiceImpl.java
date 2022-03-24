@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
 @RequiredArgsConstructor
 @Service
 public class BoardServiceImpl implements BoardService {
@@ -32,6 +31,7 @@ public class BoardServiceImpl implements BoardService {
     private final MemberRepository memberRepository;
     private final MyBoardRepository myBoardRepository;
     private final ReplyRepository replyRepository;
+    private final RecommendReplyRepository  recommendReplyRepository;
 
     private final FCMService fcmService;
     private final BoardSearchRepository boardSearchRepository;
@@ -249,7 +249,7 @@ public class BoardServiceImpl implements BoardService {
                 .getMyBoards()
                 .stream()
                 .map(myBoard ->
-                    boardRepository.findById(myBoard.getBoard().getId()).get().toCreatedDto()
+                        boardRepository.findById(myBoard.getBoard().getId()).get().toCreatedDto()
                 ).collect(Collectors.toList());
     }
 
@@ -258,10 +258,10 @@ public class BoardServiceImpl implements BoardService {
         Board board = boardRepository.findById(boardId).get();
         Optional<Member> member = memberRepository.findById(user.getMemberId());
         MyBoard myBoard = MyBoard.builder()
-                        .board(board)
-                        .member(member.get()
-                                )
-                        .build();
+                .board(board)
+                .member(member.get()
+                )
+                .build();
         myBoardRepository.save(myBoard);
     }
 

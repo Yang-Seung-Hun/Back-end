@@ -1,6 +1,7 @@
 package com.hanghae99.boilerplate.board.domain;
 
 import com.hanghae99.boilerplate.board.dto.ReplyResponseDto;
+import com.hanghae99.boilerplate.memberManager.model.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
+
 import lombok.ToString;
 
 @NoArgsConstructor
@@ -33,6 +36,8 @@ public class Reply {
     private String content;
 
     private LocalDateTime createdAt;
+
+    private int recommendCount;
 
     public ReplyResponseDto toDto(){
         return ReplyResponseDto.builder()
