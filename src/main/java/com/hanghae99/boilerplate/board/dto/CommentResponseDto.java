@@ -20,6 +20,9 @@ public class CommentResponseDto {
     private LocalDateTime createdAt;
     private int recommendCount;
 
+    private String nickname;
+    private String profileImageUrl;
+
     private List<ReplyResponseDto> replyResponseDtoList;
 
 }

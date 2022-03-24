@@ -21,6 +21,7 @@ public class ChatRoom extends Timestamped {
     private Long roomId;
     private String roomName;
     private String category;
+
     @ManyToOne
     private Member moderator;
     private Long maxParticipantCount;

@@ -20,5 +20,7 @@ public class ReplyResponseDto {
     private String content;
 
     private LocalDateTime createdAt;
-
+    private int recommendCount;
+    private String nickname;
+    private String profileImageUrl;
 }
