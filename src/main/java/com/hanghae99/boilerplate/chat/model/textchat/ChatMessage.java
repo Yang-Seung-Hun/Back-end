@@ -12,7 +12,6 @@ public class ChatMessage extends Timestamped {
     public enum MessageType {
         ENTER, CHAT, LEAVE, AGREE, CANCEL_AGREE, DISAGREE, CANCEL_DISAGREE
     }
-
     private MessageType type; // 메시지 타입
     private Long roomId; // 방번호
     private String sender; // 메시지 보낸사람

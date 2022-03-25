@@ -19,8 +19,17 @@ public class RedisSubscriber {
     public void sendMessage(String publishMessage) {
         try {
             ChatMessage chatMessage = objectMapper.readValue(publishMessage, ChatMessage.class);
-            log.info("RedisSubscriber - chatMassage: {}, {}", chatMessage.getMessage(), chatMessage.getType());
-            messagingTemplate.convertAndSend("/sub/chat/room/" + chatMessage.getRoomId(), chatMessage);
+            log.info("RedisSubscriber - chatMassage.getType: {}", chatMessage.getType());
+
+            ///여기서부터 try
+            ChatMessage.MessageType type = chatMessage.getType();
+            // 투표타입에 따라 구분가능하다면 좋겠지..!
+            if (type.equals(ChatMessage.MessageType.AGREE) || type.equals(ChatMessage.MessageType.CANCEL_AGREE)
+                    || type.equals(ChatMessage.MessageType.DISAGREE) || type.equals(ChatMessage.MessageType.CANCEL_DISAGREE)) {
+                messagingTemplate.convertAndSend("/sub/vote/room/" + chatMessage.getRoomId(), chatMessage);
+            } else {
+                messagingTemplate.convertAndSend("/sub/chat/room/" + chatMessage.getRoomId(), chatMessage);
+            }
 
         } catch (Exception e) {
             log.error("redis pub 요청이 있었으나 exception 발생: {}", e);
