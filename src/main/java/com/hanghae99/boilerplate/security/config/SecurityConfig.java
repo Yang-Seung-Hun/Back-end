@@ -155,6 +155,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.addAllowedOrigin("http://localhost:3000");
         corsConfiguration.addAllowedOrigin("http://localhost:3001");
+        corsConfiguration.addAllowedOrigin("https://boilerplate-1c14b.web.app");
+        corsConfiguration.addAllowedOrigin("http://boilerplate-1c14b.web.app");
+        corsConfiguration.addAllowedOrigin("https://boilerplate-1c14b.firebaseapp.com");
+        corsConfiguration.addAllowedOrigin("http://boilerplate-1c14b.firebaseapp.com");
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setExposedHeaders(List.of("*"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
