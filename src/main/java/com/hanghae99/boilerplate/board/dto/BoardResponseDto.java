@@ -29,6 +29,7 @@ public class BoardResponseDto implements Serializable {
 
     private String category;
 
+    private String userStatus; //없으, 찬성, 반대
 
 
 

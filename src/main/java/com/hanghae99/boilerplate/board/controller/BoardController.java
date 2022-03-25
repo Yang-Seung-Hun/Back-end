@@ -30,25 +30,30 @@ public class BoardController {
         return boardService.getMyComment(user);
     }
 
-
     @PostMapping("/api/board")
     public void createBoard(@RequestBody BoardRequestDto boardRequestDto, @AuthenticationPrincipal MemberContext user){
         boardService.createBoard(boardRequestDto, user);
     }
 
     @GetMapping("/api/board")
-    public List<BoardResponseDto> getBoards(Pageable pageable){
-        return boardService.showAllBoard(pageable);
+    public List<BoardResponseDto> getBoards(Pageable pageable, @AuthenticationPrincipal MemberContext user){
+        return boardService.showAllBoard(pageable, user);
     }
 
     @GetMapping("/api/board/{boardId}")
-    public BoardResponseDto getBoard(@PathVariable Long boardId){
-        return boardService.showBoard(boardId);
+    public BoardResponseDto getBoard(@PathVariable Long boardId, @AuthenticationPrincipal MemberContext user){
+        return boardService.showBoard(boardId, user);
     }
 
     @GetMapping("/api/board/category/{categoryName}")
-    public List<BoardResponseDto> getBoardByCategory(@PathVariable String categoryName, Pageable pageable){
-        return boardService.showBoardByCategory(categoryName, pageable);
+    public List<BoardResponseDto> getBoardByCategory(@PathVariable String categoryName, Pageable pageable, @AuthenticationPrincipal MemberContext user) throws UnsupportedEncodingException {
+
+//        String category = URLDecoder.decode(categoryName, "UTF-8");
+//        //System.out.println(URLDecoder.decode("%2%343", "UTF-8"));
+//        System.out.println("category");
+//        System.out.println(category);
+        return boardService.showBoardByCategory(category, pageable, user);
+
     }
 
     @GetMapping("/api/board/agree/{boardId}") //찬성, 취소
@@ -113,6 +118,9 @@ public class BoardController {
         return boardService.showReplies(commentId);
     }
 
+
+
+
     @PostMapping("/api/my-board/{boardId}")
     public BaseResponse createMyboard(@PathVariable Long boardId, @AuthenticationPrincipal MemberContext user){
         boardService.setMyBoard(boardId, user);
@@ -125,9 +133,9 @@ public class BoardController {
     }
 
     @GetMapping("/api/board/search/{search}")
-    public List<BoardResponseDto> searchBoard(@PathVariable String search, Pageable p){
+    public List<BoardResponseDto> searchBoard(@PathVariable String search, Pageable p, @AuthenticationPrincipal MemberContext user){
         System.out.println(search);
-        return boardService.searchBoard(search, p);
+        return boardService.searchBoard(search, p, user);
     }
 
     //대댓글 추천
@@ -138,6 +146,7 @@ public class BoardController {
 
         return new BaseResponse("ok");
     }
+
 
 
 

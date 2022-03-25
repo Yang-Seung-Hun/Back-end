@@ -59,6 +59,11 @@ public class Member implements Serializable {
     }
 
     //추가
+
+    public Member(Long id){
+        this.id = id;
+    }
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

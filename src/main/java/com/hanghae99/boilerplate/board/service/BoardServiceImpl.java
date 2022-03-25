@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
 @RequiredArgsConstructor
 @Service
 public class BoardServiceImpl implements BoardService {
@@ -31,10 +32,11 @@ public class BoardServiceImpl implements BoardService {
     private final MemberRepository memberRepository;
     private final MyBoardRepository myBoardRepository;
     private final ReplyRepository replyRepository;
-    private final RecommendReplyRepository  recommendReplyRepository;
 
     private final FCMService fcmService;
     private final BoardSearchRepository boardSearchRepository;
+
+    private final RecommendReplyRepository recommendReplyRepository;
 
     @Transactional
     @Override
@@ -47,29 +49,78 @@ public class BoardServiceImpl implements BoardService {
 
     @Transactional(readOnly = true)
     @Cacheable(cacheNames = "board")
-    public List<BoardResponseDto> showAllBoard(Pageable pageable) {
+    public List<BoardResponseDto> showAllBoard(Pageable pageable, MemberContext user) {
+        Optional<Member> member = memberRepository.findById(user.getMemberId());
 
         List<Board> boards = boardRepository.findAllByOrderByCreatedAtDesc(pageable); // findAll();
         return boards.stream()
-                .map(Board::toCreatedDto)
+                .map(board -> {
+                    BoardResponseDto boardResponseDto = board.toCreatedDto();
+                    Optional<Vote> vote = voteRepository.findByBoardAndMember(board, member.get());
+                    if (vote.isEmpty()){
+                        boardResponseDto.setUserStatus("없다");
+                    } else {
+                        if (vote.get().getAgreed()){
+                            boardResponseDto.setUserStatus("찬성");
+                        }else{
+                            boardResponseDto.setUserStatus("반대");
+
+                        }
+                    }
+                    return boardResponseDto;
+                })
+                //.map(Board::toCreatedDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     //@Cacheable(cacheNames = "board", key = "#boardId")
-    public BoardResponseDto showBoard(Long boardId) {
+    public BoardResponseDto showBoard(Long boardId, MemberContext user) {
+        Optional<Member> member = memberRepository.findById(user.getMemberId());
+
         Board board = boardRepository.findById(boardId).get();
-        return board.toCreatedDto();
+        //return board.toCreatedDto();
+        BoardResponseDto boardResponseDto = board.toCreatedDto();
+        Optional<Vote> vote = voteRepository.findByBoardAndMember(board, member.get());
+        if (vote.isEmpty()){
+            boardResponseDto.setUserStatus("없다");
+        } else {
+            if (vote.get().getAgreed()){
+                boardResponseDto.setUserStatus("찬성");
+            }else{
+                boardResponseDto.setUserStatus("반대");
+
+            }
+        }
+        return boardResponseDto;
+
     }
 
 
     @Override
     @Transactional(readOnly = true)
     @Cacheable(cacheNames = "board", key = "#categoryName") // + '::' + #pageNo")
-    public List<BoardResponseDto> showBoardByCategory(String categoryName, Pageable pageable) {
+    public List<BoardResponseDto> showBoardByCategory(String categoryName, Pageable pageable, MemberContext user) {
+        Optional<Member> member = memberRepository.findById(user.getMemberId());
+
         List<Board> boards = boardRepository.findAllByCategory(categoryName); // findAll();
         return boards.stream()
-                .map(Board::toCreatedDto)
+                //.map(Board::toCreatedDto)
+                .map(board -> {
+                    BoardResponseDto boardResponseDto = board.toCreatedDto();
+                    Optional<Vote> vote = voteRepository.findByBoardAndMember(board, member.get());
+                    if (vote.isEmpty()){
+                        boardResponseDto.setUserStatus("없다");
+                    } else {
+                        if (vote.get().getAgreed()){
+                            boardResponseDto.setUserStatus("찬성");
+                        }else{
+                            boardResponseDto.setUserStatus("반대");
+
+                        }
+                    }
+                    return boardResponseDto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -248,8 +299,22 @@ public class BoardServiceImpl implements BoardService {
                 .get(0)
                 .getMyBoards()
                 .stream()
-                .map(myBoard ->
-                        boardRepository.findById(myBoard.getBoard().getId()).get().toCreatedDto()
+                .map(myBoard -> {
+                            BoardResponseDto boardResponseDto = boardRepository.findById(myBoard.getBoard().getId()).get().toCreatedDto();
+                            Optional<Vote> vote = voteRepository.findByBoardAndMember(Board.builder().id(myBoard.getId()).build(), new Member(user.getMemberId()));
+                            if (vote.isEmpty()){
+                                boardResponseDto.setUserStatus("없다");
+                            } else {
+                                if (vote.get().getAgreed()){
+                                    boardResponseDto.setUserStatus("찬성");
+                                }else{
+                                    boardResponseDto.setUserStatus("반대");
+
+                                }
+                            }
+                            return boardResponseDto;
+
+                        }
                 ).collect(Collectors.toList());
     }
 
@@ -266,13 +331,15 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public List<BoardResponseDto> searchBoard(String content, Pageable pageable) {
+    public List<BoardResponseDto> searchBoard(String content, Pageable pageable, MemberContext user) {
+
         return boardSearchRepository.searchByBoard(content, pageable)
                 .stream()
                 .map(boardSearchDto -> {
 
                     Optional<Member> member = memberRepository.findById(boardSearchDto.getMember_id());
-                    return BoardResponseDto.builder()
+                    //return
+                    BoardResponseDto boardResponseDto = BoardResponseDto.builder()
                             .id(boardSearchDto.getId())
                             .title(boardSearchDto.getTitle())
                             .nickname(member.get().getNickname())
@@ -285,17 +352,44 @@ public class BoardServiceImpl implements BoardService {
                             .createdAt(boardSearchDto.getCreated_at())
                             .category(boardSearchDto.getCategory())
                             .build();
+
+                    Optional<Vote> vote = voteRepository.findByBoardAndMember(Board.builder().id(boardSearchDto.getId()).build(), member.get());
+                    if (vote.isEmpty()){
+                        boardResponseDto.setUserStatus("없다");
+                    } else {
+                        if (vote.get().getAgreed()){
+                            boardResponseDto.setUserStatus("찬성");
+                        }else{
+                            boardResponseDto.setUserStatus("반대");
+
+                        }
+                    }
+                    return boardResponseDto;
                 })
                 .collect(Collectors.toList());
     }
-
 
     @Override
     public List<BoardResponseDto> getMyWrittenBoard(MemberContext user) {
         Optional<Member> member = memberRepository.findById(user.getMemberId());
 
         return boardRepository.findAllByMember(member.get()).stream()
-                .map(Board::toCreatedDto)
+                .map(board -> {
+                    BoardResponseDto boardResponseDto = board.toCreatedDto();
+                    Optional<Vote> vote = voteRepository.findByBoardAndMember(board, member.get());
+                    if (vote.isEmpty()){
+                        boardResponseDto.setUserStatus("없다");
+                    } else {
+                        if (vote.get().getAgreed()){
+                            boardResponseDto.setUserStatus("찬성");
+                        }else{
+                            boardResponseDto.setUserStatus("반대");
+
+                        }
+                    }
+                    return boardResponseDto;
+                })
+                // .map(Board::toCreatedDto)
                 .collect(Collectors.toList());
     }
 
@@ -305,9 +399,22 @@ public class BoardServiceImpl implements BoardService {
 
         return commentRepository.findAllByMember(member.get())
                 .stream()
-                .map(comment ->
-                        boardRepository.findById(comment.getBoard().getId())
-                                .get().toCreatedDto()
+                .map(comment ->{
+                            Optional<Board> board = boardRepository.findById(comment.getBoard().getId());
+                            BoardResponseDto boardResponseDto = board.get().toCreatedDto();
+                            Optional<Vote> vote = voteRepository.findByBoardAndMember(board.get(), member.get());
+                            if (vote.isEmpty()){
+                                boardResponseDto.setUserStatus("없다");
+                            } else {
+                                if (vote.get().getAgreed()){
+                                    boardResponseDto.setUserStatus("찬성");
+                                }else{
+                                    boardResponseDto.setUserStatus("반대");
+
+                                }
+                            }
+                            return boardResponseDto;
+                        }
                 )
                 .collect(Collectors.toList());
 
