@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -48,7 +50,7 @@ public class BoardController {
     @GetMapping("/api/board/category/{categoryName}")
     public List<BoardResponseDto> getBoardByCategory(@PathVariable String categoryName, Pageable pageable, @AuthenticationPrincipal MemberContext user) throws UnsupportedEncodingException {
 
-//        String category = URLDecoder.decode(categoryName, "UTF-8");
+        String category = URLDecoder.decode(categoryName, "UTF-8");
 //        //System.out.println(URLDecoder.decode("%2%343", "UTF-8"));
 //        System.out.println("category");
 //        System.out.println(category);
