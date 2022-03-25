@@ -63,9 +63,6 @@ public class ChatController {
         redisTemplate.convertAndSend(channelTopic.getTopic(), chatMessage);
     }
 
-
-
-
     @MessageMapping("/chat/message")
     // 클라이언트에서는 prefix를 붙여서 /pub/chat/message 로 발행 요청을 하고, 이를 controller 가 받아서 처리
     // 메시지가 발행되면 /sub/chat/room/{roomId} 로 메시지를 send.

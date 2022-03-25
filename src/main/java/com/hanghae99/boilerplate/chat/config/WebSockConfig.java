@@ -28,7 +28,7 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
         // cors 대응을 위한 시도..
 
         //todo 테스트 동안만 /api로 열어두고 나중에 제거 -> 인증인가
-        registry.addEndpoint("/api/ws-stomp").setAllowedOriginPatterns("*")
+        registry.addEndpoint("/api/ws-stomp/message", "/api/ws-stomp/vote").setAllowedOriginPatterns("*")
                 .withSockJS();
     }
 

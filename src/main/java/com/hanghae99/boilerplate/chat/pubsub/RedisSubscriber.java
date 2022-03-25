@@ -26,7 +26,10 @@ public class RedisSubscriber {
             // 투표타입에 따라 구분가능하다면 좋겠지..!
             if (type.equals(ChatMessage.MessageType.AGREE) || type.equals(ChatMessage.MessageType.CANCEL_AGREE)
                     || type.equals(ChatMessage.MessageType.DISAGREE) || type.equals(ChatMessage.MessageType.CANCEL_DISAGREE)) {
-                messagingTemplate.convertAndSend("/sub/vote/room/" + chatMessage.getRoomId(), chatMessage);
+
+                log.info("지금 들어온 message type: {}", type);
+
+                messagingTemplate.convertAndSend("/sub/chat/vote/" + chatMessage.getRoomId(), chatMessage);
             } else {
                 messagingTemplate.convertAndSend("/sub/chat/room/" + chatMessage.getRoomId(), chatMessage);
             }
