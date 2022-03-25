@@ -43,7 +43,7 @@ jobs:
           cp Procfile deploy/Procfile
           cp -r .ebextensions deploy/.ebextensions
           cp -r .platform deploy/.platform
-          cp -r .pinpoint-agent-2.3.3 deploy/agent
+          cp -r .pinpoint-agent deploy/agent
           cd deploy && zip -r deploy.zip .
 
 
