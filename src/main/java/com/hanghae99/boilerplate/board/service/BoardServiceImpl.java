@@ -422,6 +422,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    //@Transactional
     public void recommendReply(Long replyId, MemberContext user){
         Optional<Member> member = memberRepository.findById(user.getMemberId());
 
