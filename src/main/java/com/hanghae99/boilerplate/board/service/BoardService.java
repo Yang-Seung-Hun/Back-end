@@ -11,11 +11,11 @@ import java.util.concurrent.ExecutionException;
 public interface BoardService {
     void createBoard(BoardRequestDto boardRequestDto, MemberContext user);
 
-    List<BoardResponseDto> showAllBoard(Pageable pageable);
+    List<BoardResponseDto> showAllBoard(Pageable pageable, MemberContext user);
 
-    BoardResponseDto showBoard(Long boardId);
+    BoardResponseDto showBoard(Long boardId, MemberContext user);
 
-    List<BoardResponseDto> showBoardByCategory(String categoryName, Pageable pageable);
+    List<BoardResponseDto> showBoardByCategory(String categoryName, Pageable pageable, MemberContext user);
 
     void deleteBoard(Long boardId);
 
@@ -40,12 +40,11 @@ public interface BoardService {
     List<BoardResponseDto> getMyBoard(MemberContext user);
     void setMyBoard(Long boardId, MemberContext user);
 
-    List<BoardResponseDto> searchBoard(String content, Pageable pageable);
+    List<BoardResponseDto> searchBoard(String content, Pageable pageable, MemberContext user);
 
     List<BoardResponseDto> getMyComment(MemberContext user);
 
     List<BoardResponseDto> getMyWrittenBoard(MemberContext user);
 
     void recommendReply(Long replyId, MemberContext user);
-
 }
