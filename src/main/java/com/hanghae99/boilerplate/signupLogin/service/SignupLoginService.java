@@ -1,12 +1,12 @@
 package com.hanghae99.boilerplate.signupLogin.service;
 
 
+import com.hanghae99.boilerplate.memberManager.model.Member;
+import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import com.hanghae99.boilerplate.security.config.JwtConfig;
 import com.hanghae99.boilerplate.security.config.RefreshTokenRedis;
 import com.hanghae99.boilerplate.security.model.MemberContext;
 import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
-import com.hanghae99.boilerplate.memberManager.model.Member;
-import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,14 +32,9 @@ public class SignupLoginService {
 
     @Transactional
     public MemberContext signupRequest(SignupReqestDto signupReqestDto) {
-        boolean result = memberRepository.existsMemberByEmail(signupReqestDto.getEmail());
-        if (result) {
-            log.info("{} is already exist",signupReqestDto.getEmail());
-            throw new IllegalArgumentException(signupReqestDto.getEmail() + " already" + "Exist!");
-        }
         signupReqestDto.setPassword(passwordEncoder.encode(signupReqestDto.getPassword()));
-       Member member= memberRepository.save(new Member(signupReqestDto));
-        log.info("{} ,nickname {} signup" ,signupReqestDto.getEmail(),signupReqestDto.getNickname());
+        Member member = memberRepository.save(new Member(signupReqestDto));
+        log.info("{} ,nickname {} signup", signupReqestDto.getEmail(), signupReqestDto.getNickname());
         return new MemberContext(member);
     }
 
@@ -48,8 +43,8 @@ public class SignupLoginService {
 
     }
 
-    public boolean removeCookieIfSame(Cookie cookie){
-        if(cookie.getName().equals(JwtConfig.AUTHENTICATION_HEADER_NAME)) {
+    public boolean removeCookieIfSame(Cookie cookie) {
+        if (cookie.getName().equals(JwtConfig.AUTHENTICATION_HEADER_NAME)) {
             redis.removeData(cookie.getValue());
             return true;
         }
@@ -57,8 +52,8 @@ public class SignupLoginService {
     }
 
 
-    public boolean DuplicatesEmail(String  email) {
-        return  memberRepository.existsMemberByEmail(email);
+    public boolean DuplicatesEmail(String email) {
+        return memberRepository.existsMemberByEmail(email);
     }
 
     public boolean DuplicatePassword(String nickname) {

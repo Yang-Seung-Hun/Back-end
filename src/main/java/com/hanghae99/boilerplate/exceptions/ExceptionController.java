@@ -1,6 +1,7 @@
 package com.hanghae99.boilerplate.exceptions;
 
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -40,6 +41,12 @@ public class ExceptionController {
     @ExceptionHandler({HttpRequestMethodNotSupportedException.class})
     public ResponseEntity httpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e){
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(
+                new ExceptionResponse(HttpStatus.METHOD_NOT_ALLOWED,e.getMessage()));
+    }
+    //데이터 무결성이 깨짐
+    @ExceptionHandler({DataIntegrityViolationException.class})
+    public ResponseEntity dataIntegrityViolationException(DataIntegrityViolationException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 new ExceptionResponse(HttpStatus.METHOD_NOT_ALLOWED,e.getMessage()));
     }
 }
