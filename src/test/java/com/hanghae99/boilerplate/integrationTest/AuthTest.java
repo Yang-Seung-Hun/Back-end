@@ -35,11 +35,12 @@
 //    @Autowired
 //    RefreshTokenRedis redis;
 //
+//
+//
 //    @BeforeEach
 //    @Transactional
 //    void login() throws Exception {
-//        signupReqestDto.setPassword(passwordEncoder.encode(signupReqestDto.getPassword()));
-//        member = memberRepository.save(new Member(signupReqestDto));
+//        member = memberRepository.save(new Member(signupReqestDto,passwordEncoder.encode(signupReqestDto.getPassword())));
 //        MockHttpServletResponse response = mockMvc.perform(post("/api/login")
 //                        .contentType(MediaType.APPLICATION_JSON)
 //                        .content(objectMapper.writeValueAsString(new LoginRequestDto(signupReqestDto.getEmail(), password))))

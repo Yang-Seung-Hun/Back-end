@@ -38,18 +38,10 @@
 //    @Test
 //    @DisplayName("정상적인 회원가입 요청")
 //    void requestSignup(){
-//        Mockito.when(memberRepository.existsMemberByEmail(any(String.class))).thenReturn(false);
 //        Mockito.when(memberRepository.save(any(Member.class))).thenReturn(new Member(noramlSignupRequest));
 //        signupLoginService.signupRequest(noramlSignupRequest);
 //    }
-//    @Test
-//    @DisplayName("중복이메일")
-//    void 중복메일회원가입(){
-//        Mockito.when(memberRepository.existsMemberByEmail(any(String.class))).thenReturn(true );
-//        Assertions.assertThrows(IllegalArgumentException.class,()->{
-//            signupLoginService.signupRequest(noramlSignupRequest);
-//        } );
-//    }
+//
 //
 //
 //}

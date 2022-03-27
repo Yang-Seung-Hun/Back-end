@@ -14,6 +14,7 @@
 //import org.mockito.Mock;
 //import org.mockito.Mockito;
 //import org.mockito.junit.jupiter.MockitoExtension;
+//import org.springframework.dao.DataIntegrityViolationException;
 //import org.springframework.security.crypto.password.PasswordEncoder;
 //
 //import static org.junit.jupiter.api.Assertions.*;
@@ -50,22 +51,12 @@
 //    public void SignupSuccess() throws Exception {
 //        //Given
 //        Mockito.when(memberRepository.save(any(Member.class))).thenReturn(member);
-//        Mockito.when(memberRepository.existsMemberByEmail(any(String.class))).thenReturn(false);
 //        //when
 //        signupLoginService.signupRequest(signupReqestDto);
 //
 //    }
 //
-//    @Test
-//    @DisplayName("존재하는 이메일 + 정상적인 signupReqestDto")
-//    public void SinupFail() {
-//        Mockito.when(memberRepository.existsMemberByEmail(any(String.class))).thenReturn(true);
-//        assertThrows(IllegalArgumentException.class,()->{
-//            signupLoginService.signupRequest(signupReqestDto);
 //
-//        });
-//
-//    }
 //
 //
 //}

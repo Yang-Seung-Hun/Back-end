@@ -8,6 +8,7 @@
 //import com.hanghae99.boilerplate.security.model.login.LoginRequestDto;
 //import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
 //import org.junit.AfterClass;
+//import org.junit.Before;
 //import org.junit.BeforeClass;
 //import org.junit.jupiter.api.*;
 //import org.junit.jupiter.api.function.Executable;
@@ -26,7 +27,12 @@
 //    static SignupReqestDto signupReqestDto = new SignupReqestDto("wns@naver.com", "최호준", "1234", "이미지1번");
 //
 //
-//
+//    @Test
+//    @Order(-1)
+//    @Transactional
+//    void before(){
+//        memberRepository.deleteByEmail(signupReqestDto.getEmail());
+//    }
 //
 //    @Order(-1)
 //    @Test

@@ -37,6 +37,13 @@ public class Member implements Serializable {
 
     private String description;
 
+    public Member(SignupReqestDto signupReqestDto,String password){
+        this.email=signupReqestDto.getEmail();
+        this.password= password;
+        this.nickname=signupReqestDto.getNickname();
+        this.profileImageUrl = signupReqestDto.getProfileImageUrl();
+        this.roles.add(Role.USER);
+    }
     public Member(SignupReqestDto signupReqestDto){
         this.email=signupReqestDto.getEmail();
         this.password= signupReqestDto.getPassword();
@@ -52,7 +59,6 @@ public class Member implements Serializable {
         this.password="0000";
         this.roles.add(Role.USER);
         this.roles.add(Role.KAKAO);
-
     }
     public void setPassword(String password){
         this.password= password;

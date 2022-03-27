@@ -28,6 +28,8 @@
 //    static KakaoUserData kakaoUserData;
 //    static Member member;
 //
+//
+//
 //    @BeforeAll
 //    static void setParam() {
 //        kakaoUserData = new KakaoUserData("access_token", "refresh_token");

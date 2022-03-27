@@ -32,9 +32,7 @@ public class SignupLoginService {
 
     @Transactional
     public MemberContext signupRequest(SignupReqestDto signupReqestDto) {
-        signupReqestDto.setPassword(passwordEncoder.encode(signupReqestDto.getPassword()));
-        Member member = memberRepository.save(new Member(signupReqestDto));
-        log.info("{} ,nickname {} signup", signupReqestDto.getEmail(), signupReqestDto.getNickname());
+        Member member = memberRepository.save(new Member(signupReqestDto,passwordEncoder.encode(signupReqestDto.getPassword())));
         return new MemberContext(member);
     }
 

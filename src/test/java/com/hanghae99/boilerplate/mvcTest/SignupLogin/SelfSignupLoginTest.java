@@ -7,6 +7,7 @@
 //import com.hanghae99.boilerplate.security.service.UserDetailsImpl;
 //import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
 //import org.junit.After;
+//import org.junit.BeforeClass;
 //import org.junit.jupiter.api.AfterEach;
 //import org.junit.jupiter.api.BeforeAll;
 //import org.junit.jupiter.api.DisplayName;
@@ -19,6 +20,7 @@
 //import org.springframework.security.core.userdetails.UsernameNotFoundException;
 //import org.springframework.test.web.servlet.MockMvc;
 //import org.springframework.test.web.servlet.MvcResult;
+//import org.springframework.transaction.annotation.Transactional;
 //
 //import java.util.stream.Collectors;
 //
@@ -38,6 +40,7 @@
 //    static SignupReqestDto badSignupReqestDto;
 //    static LoginRequestDto badLoginRequestDto;
 //    static Member member;
+//
 //    @BeforeAll
 //    static void makeMember() {
 //        normalSignupReqestDto = new SignupReqestDto("wns674@naver.com", "최호준", "1234", "이미지1번");
@@ -46,6 +49,7 @@
 //        badSignupReqestDto = new SignupReqestDto("wns674@naver.com", "최호준", null, "이미지1번");
 //        badLoginRequestDto = new LoginRequestDto("강낭콩", normalSignupReqestDto.getPassword());
 //    }
+//
 //
 //
 //    @Autowired
