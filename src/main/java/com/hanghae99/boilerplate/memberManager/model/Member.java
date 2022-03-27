@@ -21,9 +21,9 @@ import java.util.Set;
 @EqualsAndHashCode(of = "id")
 public class Member implements Serializable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-
     private Long id ;
 
+    @Column(unique = true)
     private String email;
 
     private String password;
@@ -37,6 +37,13 @@ public class Member implements Serializable {
 
     private String description;
 
+    public Member(SignupReqestDto signupReqestDto,String password){
+        this.email=signupReqestDto.getEmail();
+        this.password= password;
+        this.nickname=signupReqestDto.getNickname();
+        this.profileImageUrl = signupReqestDto.getProfileImageUrl();
+        this.roles.add(Role.USER);
+    }
     public Member(SignupReqestDto signupReqestDto){
         this.email=signupReqestDto.getEmail();
         this.password= signupReqestDto.getPassword();
@@ -52,13 +59,17 @@ public class Member implements Serializable {
         this.password="0000";
         this.roles.add(Role.USER);
         this.roles.add(Role.KAKAO);
-
     }
     public void setPassword(String password){
         this.password= password;
     }
 
     //추가
+
+    public Member(Long id){
+        this.id = id;
+    }
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

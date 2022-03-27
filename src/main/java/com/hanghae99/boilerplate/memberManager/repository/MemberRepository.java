@@ -18,7 +18,7 @@ public interface MemberRepository extends JpaRepository<Member, Long>  ,MemberCu
             "m.email = :email")
     Optional<String>  getNickname(@Param("email")String email);
 
-
+    void deleteByEmail(String email);
 
 
 

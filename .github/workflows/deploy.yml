@@ -26,7 +26,7 @@ jobs:
         shell : bash
         
       - name: Build with Gradle
-        run: ./gradlew clean build
+        run: ./gradlew clean build --stacktrace
         shell: bash
         
       - name: Current time
@@ -43,10 +43,10 @@ jobs:
           cp Procfile deploy/Procfile
           cp -r .ebextensions deploy/.ebextensions
           cp -r .platform deploy/.platform
-
+          cp -r pinpoint-agent deploy/agent
           cd deploy && zip -r deploy.zip .
 
-#        cp -r .platform deploy/.platform
+
 
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v20
