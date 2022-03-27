@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class TraceTemplate {
 
-    private final LogTrace trace;
+    private  final LogTrace trace;
 
     public TraceTemplate(LogTrace trace) {
         this.trace = trace;

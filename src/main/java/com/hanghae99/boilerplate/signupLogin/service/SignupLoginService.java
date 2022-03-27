@@ -9,10 +9,12 @@ import com.hanghae99.boilerplate.security.model.MemberContext;
 import com.hanghae99.boilerplate.signupLogin.dto.requestDto.SignupReqestDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.security.sasl.AuthenticationException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -32,8 +34,20 @@ public class SignupLoginService {
 
     @Transactional
     public MemberContext signupRequest(SignupReqestDto signupReqestDto) {
-        Member member = memberRepository.save(new Member(signupReqestDto,passwordEncoder.encode(signupReqestDto.getPassword())));
+        Member member = memberRepository.save(new Member(signupReqestDto, passwordEncoder.encode(signupReqestDto.getPassword())));
         return new MemberContext(member);
+    }
+
+    @Transactional
+    public void membershipWithdrawal(MemberContext memberContext, String password) {
+        Member member = memberRepository.findById(memberContext.getMemberId()).orElseThrow(() -> new UsernameNotFoundException(memberContext.getUsername() + " not exist"));
+        if (isSamePassword(password, member.getPassword())) {
+            memberRepository.delete(member);
+        }
+    }
+
+    public boolean isSamePassword(String inputPW, String savedPassword) {
+        return passwordEncoder.matches(inputPW, savedPassword);
     }
 
     public void logoutRequest(HttpServletRequest request) throws IOException {
