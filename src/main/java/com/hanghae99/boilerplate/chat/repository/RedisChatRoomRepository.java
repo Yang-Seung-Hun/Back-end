@@ -35,11 +35,11 @@ public class RedisChatRoomRepository {
 
     //채팅방 생성 : 서버간 채팅방 공유를 위해 redis hash 에 저장
     public ChatRoomRedisDto createChatRoom( String roomId, ChatRoom chatRoom) {
-        return traceTemplate.execute("RedisChatRoomRepository.createChatRoom()", () -> {
+//        return traceTemplate.execute("RedisChatRoomRepository.createChatRoom()", () -> {
             ChatRoomRedisDto redisDto = new ChatRoomRedisDto(chatRoom);
             opsHashChatRoom.put(CHAT_ROOMS, roomId, redisDto);
             return redisDto;
-        });
+//        });
     }
 
     //채팅방 입장
@@ -150,15 +150,15 @@ public class RedisChatRoomRepository {
 
     // 전체 조회
     public List<ChatRoomRedisDto> findAllRoom() {
-        return traceTemplate.execute("RedisChatRoomRepository.findAllRoom()", () -> {
+//        return traceTemplate.execute("RedisChatRoomRepository.findAllRoom()", () -> {
             List<ChatRoomRedisDto> redisDtos = opsHashChatRoom.values(CHAT_ROOMS);
             return redisDtos;
-        });
+//        });
     }
 
     // 카테고리로 조회 (만약 카테고리를 key 로 둔다면? 그럼 더 빠를 것 같은데..)
     public List<ChatRoomRedisDto> findByCategory(String category) {
-        return traceTemplate.execute("RedisChatRoomRepository.findByCategory()", () -> {
+//        return traceTemplate.execute("RedisChatRoomRepository.findByCategory()", () -> {
             List<ChatRoomRedisDto> resultDtos = new ArrayList<>();
             List<ChatRoomRedisDto> all = opsHashChatRoom.values(CHAT_ROOMS);
             for (ChatRoomRedisDto redisDto : all) {
@@ -167,12 +167,12 @@ public class RedisChatRoomRepository {
                 }
             }
             return resultDtos;
-        });
+//        });
     }
 
     // 키워드 조회
     public List<ChatRoomRedisDto> findByKeyword(String keyword) {
-        return traceTemplate.execute("RedisChatRoomRepository.findByKeyword()", () -> {
+//        return traceTemplate.execute("RedisChatRoomRepository.findByKeyword()", () -> {
             List<ChatRoomRedisDto> resultDtos = new ArrayList<>();
 
             List<ChatRoomRedisDto> all = opsHashChatRoom.values(CHAT_ROOMS);
@@ -182,7 +182,7 @@ public class RedisChatRoomRepository {
                 }
             }
             return resultDtos;
-        });
+//        });
     }
 
 }

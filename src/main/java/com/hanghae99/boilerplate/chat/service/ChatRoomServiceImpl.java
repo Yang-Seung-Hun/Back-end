@@ -11,7 +11,6 @@ import com.hanghae99.boilerplate.chat.util.DateTimeComparator;
 import com.hanghae99.boilerplate.memberManager.model.Member;
 import com.hanghae99.boilerplate.memberManager.repository.MemberRepository;
 import com.hanghae99.boilerplate.security.model.MemberContext;
-import com.hanghae99.boilerplate.trace.callback.TraceTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,14 +34,14 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final MemberRepository memberRepository;
     private final ChatEntryRepository chatEntryRepository;
     private final DateTimeComparator comparator;
-    private final TraceTemplate traceTemplate;
+//    private final TraceTemplate traceTemplate;
 
     //    ************************* 채팅방 (생성, 입장, 퇴장, 종료)  **************************
     // 채팅방 생성 ( db 에 생성, ->  redis )
     @Override
     @Transactional
     public ChatRoomCreateResDto createChatRoom(CreateChatRoomDto createChatRoomDto, MemberContext user) {
-        return traceTemplate.execute("ChatRoomServiceImpl.createChatRoom()", () -> {
+//        return traceTemplate.execute("ChatRoomServiceImpl.createChatRoom()", () -> {
             Optional<Member> optionalMember = memberRepository.findById(user.getMemberId());
             validateMember(optionalMember);
             Member member = optionalMember.get();
@@ -55,7 +54,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             chatRoomCreateResDto.setMemberName(createChatRoomDto.getModerator());
             chatRoomCreateResDto.setRole(ChatRole.MODERATOR);
             return chatRoomCreateResDto;
-        });
+//        });
     }
 
     // 채팅방 입장 ( redis )
@@ -132,31 +131,31 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     // 라이브 채팅방 조회 : 전체  ( redis )
     @Override
     public List<ChatRoomRedisDto> findOnAirChatRooms() {
-        return traceTemplate.execute("ChatRoomServiceImpl.findOnAirChatRooms()", () -> {
+//        return traceTemplate.execute("ChatRoomServiceImpl.findOnAirChatRooms()", () -> {
             List<ChatRoomRedisDto> allRoomsOnAir = redisChatRoomRepository.findAllRoom();
             Collections.sort(allRoomsOnAir, comparator);
             return allRoomsOnAir;
-        });
+//        });
     }
 
     // 라이브 채팅방 조회 : 카테고리  ( redis )
     @Override
     public List<ChatRoomRedisDto> findOnAirChatRoomsByCategory(String category) {
-        return traceTemplate.execute("ChatRoomServiceImpl.findOnAirChatRoomsByCategory()", () -> {
+//        return traceTemplate.execute("ChatRoomServiceImpl.findOnAirChatRoomsByCategory()", () -> {
             List<ChatRoomRedisDto> chatRoomRedisDtos = redisChatRoomRepository.findByCategory(category);
             Collections.sort(chatRoomRedisDtos, comparator);
             return chatRoomRedisDtos;
-        });
+//        });
     }
 
     // 라이브 채팅방 조회 : 키워드  ( redis )
     @Override
     public List<ChatRoomRedisDto> findOnAirChatRoomsByKeyword(String keyword) {
-        return traceTemplate.execute("ChatRoomServiceImpl.findOnAirChatRoomsByKeyword()", () -> {
+//        return traceTemplate.execute("ChatRoomServiceImpl.findOnAirChatRoomsByKeyword()", () -> {
             List<ChatRoomRedisDto> chatRoomRedisDtos = redisChatRoomRepository.findByKeyword(keyword);
             Collections.sort(chatRoomRedisDtos, comparator);
             return chatRoomRedisDtos;
-        });
+//        });
     }
 
 
