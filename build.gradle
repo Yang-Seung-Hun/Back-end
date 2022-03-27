@@ -35,6 +35,9 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://maven.google.com"
+    }
 
 }
 apply plugin: 'org.springframework.boot'
@@ -162,7 +165,6 @@ dependencies {
 
     //error 해결>
     implementation group: 'org.javassist', name: 'javassist', version: '3.15.0-GA'
-
 }
 
 test {
