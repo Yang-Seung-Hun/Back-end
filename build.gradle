@@ -30,6 +30,7 @@ configurations {
 
 repositories {
     mavenCentral()
+
 }
 
 dependencies {
