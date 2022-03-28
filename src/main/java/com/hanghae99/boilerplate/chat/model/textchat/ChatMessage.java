@@ -20,5 +20,5 @@ public class ChatMessage extends Timestamped {
     private String message; // 메시지
     private Long agreeCount;
     private Long disagreeCount;
-    private LocalDateTime createdAt;
+    private String sentAt;
 }

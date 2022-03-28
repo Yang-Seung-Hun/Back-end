@@ -7,8 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -33,8 +31,6 @@ public class RedisSubscriber {
 
                 messagingTemplate.convertAndSend("/sub/chat/vote/" + chatMessage.getRoomId(), chatMessage);
             } else {
-                LocalDateTime now = LocalDateTime.now();
-                chatMessage.setCreatedAt(now);
                 messagingTemplate.convertAndSend("/sub/chat/room/" + chatMessage.getRoomId(), chatMessage);
             }
 
