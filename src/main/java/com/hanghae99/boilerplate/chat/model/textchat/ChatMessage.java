@@ -4,6 +4,8 @@ import com.hanghae99.boilerplate.chat.model.Timestamped;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 public class ChatMessage extends Timestamped {
@@ -18,4 +20,5 @@ public class ChatMessage extends Timestamped {
     private String message; // 메시지
     private Long agreeCount;
     private Long disagreeCount;
+    private LocalDateTime createdAt;
 }
