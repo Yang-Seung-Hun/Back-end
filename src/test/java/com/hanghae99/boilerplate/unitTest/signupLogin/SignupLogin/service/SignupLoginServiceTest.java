@@ -63,10 +63,9 @@ class SignupLoginServiceTest {
 
 
     @Test
-    @DisplayName("유저가 삭제 성공")
+    @DisplayName("유저 삭제 성공")
     void expireUser(){
         Mockito.when(memberRepository.findById(any())).thenReturn(Optional.ofNullable(member));
-        Mockito.doNothing().when(memberRepository).delete(any());
         Mockito.when(passwordEncoder.matches(any(),any())).thenReturn(true);
         signupLoginService.membershipWithdrawal(new MemberContext(member),signupReqestDto.getPassword());
     }

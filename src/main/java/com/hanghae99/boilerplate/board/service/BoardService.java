@@ -19,21 +19,21 @@ public interface BoardService {
 
     void deleteBoard(Long boardId);
 
-    void recommendBoard(Long boardId, MemberContext user);
+    ClickedDto recommendBoard(Long boardId, MemberContext user);
 
-    void agreeBoard(Long boardId, MemberContext user);
+    ClickedDto agreeBoard(Long boardId, MemberContext user);
 
-    void disagreeBoard(Long boardId, MemberContext user);
+    ClickedDto disagreeBoard(Long boardId, MemberContext user);
 
-    void createComment(CommentRequestDto commentRequestDto, MemberContext user);
+    CommentResponseDto createComment(CommentRequestDto commentRequestDto, MemberContext user);
 
     List<CommentResponseDto> showComments(Long boardId);
 
     void deleteComment(Long commentId);
 
-    void recommendComment(Long commentId, MemberContext user);
+    ClickedDto recommendComment(Long commentId, MemberContext user);
 
-    void createReply(Long commentId ,ReplyRequestDto replyRequestDto, MemberContext user) throws ExecutionException, InterruptedException, JsonProcessingException;
+    ReplyResponseDto createReply(Long commentId ,ReplyRequestDto replyRequestDto, MemberContext user) throws ExecutionException, InterruptedException, JsonProcessingException;
 
     List<ReplyResponseDto> showReplies(Long commentId);
 
@@ -46,5 +46,5 @@ public interface BoardService {
 
     List<BoardResponseDto> getMyWrittenBoard(MemberContext user);
 
-    void recommendReply(Long replyId, MemberContext user);
+    ClickedDto recommendReply(Long replyId, MemberContext user);
 }
