@@ -56,7 +56,7 @@ public class Comment {
                 .profileImageUrl(this.member.getProfileImageUrl())
                 .createdAt(this.createdAt)
                 .recommendCount(this.recommendCount)
-                .replyResponseDtoList(this.replies.stream().map(Reply::toDto).collect(Collectors.toList()))
+                //.replyResponseDtoList(this.replies.stream().map(Reply::toDto).collect(Collectors.toList()))
                 .build();
     }
 

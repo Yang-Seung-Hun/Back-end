@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
 @RequiredArgsConstructor
 @Service
 public class BoardServiceImpl implements BoardService {
@@ -132,7 +131,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public void recommendBoard(Long boardId, MemberContext user) {
+    public ClickedDto recommendBoard(Long boardId, MemberContext user) {
         Optional<Board> board = boardRepository.findById(boardId);
         Optional<Member> member = memberRepository.findById(user.getMemberId());
         Optional<RecommendBoard> recommendBoard = recommendBoardRepository.findByBoardAndMember(board.get(), member.get());
@@ -145,16 +144,20 @@ public class BoardServiceImpl implements BoardService {
 
             recommendBoardRepository.save(recommendBoard1);
             board.get().addRecommendCount();
+            return ClickedDto.builder().clicked(Boolean.TRUE).build();
+
         }else{
             recommendBoardRepository.deleteById(recommendBoard.get().getId());
             board.get().subtractRecommendCount();
+            return ClickedDto.builder().clicked(Boolean.FALSE).build();
+
 
         }
     }
 
     @Override
     @Transactional
-    public void agreeBoard(Long boardId, MemberContext user) {
+    public ClickedDto agreeBoard(Long boardId, MemberContext user) {
         Optional<Member> member = memberRepository.findById(user.getMemberId());
         Optional<Board> board = boardRepository.findById(boardId);
         Optional<Vote> vote = voteRepository.findByBoardAndMember(board.get(), member.get());
@@ -167,19 +170,24 @@ public class BoardServiceImpl implements BoardService {
                     .build();
             voteRepository.save(vote1);
             board.get().addAgreeCount();
+            return ClickedDto.builder().clicked(Boolean.TRUE).build();
         }else if (vote.get().getAgreed()){
             voteRepository.deleteById(vote.get().getId());
             board.get().subtractAgreeCount();
+            return ClickedDto.builder().clicked(Boolean.FALSE).build();
+
         }else{
             vote.get().setAgreed(Boolean.TRUE);
             board.get().addAgreeCount();
             board.get().subtractDisagreeCount();
+            return ClickedDto.builder().clicked(Boolean.FALSE).build();
+
         }
     }
 
     @Override
     @Transactional
-    public void disagreeBoard(Long boardId, MemberContext user) {
+    public ClickedDto disagreeBoard(Long boardId, MemberContext user) {
         Optional<Board> board = boardRepository.findById(boardId);
         Optional<Member> member = memberRepository.findById(user.getMemberId());
         Optional<Vote> vote = voteRepository.findByBoardAndMember(board.get(), member.get());
@@ -192,20 +200,26 @@ public class BoardServiceImpl implements BoardService {
                     .build();
             voteRepository.save(vote1);
             board.get().addDisagreeCount();
+            return ClickedDto.builder().clicked(Boolean.TRUE).build();
+
         }else if (vote.get().getAgreed()){
             vote.get().setAgreed(Boolean.FALSE);
             board.get().addDisagreeCount();
             board.get().subtractAgreeCount();
+            return ClickedDto.builder().clicked(Boolean.FALSE).build();
+
         }else{
             voteRepository.deleteById(vote.get().getId());
             board.get().subtractDisagreeCount();
+            return ClickedDto.builder().clicked(Boolean.FALSE).build();
+
         }
 
     }
 
     @Override
     @Transactional
-    public void createComment(CommentRequestDto commentRequestDto, MemberContext user) {
+    public CommentResponseDto createComment(CommentRequestDto commentRequestDto, MemberContext user) {
 
         Board board = boardRepository.findById(commentRequestDto.getBoardId()).orElse(new Board());
         Optional<Member> member = memberRepository.findById(user.getMemberId());
@@ -216,6 +230,8 @@ public class BoardServiceImpl implements BoardService {
                 .createdAt(LocalDateTime.now()).build();
 
         commentRepository.save(comment);
+        System.out.println(comment + "저장");
+        return comment.toDto();
 
     }
 
@@ -223,7 +239,11 @@ public class BoardServiceImpl implements BoardService {
     public List<CommentResponseDto> showComments(Long boardId){
 
 
+
+        //Optional<Board> board = boardRepository.findById(boardId);
         List<Board> board = boardRepository.findByIdJoinFetch(boardId);
+        //System.out.println(board.get().getContent() + "불러오기");
+        //System.out.println(board.get().getComments().get(0).getContent() + "불러오기");
 
         //N + 1 !!!
         return board.get(0).getComments().stream().map(Comment::toDto).collect(Collectors.toList());
@@ -241,7 +261,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public void recommendComment(Long commentId, MemberContext user) {
+    public ClickedDto recommendComment(Long commentId, MemberContext user) {
         Optional<Member> member = memberRepository.findById(user.getMemberId());
 
         Optional<Comment> comment = commentRepository.findById(commentId);
@@ -255,15 +275,19 @@ public class BoardServiceImpl implements BoardService {
 
             recommendCommentRepository.save(recommendComment1);
             comment.get().addRecommendCount();
+            return ClickedDto.builder().clicked(Boolean.TRUE).build();
+
         }else{
             recommendCommentRepository.deleteById(recommendComment.get().getId());
             comment.get().subtractRecommendCount();
+            return ClickedDto.builder().clicked(Boolean.FALSE).build();
+
         }
     }
 
     @Override
     @Transactional
-    public void createReply(Long commentId, ReplyRequestDto replyRequestDto, MemberContext user) throws ExecutionException, InterruptedException, JsonProcessingException {
+    public ReplyResponseDto createReply(Long commentId, ReplyRequestDto replyRequestDto, MemberContext user) throws ExecutionException, InterruptedException, JsonProcessingException {
         Optional<Comment> comment = commentRepository.findById(commentId);
         Optional<Member> member = memberRepository.findById(user.getMemberId());
 
@@ -280,6 +304,8 @@ public class BoardServiceImpl implements BoardService {
         //push
         System.out.println(comment.get().getMember().getNickname());
         fcmService.sendMessageTo(comment.get().getMember().getId(), "댓글 Notification",  comment.get().getContent() + "에 대댓글이 달렸습니다");
+
+        return reply.toDto();
     }
 
     @Override
@@ -422,8 +448,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    //@Transactional
-    public void recommendReply(Long replyId, MemberContext user){
+    public ClickedDto recommendReply(Long replyId, MemberContext user){
         Optional<Member> member = memberRepository.findById(user.getMemberId());
 
         Optional<Reply> reply = replyRepository.findById(replyId);
@@ -438,14 +463,19 @@ public class BoardServiceImpl implements BoardService {
             System.out.println("추천수 더하기");
             System.out.println(reply.get().getRecommendCount());
             recommendReplyRepository.save(recommendReply1);
+            return ClickedDto.builder().clicked(Boolean.TRUE).build();
+
         }else{
             reply.get().subtractRecommendCount();
             System.out.println("추천수 빼기");
             System.out.println(reply.get().getRecommendCount());
             recommendReplyRepository.deleteById(recommendReply.get().getId());
+            return ClickedDto.builder().clicked(Boolean.FALSE).build();
+
 
         }
 
     }
+
 
 }

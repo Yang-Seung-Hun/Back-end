@@ -60,22 +60,23 @@ public class BoardController {
     }
 
     @GetMapping("/api/board/agree/{boardId}") //찬성, 취소
-    public BaseResponse agreeBoard(@PathVariable Long boardId, @AuthenticationPrincipal MemberContext user){
-        boardService.agreeBoard(boardId, user);
-        return new BaseResponse("ok");
+    public ClickedDto agreeBoard(@PathVariable Long boardId, @AuthenticationPrincipal MemberContext user){
+        return boardService.agreeBoard(boardId, user);
+        //return new BaseResponse("ok");
     }
 
     @GetMapping("/api/board/disagree/{boardId}")
-    public BaseResponse disagreeBoard(@PathVariable Long boardId, @AuthenticationPrincipal MemberContext user){
-        boardService.disagreeBoard(boardId, user);
-        return new BaseResponse("ok");
+    public ClickedDto disagreeBoard(@PathVariable Long boardId, @AuthenticationPrincipal MemberContext user){
+        return boardService.disagreeBoard(boardId, user);
+        //return new BaseResponse("ok");
     }
 
     @GetMapping("/api/board/recommend/{boardId}")
-    public BaseResponse recommendBoard(@PathVariable Long boardId, @AuthenticationPrincipal MemberContext user){
-        boardService.recommendBoard(boardId, user);
-        return new BaseResponse("ok");
+    public ClickedDto recommendBoard(@PathVariable Long boardId, @AuthenticationPrincipal MemberContext user){
+        return boardService.recommendBoard(boardId, user);
+        //return new BaseResponse("ok");
     }
+
 
     @DeleteMapping("/api/board/{boardId}")
     public BaseResponse deleteBoard(@PathVariable Long boardId){
@@ -84,9 +85,9 @@ public class BoardController {
     }
 
     @PostMapping("/api/comment")
-    public BaseResponse createComment(@RequestBody CommentRequestDto commentRequestDto, @AuthenticationPrincipal MemberContext user){
-        boardService.createComment(commentRequestDto, user);
-        return new BaseResponse("ok");
+    public CommentResponseDto createComment(@RequestBody CommentRequestDto commentRequestDto, @AuthenticationPrincipal MemberContext user){
+        return boardService.createComment(commentRequestDto, user);
+        //return new BaseResponse("ok");
     }
 
     @GetMapping("/api/comment/{boardId}")
@@ -101,18 +102,18 @@ public class BoardController {
     }
 
     @GetMapping("/api/comment/recommend/{commentId}")
-    public BaseResponse recommendComment(@PathVariable Long commentId,@AuthenticationPrincipal MemberContext user){
-        boardService.recommendComment(commentId, user);
-        return new BaseResponse("ok");
+    public ClickedDto recommendComment(@PathVariable Long commentId,@AuthenticationPrincipal MemberContext user){
+        return boardService.recommendComment(commentId, user);
+        //return new BaseResponse("ok");
 
     }
 
     //대댓글 달기
     @PostMapping("/api/comment/{commentId}/reply")
-    public BaseResponse createReply(@PathVariable Long commentId ,@RequestBody ReplyRequestDto replyRequestDto, @AuthenticationPrincipal MemberContext user) throws ExecutionException, InterruptedException, JsonProcessingException {
+    public ReplyResponseDto createReply(@PathVariable Long commentId ,@RequestBody ReplyRequestDto replyRequestDto, @AuthenticationPrincipal MemberContext user) throws ExecutionException, InterruptedException, JsonProcessingException {
 
-        boardService.createReply(commentId, replyRequestDto, user);
-        return new BaseResponse("ok");
+        return boardService.createReply(commentId, replyRequestDto, user);
+        //return new BaseResponse("ok");
     }
     //대댓글 보기
 
@@ -143,11 +144,11 @@ public class BoardController {
 
     //대댓글 추천
     @GetMapping("/api/comment/{commentId}/reply/recommend/{replyId}")
-    public BaseResponse recommendReplay(@PathVariable Long commentId, @PathVariable Long replyId, @AuthenticationPrincipal MemberContext user){
+    public ClickedDto recommendReplay(@PathVariable Long commentId, @PathVariable Long replyId, @AuthenticationPrincipal MemberContext user){
 
-        boardService.recommendReply(replyId, user);
+        return boardService.recommendReply(replyId, user);
 
-        return new BaseResponse("ok");
+        //return new BaseResponse("ok");
     }
 
 
