@@ -38,11 +38,11 @@ public class SignupLoginService {
         return new MemberContext(member);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public void membershipWithdrawal(MemberContext memberContext, String password) {
         Member member = memberRepository.findById(memberContext.getMemberId()).orElseThrow(() -> new UsernameNotFoundException(memberContext.getUsername() + " not exist"));
         if (isSamePassword(password, member.getPassword())) {
-            memberRepository.delete(member);
+            memberRepository.deleteById(member.getId());
         }
     }
 
