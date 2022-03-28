@@ -110,7 +110,7 @@ public class SignupTest extends Config {
                         .content(objectMapper.writeValueAsString(normalSignupReqestDto)))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/user/check/email")
+        mockMvc.perform(get("/api/user/check/Email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(email))
                 .andExpect(status().isOk())
@@ -121,7 +121,7 @@ public class SignupTest extends Config {
     @Test
     void 이메일중복체크false() throws Exception {
 
-        mockMvc.perform(get("/api/user/check/email")
+        mockMvc.perform(get("/api/user/check/Email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(email))
                 .andExpect(status().isOk())

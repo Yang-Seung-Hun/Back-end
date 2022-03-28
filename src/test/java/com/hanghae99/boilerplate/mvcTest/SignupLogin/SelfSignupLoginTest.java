@@ -140,7 +140,7 @@ public class SelfSignupLoginTest extends Config {
     void 이메일이중복된경우true() throws Exception {
         Mockito.when(signupLoginService.DuplicatesEmail(any())).thenReturn(true);
         String email = "{ \"email\" : \"email@namver.com\"  }";
-        mockMvc.perform(get("/api/user/check/email")
+        mockMvc.perform(get("/api/user/check/Email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(email))
                 .andExpect(status().isOk())
@@ -153,7 +153,7 @@ public class SelfSignupLoginTest extends Config {
     void 이메일중복x() throws Exception {
         Mockito.when(signupLoginService.DuplicatesEmail(any())).thenReturn(false);
         String email = "{ \"email\" : \"email@namver.com\"  }";
-        mockMvc.perform(get("/api/user/check/email")
+        mockMvc.perform(get("/api/user/check/Email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(email)
                 )
