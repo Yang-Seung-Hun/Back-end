@@ -20,7 +20,8 @@ import java.util.concurrent.ExecutionException;
 @RequiredArgsConstructor
 @RequestMapping("/auth")
 public class BoardController {
-    private final BoardService boardService;
+    private final BoardService boardService; // dfd
+
 
     @GetMapping("/api/board/myboard")
     public List<BoardResponseDto> getMyBoard(@AuthenticationPrincipal MemberContext user){
