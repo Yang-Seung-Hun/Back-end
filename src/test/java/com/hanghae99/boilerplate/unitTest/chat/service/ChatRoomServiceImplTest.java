@@ -59,26 +59,26 @@ class ChatRoomServiceImplTest {
         assertThat(expectedExceptionMessage).isEqualTo("해당 ID의 회원이 존재하지 않습니다.");
     }
 
-    @Test
-    @Transactional
-    @DisplayName("채팅방 종료 - MODERATOR가 아닐 경우")
-    void closeRoomByUnqualified() throws Exception {
-        //given
-        ChatCloseDto chatCloseDto = new ChatCloseDto();
-        chatCloseDto.setRole(ChatRole.SUBSCRIBER);
-        MemberContext member = new MemberContext();
-
-        //when
-        String expectedExceptionMessage = "";
-        try {
-            chatRoomServiceImpl.closeRoom(chatCloseDto, member);
-        } catch (IllegalArgumentException e) {
-            expectedExceptionMessage = e.getMessage();
-        }
-
-        //then
-        assertThat(expectedExceptionMessage).isEqualTo("방장만이 방을 삭제할 수 있습니다.");
-    }
+//    @Test
+//    @Transactional
+//    @DisplayName("채팅방 종료 - MODERATOR가 아닐 경우")
+//    void closeRoomByUnqualified() throws Exception {
+//        //given
+//        ChatCloseDto chatCloseDto = new ChatCloseDto();
+//        chatCloseDto.setRole(ChatRole.SUBSCRIBER);
+//        MemberContext member = new MemberContext();
+//
+//        //when
+//        String expectedExceptionMessage = "";
+//        try {
+//            chatRoomServiceImpl.closeRoom(chatCloseDto, member);
+//        } catch (IllegalArgumentException e) {
+//            expectedExceptionMessage = e.getMessage();
+//        }
+//
+//        //then
+//        assertThat(expectedExceptionMessage).isEqualTo("방장만이 방을 삭제할 수 있습니다.");
+//    }
 
 
 
