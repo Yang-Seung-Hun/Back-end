@@ -28,9 +28,7 @@ public class ChatController {
     public void vote(ChatMessage chatMessage) {
         String roomId = chatMessage.getRoomId().toString();
         switch (chatMessage.getType()) {
-            case ENTER:
-                log.info("ENTER: {}", chatMessage.getSender());
-                break;
+
             case AGREE:
                 log.info("AGREE: {}", chatMessage.getSender());
                 Long afterAgree = redisChatRoomRepository.addAgree(roomId);
@@ -51,12 +49,10 @@ public class ChatController {
                 break;
             case CANCEL_DISAGREE:
                 log.info("CANCEL_DISAGREE: {}", chatMessage.getSender());
+
                 Long afterCancelDisagree = redisChatRoomRepository.subDisagree(roomId);
                 chatMessage.setDisagreeCount(afterCancelDisagree);
                 chatMessage.setAgreeCount(redisChatRoomRepository.reportAgreeCount(roomId));
-                break;
-            case LEAVE:
-                log.info("LEAVE: {}", chatMessage.getSender());
                 break;
         }
 
@@ -70,40 +66,6 @@ public class ChatController {
     // 구독자(subscriber)에 대한 구현은 따로 서버에서 할 필요가 없음 - 웹뷰에서 stomp 라이브러리를 이용해 subscriber 주소를 바라보고 있도록 하면 됨.
     public void message(ChatMessage chatMessage) {
         String roomId = chatMessage.getRoomId().toString();
-
-//        switch (chatMessage.getType()) {
-//            case ENTER:
-//                log.info("ENTER: {}", chatMessage.getSender());
-//                break;
-//            case AGREE:
-//                log.info("AGREE: {}", chatMessage.getSender());
-//                Long afterAgree = redisChatRoomRepository.addAgree(roomId);
-//                chatMessage.setAgreeCount(afterAgree);
-//                chatMessage.setDisagreeCount(redisChatRoomRepository.reportDisagreeCount(roomId));
-//                break;
-//            case CANCEL_AGREE:
-//                log.info("CANCEL_AGREE: {}", chatMessage.getSender());
-//                Long afterCancelAgree = redisChatRoomRepository.subAgree(roomId);
-//                chatMessage.setAgreeCount(afterCancelAgree);
-//                chatMessage.setDisagreeCount(redisChatRoomRepository.reportDisagreeCount(roomId));
-//                break;
-//            case DISAGREE:
-//                log.info("DISAGREE: {}", chatMessage.getSender());
-//                Long afterDisagree = redisChatRoomRepository.addDisagree(roomId);
-//                chatMessage.setDisagreeCount(afterDisagree);
-//                chatMessage.setAgreeCount(redisChatRoomRepository.reportAgreeCount(roomId));
-//                break;
-//            case CANCEL_DISAGREE:
-//                log.info("CANCEL_DISAGREE: {}", chatMessage.getSender());
-//                Long afterCancelDisagree = redisChatRoomRepository.subDisagree(roomId);
-//                chatMessage.setDisagreeCount(afterCancelDisagree);
-//                chatMessage.setAgreeCount(redisChatRoomRepository.reportAgreeCount(roomId));
-//                break;
-//            case LEAVE:
-//                log.info("LEAVE: {}", chatMessage.getSender());
-//                break;
-//        }
-
         redisTemplate.convertAndSend(channelTopic.getTopic(), chatMessage);
     }
 

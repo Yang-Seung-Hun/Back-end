@@ -3,6 +3,7 @@ package com.hanghae99.boilerplate.chat.model.dto;
 import com.hanghae99.boilerplate.chat.model.ChatRole;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.Set;
 
 @Data
 @Getter
+@NoArgsConstructor
 public class ChatRoomCreateResDto  {
     private Long roomId;
     private String roomName;

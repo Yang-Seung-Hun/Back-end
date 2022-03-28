@@ -23,8 +23,6 @@ public class ChatRoomController {
     // 채팅방 생성
     @PostMapping("/auth/api/chat/room")
     public ResponseEntity<ChatRoomCreateResDto> createRoom(@RequestBody CreateChatRoomDto createChatRoomDto, @AuthenticationPrincipal MemberContext user) {
-//        return traceTemplate.execute("ChatRoomController.createRoom()",
-//                () -> ResponseEntity.ok().body(chatRoomService.createChatRoom(createChatRoomDto, user)));
         return ResponseEntity.ok().body(chatRoomService.createChatRoom(createChatRoomDto, user));
     }
 
@@ -44,8 +42,6 @@ public class ChatRoomController {
     // 채팅방 종료
     @PostMapping("/auth/api/chat/room/close")
     public ResponseEntity<ChatRoomRedisDto> closeRoom(@RequestBody ChatCloseDto closeDto, @AuthenticationPrincipal MemberContext user) {
-//        return traceTemplate.execute("ChatRoomController.createRoom()", () ->
-//                ResponseEntity.ok().body(chatRoomService.closeRoom(closeDto, user)));
         return ResponseEntity.ok().body(chatRoomService.closeRoom(closeDto, user));
     }
 
@@ -53,24 +49,18 @@ public class ChatRoomController {
     // 진행 중인 채팅방 조회
     @GetMapping("/api/chat/rooms/onair")
     public ResponseEntity<List<ChatRoomRedisDto>> findOnair() {
-//        return traceTemplate.execute("ChatRoomController.findOnair()", () ->
-//                ResponseEntity.ok().body(chatRoomService.findOnAirChatRooms()));
         return ResponseEntity.ok().body(chatRoomService.findOnAirChatRooms());
     }
 
     // 카테고리별 조회
     @GetMapping("/api/chat/rooms/onair/category/{category}")
     public ResponseEntity<List<ChatRoomRedisDto>> findOnAirChatRoomsByCategory(@PathVariable String category) {
-//        return traceTemplate.execute("ChatRoomController.findOnAirChatRoomsByCategory()",
-//                () -> ResponseEntity.ok().body(chatRoomService.findOnAirChatRoomsByCategory(category)));
         return ResponseEntity.ok().body(chatRoomService.findOnAirChatRoomsByCategory(category));
     }
 
     // 키워드 조회
     @GetMapping("/api/chat/rooms/onair/keyword/{keyword}")
     public ResponseEntity<List<ChatRoomRedisDto>> findOnAirChatRoomsByKeyword(@PathVariable String keyword) {
-//        return traceTemplate.execute("ChatRoomController.findOnAirChatRoomsByKeyword()",
-//                () -> ResponseEntity.ok().body(chatRoomService.findOnAirChatRoomsByKeyword(keyword)));
         return ResponseEntity.ok().body(chatRoomService.findOnAirChatRoomsByKeyword(keyword));
     }
 

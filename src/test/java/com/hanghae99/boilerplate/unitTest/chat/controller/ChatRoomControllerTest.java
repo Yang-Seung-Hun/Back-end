@@ -1,5 +1,6 @@
-package com.hanghae99.boilerplate.mvcTest.chat.controller;
+package com.hanghae99.boilerplate.unitTest.chat.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae99.boilerplate.chat.controller.ChatRoomController;
 import com.hanghae99.boilerplate.chat.model.dto.ChatRoomRedisDto;
 import com.hanghae99.boilerplate.chat.service.ChatRoomService;
@@ -10,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.ArrayList;
@@ -27,6 +29,8 @@ public class ChatRoomControllerTest {
     ChatRoomController chatRoomController;
 
     private MockMvc mockMvc;
+
+    ObjectMapper mapper;
 
     @BeforeEach
     public void setup() {
@@ -60,5 +64,30 @@ public class ChatRoomControllerTest {
                 .andExpect(jsonPath(expectByRoomId, "3").doesNotExist());
     }
 
+    @Test
+    @DisplayName("키워드 조회 OK")
+    public void byKeyword() throws Exception {
+        //given
+        String keyword = "test";
+        List<ChatRoomRedisDto> list = new ArrayList<>();
+        ChatRoomRedisDto redisDto1 = new ChatRoomRedisDto();
+        redisDto1.setRoomName("test1");
+        ChatRoomRedisDto redisDto2 = new ChatRoomRedisDto();
+        redisDto2.setRoomName("test2");
+        list.add(redisDto1);
+        list.add(redisDto2);
 
+        //when
+        when(chatRoomService.findOnAirChatRoomsByKeyword(keyword)).thenReturn(list);
+        String expectByRoomName = "$.[?(@.roomName == '%s')]";
+
+        //then
+        mockMvc.perform(get("/api/chat/rooms/onair/keyword/test"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath(expectByRoomName, "test1").exists())
+                .andExpect(jsonPath(expectByRoomName, "test2").exists())
+                .andExpect(jsonPath(expectByRoomName, "doesNotExist").doesNotExist())
+                .andDo(MockMvcResultHandlers.print());
+    }
 }

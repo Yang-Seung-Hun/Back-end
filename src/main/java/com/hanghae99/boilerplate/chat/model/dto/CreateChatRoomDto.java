@@ -14,4 +14,13 @@ public class CreateChatRoomDto {
     private Long maxParticipantCount;
     private String content;
     private Boolean isPrivate;
+
+    public CreateChatRoomDto(String roomName, String category, String moderator, Long maxParticipantCount, String content, Boolean isPrivate) {
+        this.roomName = roomName;
+        this.category = category;
+        this.moderator = moderator;
+        this.maxParticipantCount = maxParticipantCount;
+        this.content = content;
+        this.isPrivate = isPrivate;
+    }
 }
