@@ -21,4 +21,5 @@ public class ChatMessage extends Timestamped {
     private Long agreeCount;
     private Long disagreeCount;
     private String sentAt;
+    private String profileUrl;
 }
