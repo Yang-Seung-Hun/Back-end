@@ -27,30 +27,34 @@ public class ChatController {
 //    /pub/chat/vote
     public void vote(ChatMessage chatMessage) {
         String roomId = chatMessage.getRoomId().toString();
+        String memberName = chatMessage.getSender();
+
         switch (chatMessage.getType()) {
 
             case AGREE:
                 log.info("AGREE: {}", chatMessage.getSender());
-                Long afterAgree = redisChatRoomRepository.addAgree(roomId);
+                Long afterAgree = redisChatRoomRepository.addAgree(roomId, memberName);
                 chatMessage.setAgreeCount(afterAgree);
                 chatMessage.setDisagreeCount(redisChatRoomRepository.reportDisagreeCount(roomId));
                 break;
+
             case CANCEL_AGREE:
                 log.info("CANCEL_AGREE: {}", chatMessage.getSender());
-                Long afterCancelAgree = redisChatRoomRepository.subAgree(roomId);
+                Long afterCancelAgree = redisChatRoomRepository.subAgree(roomId, memberName);
                 chatMessage.setAgreeCount(afterCancelAgree);
                 chatMessage.setDisagreeCount(redisChatRoomRepository.reportDisagreeCount(roomId));
                 break;
+
             case DISAGREE:
                 log.info("DISAGREE: {}", chatMessage.getSender());
-                Long afterDisagree = redisChatRoomRepository.addDisagree(roomId);
+                Long afterDisagree = redisChatRoomRepository.addDisagree(roomId, memberName);
                 chatMessage.setDisagreeCount(afterDisagree);
                 chatMessage.setAgreeCount(redisChatRoomRepository.reportAgreeCount(roomId));
                 break;
             case CANCEL_DISAGREE:
                 log.info("CANCEL_DISAGREE: {}", chatMessage.getSender());
 
-                Long afterCancelDisagree = redisChatRoomRepository.subDisagree(roomId);
+                Long afterCancelDisagree = redisChatRoomRepository.subDisagree(roomId, memberName);
                 chatMessage.setDisagreeCount(afterCancelDisagree);
                 chatMessage.setAgreeCount(redisChatRoomRepository.reportAgreeCount(roomId));
                 break;
