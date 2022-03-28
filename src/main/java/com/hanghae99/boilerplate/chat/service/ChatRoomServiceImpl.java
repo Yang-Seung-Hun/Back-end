@@ -41,20 +41,41 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Override
     @Transactional
     public ChatRoomCreateResDto createChatRoom(CreateChatRoomDto createChatRoomDto, MemberContext user) {
-//        return traceTemplate.execute("ChatRoomServiceImpl.createChatRoom()", () -> {
-            Optional<Member> optionalMember = memberRepository.findById(user.getMemberId());
-            validateMember(optionalMember);
-            Member member = optionalMember.get();
-            ChatRoom room = new ChatRoom(createChatRoomDto, member);
-            //db
-            chatRoomRepository.save(room);
-            //redis
-            ChatRoomRedisDto chatRoomRedisDto = redisChatRoomRepository.createChatRoom(room.getRoomId().toString(), room);
-            ChatRoomCreateResDto chatRoomCreateResDto = new ChatRoomCreateResDto(chatRoomRedisDto);
-            chatRoomCreateResDto.setMemberName(createChatRoomDto.getModerator());
-            chatRoomCreateResDto.setRole(ChatRole.MODERATOR);
-            return chatRoomCreateResDto;
+        Optional<Member> optionalMember = memberRepository.findById(user.getMemberId());
+        validateMember(optionalMember);
+        Member member = optionalMember.get();
+
+        // createChatRoomDto 검증
+        validateCreateChatRoomDto(createChatRoomDto);
+
+        ChatRoom room = new ChatRoom(createChatRoomDto, member);
+        //db
+        chatRoomRepository.save(room);
+        //redis
+        ChatRoomRedisDto chatRoomRedisDto = redisChatRoomRepository.createChatRoom(room.getRoomId().toString(), room);
+        ChatRoomCreateResDto chatRoomCreateResDto = new ChatRoomCreateResDto(chatRoomRedisDto);
+        chatRoomCreateResDto.setMemberName(createChatRoomDto.getModerator());
+        chatRoomCreateResDto.setRole(ChatRole.MODERATOR);
+        return chatRoomCreateResDto;
 //        });
+    }
+
+    private void validateCreateChatRoomDto(CreateChatRoomDto createChatRoomDto) {
+        if (createChatRoomDto.getRoomName() == null || createChatRoomDto.getRoomName().strip().equals("")) {
+            throw new IllegalArgumentException("개설하려는 방의 정보를 입력해주세요.");
+        }
+        if (createChatRoomDto.getCategory() == null || createChatRoomDto.getCategory().strip().equals("")) {
+            throw new IllegalArgumentException("개설하려는 방의 카테고리를 입력해주세요.");
+        }
+        if (createChatRoomDto.getModerator() == null || createChatRoomDto.getModerator().strip().equals("")) {
+            throw new IllegalArgumentException("방장 정보를 입력해주세요.");
+        }
+        if (createChatRoomDto.getContent() == null || createChatRoomDto.getContent().strip().equals("")) {
+            throw new IllegalArgumentException("개설하려는 방에 대한 소개글을 입력해주세요.");
+        }
+        if (createChatRoomDto.getMaxParticipantCount() == null) {
+            throw new IllegalArgumentException("개설하려는 방의 최대참여인원을 입력해주세요");
+        }
     }
 
     // 채팅방 입장 ( redis )
@@ -63,10 +84,29 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         Optional<Member> findMember = memberRepository.findById(user.getMemberId());
         validateMember(findMember);
         Member member = findMember.get();
+        // entryDto 검증
+
+        validateEntryDto(entryDto);
+
         ChatRoomEntryResDto entryResDto = redisChatRoomRepository.addParticipant(entryDto.getRoomId().toString(), member);
         entryResDto.setMemberName(entryDto.getMemberName());
         entryResDto.setRole(entryDto.getRole());
         return entryResDto;
+    }
+
+    private void validateEntryDto(ChatEntryDto entryDto) {
+        if (entryDto.getRoomId() == null) {
+            throw new IllegalArgumentException("입장하려는 방의 roomId를 입력해주세요.");
+        }
+        if (entryDto.getMemberName() == null || entryDto.getMemberName().strip().equals("")) {
+            throw new IllegalArgumentException("참여자의 닉네임을 입력해주세요.");
+        }
+        if (entryDto.getRole() == null) {
+            throw new IllegalArgumentException("참여자의 역할을 입력해주세요.");
+        }
+        if (entryDto.getParticipantCount() == null) {
+            throw new IllegalArgumentException("참여하려는 방의 최대참여인원을 입력해주세요");
+        }
     }
 
     // 채팅방 퇴장 ( redis )
@@ -74,9 +114,26 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     public ChatRoomRedisDto leaveParticipant(ChatLeaveDto leaveDto, MemberContext user) {
         Optional<Member> findMember = memberRepository.findById(user.getMemberId());
         validateMember(findMember);
-        log.info("퇴장하려는 사람의 nickname: {}, role: {}", findMember.get().getNickname(), leaveDto.getRole());
 
+        validateLeaveDto(leaveDto);
+
+        log.info("퇴장하려는 사람의 nickname: {}, role: {}", findMember.get().getNickname(), leaveDto.getRole());
         return redisChatRoomRepository.subParticipant(leaveDto.getRoomId().toString(), findMember.get(), leaveDto);
+    }
+
+    private void validateLeaveDto(ChatLeaveDto leaveDto) {
+        if (leaveDto.getRoomId() == null) {
+            throw new IllegalArgumentException("퇴장하려는 방의 roomId를 입력해주세요.");
+        }
+        if (leaveDto.getMemberName() == null || leaveDto.getMemberName().strip().equals("")) {
+            throw new IllegalArgumentException("퇴장하려는 회원의 닉네임을 입력해주세요.");
+        }
+        if (leaveDto.getAgreed() == null) {
+            throw new IllegalArgumentException("최종 찬성 여부를 입력해주세요.");
+        }
+        if (leaveDto.getDisagreed() == null) {
+            throw new IllegalArgumentException("최종 반대 여부를 입력해주세요.");
+        }
     }
 
     // 채팅방 종료 ( redis , -> db update )
@@ -84,18 +141,32 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Transactional
     public ChatRoomRedisDto closeRoom(ChatCloseDto chatCloseDto, @AuthenticationPrincipal MemberContext user) {
 
-        if (!ChatRole.MODERATOR.equals(chatCloseDto.getRole())) {
-            throw new IllegalArgumentException("방장만이 방을 삭제할 수 있습니다.");
-        }
+        Optional<Member> findMember = memberRepository.findById(user.getMemberId());
+        validateMember(findMember);
+
+        // closeDto null 체크
+        validateCloseDto(chatCloseDto);
 
         // 방 존재하는지 확인
         Long roomId = chatCloseDto.getRoomId();
         Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findById(roomId);
         validateChatRoom(optionalChatRoom);
+        Optional<ChatRoomRedisDto> optionalChatRoomRedisDto = Optional.ofNullable(redisChatRoomRepository.findChatRoomRedisDtoById(roomId.toString()));
+        if (optionalChatRoomRedisDto == null) {
+            throw new IllegalArgumentException("이미 종료된 방입니다.");
+        }
         ChatRoom room = optionalChatRoom.get();
+
         // 이미 종료되었는지 확인
         if (room.getOnAir() == false) {
             throw new IllegalArgumentException("이미 종료된 방입니다.");
+        }
+
+        // 권한 확인
+        if (!ChatRole.MODERATOR.equals(chatCloseDto.getRole()) ||
+                !optionalChatRoomRedisDto.get().getModeratorNickname().equals(user.getNickname())
+        ) {
+            throw new IllegalArgumentException("방장만이 방을 종료할 수 있습니다.");
         }
 
         Long agreeCount = redisChatRoomRepository.reportAgreeCount(roomId.toString());
@@ -126,35 +197,44 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         return chatRoomRedisDto;
     }
 
+    private void validateCloseDto(ChatCloseDto chatCloseDto) {
+        if (chatCloseDto.getRoomId() == null) {
+            throw new IllegalArgumentException("종료하려는 방의 roomId를 입력해주세요.");
+        }
+        if (chatCloseDto.getMemberName() == null || chatCloseDto.getMemberName().strip().equals("")) {
+            throw new IllegalArgumentException("퇴장하려는 회원의 닉네임을 입력해주세요.");
+        }
+        if (chatCloseDto.getRole() == null) {
+            throw new IllegalArgumentException("방을 종료하려는 사용자의 역할을 입력해주세요.");
+        }
+    }
+
 //    ************************* 라이브 채팅방 조회 (from redis) **************************
 
     // 라이브 채팅방 조회 : 전체  ( redis )
     @Override
     public List<ChatRoomRedisDto> findOnAirChatRooms() {
-//        return traceTemplate.execute("ChatRoomServiceImpl.findOnAirChatRooms()", () -> {
-            List<ChatRoomRedisDto> allRoomsOnAir = redisChatRoomRepository.findAllRoom();
-            Collections.sort(allRoomsOnAir, comparator);
-            return allRoomsOnAir;
+        List<ChatRoomRedisDto> allRoomsOnAir = redisChatRoomRepository.findAllRoom();
+        Collections.sort(allRoomsOnAir, comparator);
+        return allRoomsOnAir;
 //        });
     }
 
     // 라이브 채팅방 조회 : 카테고리  ( redis )
     @Override
     public List<ChatRoomRedisDto> findOnAirChatRoomsByCategory(String category) {
-//        return traceTemplate.execute("ChatRoomServiceImpl.findOnAirChatRoomsByCategory()", () -> {
-            List<ChatRoomRedisDto> chatRoomRedisDtos = redisChatRoomRepository.findByCategory(category);
-            Collections.sort(chatRoomRedisDtos, comparator);
-            return chatRoomRedisDtos;
+        List<ChatRoomRedisDto> chatRoomRedisDtos = redisChatRoomRepository.findByCategory(category);
+        Collections.sort(chatRoomRedisDtos, comparator);
+        return chatRoomRedisDtos;
 //        });
     }
 
     // 라이브 채팅방 조회 : 키워드  ( redis )
     @Override
     public List<ChatRoomRedisDto> findOnAirChatRoomsByKeyword(String keyword) {
-//        return traceTemplate.execute("ChatRoomServiceImpl.findOnAirChatRoomsByKeyword()", () -> {
-            List<ChatRoomRedisDto> chatRoomRedisDtos = redisChatRoomRepository.findByKeyword(keyword);
-            Collections.sort(chatRoomRedisDtos, comparator);
-            return chatRoomRedisDtos;
+        List<ChatRoomRedisDto> chatRoomRedisDtos = redisChatRoomRepository.findByKeyword(keyword);
+        Collections.sort(chatRoomRedisDtos, comparator);
+        return chatRoomRedisDtos;
 //        });
     }
 
