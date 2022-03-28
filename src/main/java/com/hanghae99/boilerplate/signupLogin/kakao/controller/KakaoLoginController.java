@@ -15,7 +15,6 @@ import java.io.IOException;
 
 @RestController
 @Slf4j
-
 public class KakaoLoginController {
 
     @Autowired
